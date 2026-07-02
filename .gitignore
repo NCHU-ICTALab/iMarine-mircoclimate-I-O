@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+*規格書*.md
+codex_*_prompt.md
+.agents/
+.codex/
