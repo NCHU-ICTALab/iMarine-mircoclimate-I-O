@@ -1,0 +1,63 @@
+{
+  "station_id": "C4Q02",
+  "target_group": "tide_level",
+  "model_version": "baseline_lstm_v1",
+  "test_windows": 6,
+  "beats_persistence": false,
+  "accuracy_grade": {
+    "tide_level": {
+      "H1": "poor",
+      "H2": "poor",
+      "H3": "poor",
+      "H4": "acceptable"
+    }
+  },
+  "variables": {
+    "tide_level": {
+      "H1": {
+        "mae": 23.98025742266327,
+        "rmse": 26.373307613203202,
+        "bias": 23.98025742266327,
+        "mape": 150.40944902220212,
+        "r2": -2.6054498271695934,
+        "persistence_mae": 7.166666708265741,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H2": {
+        "mae": 12.318658789930245,
+        "rmse": 14.883489672596017,
+        "bias": 10.549906552769244,
+        "mape": 84.89608421210112,
+        "r2": -0.14825883745271073,
+        "persistence_mae": 7.166666708265741,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H3": {
+        "mae": 15.28165837439398,
+        "rmse": 19.11789136907962,
+        "bias": 11.851700646802783,
+        "mape": 84.88667571759932,
+        "r2": -0.6544417627928674,
+        "persistence_mae": 13.833333572062353,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H4": {
+        "mae": 16.375390517835815,
+        "rmse": 20.664335769974947,
+        "bias": 13.945947466418147,
+        "mape": 91.2064017551843,
+        "r2": -0.9329223387320624,
+        "persistence_mae": 13.833333572062353,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "acceptable"
+      }
+    }
+  }
+}

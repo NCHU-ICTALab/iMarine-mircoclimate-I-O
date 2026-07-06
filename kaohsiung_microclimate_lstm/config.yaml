@@ -1,0 +1,44 @@
+time_step_minutes: 10
+lookback_hours: 12
+horizon_minutes: 120
+anchor_offsets_minutes:
+  - 30
+  - 60
+  - 90
+  - 120
+
+targets:
+  wind_speed_gust:
+    variables: [wind_speed, wind_gust]
+    model_type: multitask_lstm
+  precipitation:
+    variables: [precipitation_1hr]
+    model_type: twostage_lstm
+  tide_level:
+    variables: [tide_level]
+    model_type: lstm
+  visibility:
+    variables: [visibility]
+    model_type: lstm
+    skip_if_missing: true
+
+model:
+  hidden_size_1: 128
+  hidden_size_2: 64
+  dropout: 0.2
+
+training:
+  batch_size: 64
+  max_epochs: 150
+  learning_rate: 0.001
+  lr_scheduler_patience: 7
+  lr_scheduler_factor: 0.5
+  early_stopping_patience: 15
+  gradient_clip: 1.0
+  random_seed: 42
+
+data:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+  min_valid_ratio: 0.70

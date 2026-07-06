@@ -1,0 +1,75 @@
+{
+  "station_id": "467441",
+  "target_group": "precipitation",
+  "model_version": "baseline_lstm_v1",
+  "test_windows": 270,
+  "beats_persistence": true,
+  "accuracy_grade": {
+    "precipitation_1hr": {
+      "H1": "poor",
+      "H2": "poor",
+      "H3": "poor",
+      "H4": "poor"
+    }
+  },
+  "variables": {
+    "precipitation_1hr": {
+      "H1": {
+        "mae": 1.442592614971929,
+        "rmse": 5.790557507881972,
+        "bias": -1.442592614971929,
+        "mape": 100.0,
+        "r2": -0.06617194521293568,
+        "csi": 0.0,
+        "far": null,
+        "mae_rain_only": 8.287234171115337,
+        "persistence_mae": 1.6259259550866705,
+        "beats_persistence": true,
+        "unit": "mm",
+        "accuracy_grade": "poor"
+      },
+      "H2": {
+        "mae": 1.442592614971929,
+        "rmse": 5.790557507881972,
+        "bias": -1.442592614971929,
+        "mape": 100.0,
+        "r2": -0.06617194521293568,
+        "csi": 0.0,
+        "far": null,
+        "mae_rain_only": 8.287234171115337,
+        "persistence_mae": 1.6259259550866705,
+        "beats_persistence": true,
+        "unit": "mm",
+        "accuracy_grade": "poor"
+      },
+      "H3": {
+        "mae": 1.3648148381944607,
+        "rmse": 5.711343552004233,
+        "bias": -1.3648148381944607,
+        "mape": 100.0,
+        "r2": -0.060562998973889615,
+        "csi": 0.0,
+        "far": null,
+        "mae_rain_only": 8.010869702445747,
+        "persistence_mae": 1.7592592892685421,
+        "beats_persistence": true,
+        "unit": "mm",
+        "accuracy_grade": "poor"
+      },
+      "H4": {
+        "mae": 1.3648148381944607,
+        "rmse": 5.711343552004233,
+        "bias": -1.3648148381944607,
+        "mape": 100.0,
+        "r2": -0.060562998973889615,
+        "csi": 0.0,
+        "far": null,
+        "mae_rain_only": 8.010869702445747,
+        "persistence_mae": 1.7592592892685421,
+        "beats_persistence": true,
+        "unit": "mm",
+        "accuracy_grade": "poor"
+      }
+    }
+  }
+}

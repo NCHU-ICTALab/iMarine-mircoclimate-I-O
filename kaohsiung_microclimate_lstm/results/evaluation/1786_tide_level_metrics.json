@@ -1,0 +1,63 @@
+{
+  "station_id": "1786",
+  "target_group": "tide_level",
+  "model_version": "baseline_lstm_v1",
+  "test_windows": 6,
+  "beats_persistence": false,
+  "accuracy_grade": {
+    "tide_level": {
+      "H1": "poor",
+      "H2": "poor",
+      "H3": "poor",
+      "H4": "acceptable"
+    }
+  },
+  "variables": {
+    "tide_level": {
+      "H1": {
+        "mae": 14.055625230073929,
+        "rmse": 16.596551151545626,
+        "bias": 11.109084159135818,
+        "mape": 73.23304547380206,
+        "r2": -0.8214618649845773,
+        "persistence_mae": 6.333333373069763,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H2": {
+        "mae": 21.059611469507217,
+        "rmse": 24.827513566622866,
+        "bias": 21.059611469507217,
+        "mape": 109.94355762067222,
+        "r2": -3.0761564180906094,
+        "persistence_mae": 6.333333373069763,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H3": {
+        "mae": 22.567644201219082,
+        "rmse": 24.32498781751748,
+        "bias": 22.567644201219082,
+        "mape": 91.72260471681572,
+        "r2": -2.1960063106902035,
+        "persistence_mae": 12.499999828636646,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "poor"
+      },
+      "H4": {
+        "mae": 16.065531097352505,
+        "rmse": 20.357154516006606,
+        "bias": 15.470879636704922,
+        "mape": 74.67913064287764,
+        "r2": -1.2383938886607155,
+        "persistence_mae": 12.499999828636646,
+        "beats_persistence": false,
+        "unit": "cm",
+        "accuracy_grade": "acceptable"
+      }
+    }
+  }
+}

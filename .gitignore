@@ -6,6 +6,7 @@ __pycache__/
 *.py[cod]
 *.sqlite3
 .pytest_cache/
+.tmp_pytest*/
 *規格書*.md
 codex_*_prompt.md
 .agents/
