@@ -55,4 +55,5 @@ def test_schema_response_documents_stable_endpoints():
 
     assert response["schema_version"] == SCHEMA_VERSION
     assert "/api/v1/microclimate/current" in response["metadata"]["stable_endpoints"]
+    assert "/api/v1/dispatch/risk" in response["metadata"]["stable_endpoints"]
     assert "observation_record" in response["metadata"]

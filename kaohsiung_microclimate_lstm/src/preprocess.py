@@ -20,6 +20,9 @@ except ImportError:  # pragma: no cover - supports `python src/preprocess.py`
 
 BASE_FEATURES = ["wind_speed", "wind_gust", "precipitation_1hr", "tide_level"]
 OPTIONAL_FEATURES = ["visibility"]
+QPESUMS_FEATURES = ["qpe_1hr_mm", "qpe_3hr_mm"]
+SPATIAL_RAIN_FEATURES = ["nearby_precip_1", "nearby_precip_2", "nearby_precip_3", "nearby_available"]
+CWA_FORECAST_FEATURES = ["cwa_pop_current", "cwa_pop_next", "cwa_data_age_hr", "cwa_available"]
 CYCLIC_FEATURES = [
     "wind_dir_sin",
     "wind_dir_cos",
@@ -36,6 +39,16 @@ LIMITS = {
     "precipitation_1hr": (0.0, 200.0),
     "tide_level": (-200.0, 600.0),
     "visibility": (0.0, 20000.0),
+    "qpe_1hr_mm": (0.0, 200.0),
+    "qpe_3hr_mm": (0.0, 500.0),
+    "nearby_precip_1": (0.0, 200.0),
+    "nearby_precip_2": (0.0, 200.0),
+    "nearby_precip_3": (0.0, 200.0),
+    "nearby_available": (0.0, 1.0),
+    "cwa_pop_current": (0.0, 1.0),
+    "cwa_pop_next": (0.0, 1.0),
+    "cwa_data_age_hr": (0.0, 1.0),
+    "cwa_available": (0.0, 1.0),
     "wind_direction": (0.0, 360.0),
 }
 ALIASES = {
@@ -44,6 +57,8 @@ ALIASES = {
     "wind_direction_deg": "wind_direction",
     "precipitation_1hr_mm": "precipitation_1hr",
     "visibility_m": "visibility",
+    "qpe_1hr": "qpe_1hr_mm",
+    "qpe_3hr": "qpe_3hr_mm",
 }
 
 
@@ -86,15 +101,23 @@ def prepare_station_frame(
 
     step = int(cfg["time_step_minutes"])
     work = df.copy()
+    rain_postprocess = cfg.get("rain_postprocess", {})
+    use_pure_temporal_rain = bool(rain_postprocess.get("enforce_pure_temporal_lstm", False))
+    if "precipitation_1hr" in work.columns and not use_pure_temporal_rain:
+        for col in SPATIAL_RAIN_FEATURES:
+            work[col] = work[col] if col in work.columns else (0.0 if col.startswith("nearby_precip") else 0.0)
+        for col in CWA_FORECAST_FEATURES:
+            default = 1.0 if col == "cwa_data_age_hr" else 0.0
+            work[col] = work[col] if col in work.columns else default
     work["obs_time"] = pd.to_datetime(work["obs_time"])
     work = work.set_index("obs_time").sort_index()
     numeric_cols = [col for col in work.columns if col != "station_id"]
     work[numeric_cols] = work[numeric_cols].apply(pd.to_numeric, errors="coerce")
     work = _mark_outliers(work[numeric_cols]).resample(f"{step}min").mean()
 
-    invalid = work.isna().all(axis=1)
+    invalid = pd.Series(False, index=work.index)
     quality: list[dict[str, Any]] = []
-    for col in BASE_FEATURES + OPTIONAL_FEATURES:
+    for col in BASE_FEATURES + OPTIONAL_FEATURES + QPESUMS_FEATURES + SPATIAL_RAIN_FEATURES + CWA_FORECAST_FEATURES:
         if col not in work.columns:
             if col in required_variables:
                 raise ValueError(f"Required variable {col!r} is missing")
@@ -105,6 +128,10 @@ def prepare_station_frame(
             work[col] = work[col].fillna(0.0)
         elif col == "visibility":
             work[col] = work[col].ffill(limit=max(1, 60 // step))
+        elif col in QPESUMS_FEATURES or col in SPATIAL_RAIN_FEATURES or col in CWA_FORECAST_FEATURES:
+            work[col] = work[col].fillna(0.0)
+            if col == "cwa_data_age_hr":
+                work[col] = work[col].fillna(1.0)
         elif col == "tide_level":
             work[col], col_invalid = _interpolate_with_limit(work[col], max(1, 180 // step))
             if participates_in_windows:
@@ -149,6 +176,9 @@ def feature_columns(frame: pd.DataFrame, include_visibility: bool = True) -> lis
     cols = [col for col in BASE_FEATURES if col in frame.columns and frame[col].notna().all()]
     if include_visibility and "visibility" in frame.columns and frame["visibility"].notna().all():
         cols.append("visibility")
+    cols.extend([col for col in QPESUMS_FEATURES if col in frame.columns and frame[col].notna().all()])
+    cols.extend([col for col in SPATIAL_RAIN_FEATURES if col in frame.columns and frame[col].notna().all()])
+    cols.extend([col for col in CWA_FORECAST_FEATURES if col in frame.columns and frame[col].notna().all()])
     cols.extend([col for col in CYCLIC_FEATURES if col in frame.columns])
     return cols
 
@@ -186,7 +216,7 @@ def build_window_bundle(
     target_indices = [feats.index(var) for var in variables]
     X, y_full, y_anchors, ts, persistence = create_windows(
         scaled.to_numpy(dtype=np.float32),
-        lookback_steps(cfg),
+        lookback_steps(cfg, target_group),
         full_steps(cfg),
         target_indices,
         anchor_indices(cfg),
@@ -220,7 +250,10 @@ def build_window_bundle(
         report_path = base / "data" / "processed" / "data_quality_report.json"
         existing: list[dict[str, Any]] = []
         if report_path.exists():
-            existing = json.loads(report_path.read_text(encoding="utf-8"))
+            try:
+                existing = json.loads(report_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                existing = []
         existing.extend(quality)
         report_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
 

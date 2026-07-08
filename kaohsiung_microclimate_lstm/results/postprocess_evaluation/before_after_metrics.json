@@ -1,0 +1,44 @@
+{
+  "version": "rain_lstm_postprocess_v2.3",
+  "baseline_version": "v2.1_pure_lstm",
+  "failed_version": "v2.2_lstm_with_spatial_cwa",
+  "note": "Historical metrics evaluate the pure temporal LSTM base model. Live postprocess rules depend on current nearby/CWA observations and are validated by smoke/unit tests.",
+  "metrics": {
+    "H1": {
+      "mae_before": 3.911,
+      "csi_before": 0.108,
+      "mae_after": 1.6318586335860585,
+      "rmse_after": 5.189145533648893,
+      "csi_after": 0.11049723756906077,
+      "far_after": 0.8347107438016529,
+      "beats_persistence_after": false
+    },
+    "H2": {
+      "mae_before": 3.397,
+      "csi_before": 0.114,
+      "mae_after": 1.717330971095515,
+      "rmse_after": 5.249521435821488,
+      "csi_after": 0.0748663101604278,
+      "far_after": 0.8842975206611571,
+      "beats_persistence_after": false
+    },
+    "H3": {
+      "mae_before": 2.706,
+      "csi_before": 0.204,
+      "mae_after": 1.4093178506254365,
+      "rmse_after": 5.067444614453824,
+      "csi_after": 0.14814814814814814,
+      "far_after": 0.7333333333333333,
+      "beats_persistence_after": false
+    },
+    "H4": {
+      "mae_before": 1.389,
+      "csi_before": 0.277,
+      "mae_after": 1.3777036495800865,
+      "rmse_after": 5.024895801953536,
+      "csi_after": 0.05806451612903226,
+      "far_after": 0.8928571428571429,
+      "beats_persistence_after": true
+    }
+  }
+}

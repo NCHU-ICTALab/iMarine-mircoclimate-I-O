@@ -1,0 +1,23 @@
+{
+  "station_id": "C4P01",
+  "model_type": "harmonic",
+  "fit": {
+    "station_id": "C4P01",
+    "path": "kaohsiung_microclimate_lstm\\models\\tide\\C4P01_harmonic_coef.pkl",
+    "kind": "fallback_least_squares",
+    "constituent_count": 6,
+    "main_constituents": [
+      "M2",
+      "S2",
+      "N2",
+      "K1",
+      "O1",
+      "P1"
+    ]
+  },
+  "test_rows": 8,
+  "MAE_cm": 62.60609324456072,
+  "RMSE_cm": 75.29582023475263,
+  "Bias_cm": -62.60609324456072,
+  "R2": -72.40592249013712
+}

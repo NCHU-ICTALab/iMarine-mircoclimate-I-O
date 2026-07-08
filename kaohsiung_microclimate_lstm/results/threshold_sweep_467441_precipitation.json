@@ -1,0 +1,9 @@
+{
+  "station_id": "467441",
+  "target_group": "precipitation",
+  "best_threshold": 0.35,
+  "best_csi_mean": 0.1756308040742568,
+  "best_far_mean": 0.8046551987159214,
+  "csv_path": "kaohsiung_microclimate_lstm\\results\\threshold_sweep_467441_precipitation.csv",
+  "plot_path": "kaohsiung_microclimate_lstm\\results\\plots\\threshold_sweep_467441_precipitation.png"
+}

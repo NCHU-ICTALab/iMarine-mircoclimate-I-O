@@ -3,8 +3,9 @@ from __future__ import annotations
 from datetime import timedelta
 from html import escape
 import logging
+from pathlib import Path
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
 
 from app.collectors.cwa import collect as collect_cwa
@@ -29,6 +30,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 
 app = FastAPI(title="TWPort Microclimate API", version="0.1.0")
 store = ObservationStore(settings.database_path)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -52,6 +55,37 @@ def health() -> dict:
 @app.get("/api/v1/schema")
 def api_v1_schema() -> dict:
     return schema_response()
+
+
+@app.get("/api/v1/dispatch/risk")
+def dispatch_risk_v1(target_station_id: str = Query("467441")) -> dict:
+    return build_dispatch_risk_response(target_station_id)
+
+
+def build_dispatch_risk_response(target_station_id: str) -> dict:
+    data_path = MICROCLIMATE_PROJECT_ROOT / "data" / "raw" / "observed_hourly" / f"{target_station_id}.csv"
+    config_path = MICROCLIMATE_PROJECT_ROOT / "config.yaml"
+    if not data_path.exists():
+        raise HTTPException(status_code=404, detail=f"No observed hourly data for target_station_id={target_station_id}")
+    if not config_path.exists():
+        raise HTTPException(status_code=503, detail="Microclimate dispatch risk config is missing")
+
+    try:
+        from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_v252
+        from kaohsiung_microclimate_lstm.src.preprocess import load_observations
+
+        observations = load_observations(data_path)
+        return predict_dispatch_risk_v252(
+            target_station_id=target_station_id,
+            recent_observations=observations,
+            config_path=str(config_path),
+            project_root=MICROCLIMATE_PROJECT_ROOT,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logging.exception("dispatch risk prediction failed for station %s", target_station_id)
+        raise HTTPException(status_code=503, detail=f"Dispatch risk prediction failed: {exc}") from exc
 
 
 @app.post("/admin/fetch")

@@ -6,10 +6,11 @@ import numpy as np
 
 try:
     import torch
-    from torch.utils.data import Dataset
+    from torch.utils.data import Dataset, WeightedRandomSampler
 except ImportError:  # pragma: no cover - train/evaluate require torch
     torch = None
     Dataset = object  # type: ignore[assignment,misc]
+    WeightedRandomSampler = object  # type: ignore[assignment,misc]
 
 
 @dataclass(frozen=True)
@@ -60,12 +61,13 @@ def create_windows(
 
 
 class LSTMDataset(Dataset):  # type: ignore[misc]
-    def __init__(self, X: np.ndarray, y: np.ndarray, model_type: str) -> None:
+    def __init__(self, X: np.ndarray, y: np.ndarray, model_type: str, rain_threshold: float = 0.1) -> None:
         if torch is None:
             raise RuntimeError("torch is required to use LSTMDataset")
         self.X = torch.as_tensor(X, dtype=torch.float32)
         self.y = torch.as_tensor(y, dtype=torch.float32)
         self.model_type = model_type
+        self.rain_threshold = float(rain_threshold)
 
     def __len__(self) -> int:
         return int(self.X.shape[0])
@@ -74,7 +76,7 @@ class LSTMDataset(Dataset):  # type: ignore[misc]
         y = self.y[idx]
         if self.model_type == "twostage_lstm":
             amount = y.squeeze(-1) if y.ndim == 2 else y
-            binary = (amount > 0.1).float()
+            binary = (amount > self.rain_threshold).float()
             return self.X[idx], {"amount": amount, "binary": binary}
         if self.model_type == "lstm":
             return self.X[idx], y.squeeze(-1)
@@ -88,3 +90,19 @@ def chronological_split(n: int, train_ratio: float, val_ratio: float) -> tuple[s
     val_end = max(train_end + 1, int(n * (train_ratio + val_ratio)))
     val_end = min(val_end, n - 1)
     return slice(0, train_end), slice(train_end, val_end), slice(val_end, n)
+
+
+def build_precipitation_sampler(dataset: LSTMDataset) -> WeightedRandomSampler:
+    if torch is None:
+        raise RuntimeError("torch is required to build a precipitation sampler")
+    labels = torch.stack([dataset[i][1]["binary"][0] for i in range(len(dataset))])
+    n_no_rain = int((labels == 0).sum().item())
+    n_rain = int((labels == 1).sum().item())
+    weight_no_rain = 1.0
+    weight_rain = n_no_rain / max(n_rain, 1)
+    sample_weights = torch.where(
+        labels == 1,
+        torch.full_like(labels, weight_rain, dtype=torch.float),
+        torch.full_like(labels, weight_no_rain, dtype=torch.float),
+    )
+    return WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)

@@ -1,0 +1,36 @@
+{
+  "resolved_location_name": "前鎮區",
+  "tested_locations": [
+    {
+      "location_name": "前鎮區",
+      "available": false,
+      "record_count": 0
+    },
+    {
+      "location_name": "鼓山區",
+      "available": false,
+      "record_count": 0
+    },
+    {
+      "location_name": "苓雅區",
+      "available": false,
+      "record_count": 0
+    },
+    {
+      "location_name": "三民區",
+      "available": false,
+      "record_count": 0
+    },
+    {
+      "location_name": "鹽埕區",
+      "available": false,
+      "record_count": 0
+    },
+    {
+      "location_name": "小港區",
+      "available": false,
+      "record_count": 0
+    }
+  ],
+  "resolved_at": "2026-07-07T21:19:51+08:00"
+}

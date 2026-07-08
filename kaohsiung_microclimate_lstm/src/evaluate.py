@@ -45,8 +45,8 @@ GRADE_RULES: dict[str, dict[str, dict[str, tuple[float | None, float | None]]]] 
         "mae": {"H1": (1.0, 2.0), "H2": (1.5, 2.5), "H3": (2.0, 3.2), "H4": (2.5, 3.8)},
     },
     "precipitation_1hr": {
-        "mae": {"H1": (2.0, 4.0), "H2": (2.5, 5.0), "H3": (3.0, 6.0), "H4": (4.0, 7.0)},
-        "csi": {"H1": (0.55, 0.40), "H2": (0.48, 0.35), "H3": (0.42, 0.30), "H4": (0.36, 0.25)},
+        "mae": {"H1": (1.0, 1.8), "H2": (1.1, 2.2), "H3": (1.1, 2.8), "H4": (1.1, 3.5)},
+        "csi_threshold_1mm": {"H1": (0.50, 0.35), "H2": (0.45, 0.32), "H3": (0.40, 0.30), "H4": (0.36, 0.28)},
     },
     "visibility": {
         "mae": {"H1": (500, 1000), "H2": (700, 1400), "H3": (900, 1800), "H4": (1200, 2200)},
@@ -76,17 +76,42 @@ def metrics_for_anchor(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, floa
     return {"mae": mae, "rmse": rmse, "bias": bias, "mape": mape, "r2": r2}
 
 
-def rain_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float | None]:
-    true_rain = y_true > 0.1
-    pred_rain = y_pred > 0.1
+def categorical_rain_metrics(y_true: np.ndarray, y_pred: np.ndarray, threshold: float) -> dict[str, float | int | None]:
+    true_rain = y_true > threshold
+    pred_rain = y_pred > threshold
     tp = int(np.sum(true_rain & pred_rain))
     fp = int(np.sum(~true_rain & pred_rain))
     fn = int(np.sum(true_rain & ~pred_rain))
     csi = tp / (tp + fp + fn) if tp + fp + fn else None
     far = fp / (tp + fp) if tp + fp else None
+    pod = tp / (tp + fn) if tp + fn else None
+    return {"csi": csi, "far": far, "pod": pod, "tp": tp, "fp": fp, "fn": fn}
+
+
+def rain_metrics(y_true: np.ndarray, y_pred: np.ndarray, main_threshold: float = 1.0, heavy_threshold: float = 10.0) -> dict[str, float | int | None]:
+    main = categorical_rain_metrics(y_true, y_pred, main_threshold)
+    heavy = categorical_rain_metrics(y_true, y_pred, heavy_threshold)
+    true_rain = y_true > main_threshold
     rainy = true_rain
     mae_rain = float(np.mean(np.abs(y_pred[rainy] - y_true[rainy]))) if np.any(rainy) else None
-    return {"csi": csi, "far": far, "mae_rain_only": mae_rain}
+    return {
+        "csi": main["csi"],
+        "far": main["far"],
+        "pod": main["pod"],
+        "csi_threshold_1mm": main["csi"],
+        "far_threshold_1mm": main["far"],
+        "pod_threshold_1mm": main["pod"],
+        "tp_threshold_1mm": main["tp"],
+        "fp_threshold_1mm": main["fp"],
+        "fn_threshold_1mm": main["fn"],
+        "csi_threshold_10mm": heavy["csi"],
+        "far_threshold_10mm": heavy["far"],
+        "pod_threshold_10mm": heavy["pod"],
+        "tp_threshold_10mm": heavy["tp"],
+        "fp_threshold_10mm": heavy["fp"],
+        "fn_threshold_10mm": heavy["fn"],
+        "mae_rain_only": mae_rain,
+    }
 
 
 def grade_variable(variable: str, label: str, metrics: dict[str, float | None]) -> str:
@@ -97,7 +122,7 @@ def grade_variable(variable: str, label: str, metrics: dict[str, float | None]) 
         if value is None or label not in by_anchor:
             continue
         excellent, acceptable = by_anchor[label]
-        if metric in {"csi", "r2"}:
+        if metric in {"csi", "r2"} or metric.startswith("csi_"):
             grades.append("excellent" if value >= excellent else "acceptable" if value >= acceptable else "poor")
         else:
             grades.append("excellent" if value <= excellent else "acceptable" if value <= acceptable else "poor")
@@ -115,6 +140,9 @@ def evaluate_model(
     project_root: str | Path = ROOT,
 ) -> dict[str, Any]:
     cfg = load_config(config_path)
+    target_cfg = cfg.get("targets", {}).get(target_group, {})
+    main_rain_threshold = float(target_cfg.get("rain_threshold_main", 1.0))
+    heavy_rain_threshold = float(target_cfg.get("rain_threshold_heavy", 10.0))
     project = Path(project_root)
     ckpt_path = project / "models" / "checkpoints" / f"{station_id}_{target_group}_best.pt"
     npz_path = project / "data" / "processed" / f"{station_id}_{target_group}.npz"
@@ -134,7 +162,13 @@ def evaluate_model(
     persistence = bundle["persistence"].astype(np.float32)
     _, _, test_sl = chronological_split(len(X), float(cfg["data"]["train_ratio"]), float(cfg["data"]["val_ratio"]))
     with torch.no_grad():
-        pred = prediction_tensor(model, torch.as_tensor(X[test_sl], dtype=torch.float32), model_type).cpu().numpy()
+        x_test = torch.as_tensor(X[test_sl], dtype=torch.float32)
+        if model_type == "twostage_lstm":
+            raw = model(x_test)
+            cls_threshold = float(target_cfg.get("inference_cls_threshold", 0.5))
+            pred = torch.where(raw["probability"] > cls_threshold, raw["amount"], torch.zeros_like(raw["amount"])).cpu().numpy()
+        else:
+            pred = prediction_tensor(model, x_test, model_type).cpu().numpy()
     if pred.ndim == 2:
         pred = pred[..., None]
     y_test = y[test_sl]
@@ -160,7 +194,7 @@ def evaluate_model(
             m = metrics_for_anchor(y_orig[:, a_idx, v_idx], pred_orig[:, a_idx, v_idx])
             p = metrics_for_anchor(y_orig[:, a_idx, v_idx], pers_orig[:, a_idx, v_idx])
             if variable == "precipitation_1hr":
-                m.update(rain_metrics(y_orig[:, a_idx, v_idx], pred_orig[:, a_idx, v_idx]))
+                m.update(rain_metrics(y_orig[:, a_idx, v_idx], pred_orig[:, a_idx, v_idx], main_rain_threshold, heavy_rain_threshold))
             beats = (m["mae"] or float("inf")) < (p["mae"] or float("inf"))
             beats_all = beats_all and beats
             m["persistence_mae"] = p["mae"]

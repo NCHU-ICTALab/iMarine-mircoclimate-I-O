@@ -35,8 +35,12 @@ def validate_config(cfg: dict[str, Any]) -> None:
         raise ValueError("anchor_offsets_minutes must fall within horizon_minutes")
 
 
-def lookback_steps(cfg: dict[str, Any]) -> int:
-    return int(float(cfg["lookback_hours"]) * 60 / int(cfg["time_step_minutes"]))
+def lookback_steps(cfg: dict[str, Any], target_group: str | None = None) -> int:
+    lookback_hours = cfg["lookback_hours"]
+    if target_group:
+        target = cfg.get("targets", {}).get(target_group, {})
+        lookback_hours = target.get("lookback_hours", lookback_hours)
+    return int(float(lookback_hours) * 60 / int(cfg["time_step_minutes"]))
 
 
 def full_steps(cfg: dict[str, Any]) -> int:

@@ -1,0 +1,23 @@
+{
+  "station_id": "1786",
+  "model_type": "harmonic",
+  "fit": {
+    "station_id": "1786",
+    "path": "kaohsiung_microclimate_lstm\\models\\tide\\1786_harmonic_coef.pkl",
+    "kind": "fallback_least_squares",
+    "constituent_count": 6,
+    "main_constituents": [
+      "M2",
+      "S2",
+      "N2",
+      "K1",
+      "O1",
+      "P1"
+    ]
+  },
+  "test_rows": 8,
+  "MAE_cm": 141.19737650775627,
+  "RMSE_cm": 188.55058598864707,
+  "Bias_cm": -141.19737650775627,
+  "R2": -187.99283183872254
+}

@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-07-08T08:31:41+08:00",
+  "api_key_env_found": true,
+  "resolved_source": {
+    "available": true,
+    "dataset_id": "F-D0047-091",
+    "location_name": "前鎮區",
+    "element_name": "3小時降雨機率",
+    "source_resolution": "3h",
+    "fetched_at": "2026-07-08T00:09:14+08:00"
+  },
+  "record_count": 7,
+  "anchor_alignment": {
+    "H1": {
+      "offset_minutes": 30,
+      "anchor_time": "2026-07-08T09:01:41.928861+08:00",
+      "matched": true,
+      "alignment_status": "matched_forecast_period",
+      "raw_value": "0",
+      "normalized_value": 0.0,
+      "parse_status": "ok",
+      "available_for_prior": true
+    },
+    "H2": {
+      "offset_minutes": 60,
+      "anchor_time": "2026-07-08T09:31:41.928861+08:00",
+      "matched": true,
+      "alignment_status": "matched_forecast_period",
+      "raw_value": "0",
+      "normalized_value": 0.0,
+      "parse_status": "ok",
+      "available_for_prior": true
+    },
+    "H3": {
+      "offset_minutes": 90,
+      "anchor_time": "2026-07-08T10:01:41.928861+08:00",
+      "matched": true,
+      "alignment_status": "matched_forecast_period",
+      "raw_value": "0",
+      "normalized_value": 0.0,
+      "parse_status": "ok",
+      "available_for_prior": true
+    },
+    "H4": {
+      "offset_minutes": 120,
+      "anchor_time": "2026-07-08T10:31:41.928861+08:00",
+      "matched": true,
+      "alignment_status": "matched_forecast_period",
+      "raw_value": "0",
+      "normalized_value": 0.0,
+      "parse_status": "ok",
+      "available_for_prior": true
+    }
+  },
+  "prior_application": {
+    "H1": {
+      "applied": false,
+      "weight": 0.0,
+      "reason": "anchor_not_enabled"
+    },
+    "H2": {
+      "applied": false,
+      "weight": 0.0,
+      "reason": "anchor_not_enabled"
+    },
+    "H3": {
+      "applied": true,
+      "weight": 0.2,
+      "reason": "valid_cwa_pop"
+    },
+    "H4": {
+      "applied": true,
+      "weight": 0.2,
+      "reason": "valid_cwa_pop"
+    }
+  },
+  "tested_sources": [
+    {
+      "dataset_id": "F-D0047-091",
+      "location_name": "前鎮區",
+      "element_name": "3小時降雨機率",
+      "available": true,
+      "record_count": 7,
+      "source_resolution": "3h",
+      "dataset_priority": 1,
+      "location_priority": 1
+    }
+  ],
+  "last_error": null
+}

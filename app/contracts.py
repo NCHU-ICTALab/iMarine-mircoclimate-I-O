@@ -72,6 +72,7 @@ def schema_response() -> dict[str, Any]:
             "stable_endpoints": [
                 "/api/v1/microclimate/current",
                 "/api/v1/microclimate/forecast",
+                "/api/v1/dispatch/risk",
                 "/api/v1/cwa/history",
                 "/api/v1/schema",
             ],

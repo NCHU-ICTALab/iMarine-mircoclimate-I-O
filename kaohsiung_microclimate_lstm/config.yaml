@@ -7,6 +7,36 @@ anchor_offsets_minutes:
   - 90
   - 120
 
+project:
+  name: kaohsiung_port_dispatch_risk
+  version: v2.5.2
+  model_version: kaohsiung_port_dispatch_risk_v2.5.2
+  timezone: Asia/Taipei
+
+forecast:
+  anchors:
+    H1: 30
+    H2: 60
+    H3: 90
+    H4: 120
+  lookback_hours: 12
+
+spatial_scope:
+  mode: port_local
+  port_code: KHH
+  target_area_name: Kaohsiung Port
+  target_station_id: "467441"
+  station_pool:
+    mode: distance_or_manual
+    max_radius_km: 10
+    include_twport: true
+    include_cwa_station: true
+    include_tide_station: true
+    include_marine_station: true
+  exclude:
+    city_wide_forecast_as_target: true
+    district_level_forecast_as_target: true
+
 targets:
   wind_speed_gust:
     variables: [wind_speed, wind_gust]
@@ -14,9 +44,20 @@ targets:
   precipitation:
     variables: [precipitation_1hr]
     model_type: twostage_lstm
+    lookback_hours: 12
+    loss:
+      type: focal_bce_plus_mse
+      focal_alpha: 0.75
+      focal_gamma: 2.0
+      lambda_reg: 0.8
+    rain_threshold_main: 1.0
+    rain_threshold_heavy: 10.0
+    use_weighted_sampler: true
+    inference_cls_threshold: 0.5
   tide_level:
     variables: [tide_level]
-    model_type: lstm
+    model_type: harmonic
+    surge_correction: false
   visibility:
     variables: [visibility]
     model_type: lstm
@@ -26,19 +67,298 @@ model:
   hidden_size_1: 128
   hidden_size_2: 64
   dropout: 0.2
+  station_embed_dim: 8
 
 training:
   batch_size: 64
   max_epochs: 150
-  learning_rate: 0.001
-  lr_scheduler_patience: 7
-  lr_scheduler_factor: 0.5
-  early_stopping_patience: 15
+  learning_rate: 0.0005
+  early_stopping_patience: 20
+  early_stopping_min_delta: 0.0001
+  lr_scheduler:
+    type: ReduceLROnPlateau
+    patience: 8
+    factor: 0.5
+    min_lr: 0.00001
   gradient_clip: 1.0
   random_seed: 42
+  finetune_lr: 0.00005
+  finetune_epochs: 30
 
 data:
   train_ratio: 0.70
   val_ratio: 0.15
   test_ratio: 0.15
   min_valid_ratio: 0.70
+
+spatial_context:
+  enabled: false
+
+pooling:
+  enabled: false
+  min_days_to_include: 30
+
+qpesums:
+  enabled: false
+  port_lat: 22.62
+  port_lon: 120.28
+  search_radius: 0.1
+  qpe_dataid: O-A0002-001
+  qpf_dataid:
+  cache_ttl_seconds: 600
+
+features:
+  target_station:
+    - wind_speed
+    - wind_gust
+    - precipitation_1hr
+    - wind_dir_sin
+    - wind_dir_cos
+    - hour_sin
+    - hour_cos
+    - doy_sin
+    - doy_cos
+    - tide_sin
+    - tide_cos
+  nearby_station_aggregation:
+    enabled: true
+    variables:
+      - wind_speed
+      - wind_gust
+      - precipitation_1hr
+    aggregations:
+      - mean
+      - max
+      - min
+      - std
+      - active_station_count
+  forbidden_if_not_historical:
+    - cwa_pop
+    - cwa_warning
+    - qpe_nowcast
+  spatial_rain:
+    enabled: true
+    dataid: O-A0002-001
+    radius_km: 30
+    top_n: 3
+  cwa_forecast:
+    enabled: true
+    dataid: F-D0047-065
+    location_name: 鼓山區
+    cache_ttl_sec: 3600
+
+rain_postprocess:
+  enabled: true
+  enforce_pure_temporal_lstm: true
+  lookback_hours: 12
+  nearby_precip:
+    enabled: true
+    mode: radius
+    station_ids: []
+    radius_km: 10
+    single_station_trigger_mm: 0.5
+    single_station_min_probability: 0.70
+    mean_trigger_mm: 2.0
+    mean_min_probability: 0.85
+    dry_suppression_probability: 0.15
+  cwa_pop3h:
+    enabled: true
+    api_key_env: CWA_API_KEY
+    location_candidates: [前鎮區, 鼓山區, 苓雅區, 三民區, 鹽埕區, 小港區]
+    fallback_location: 前鎮區
+    cache_minutes: 30
+    normalize_percent: true
+    high_pop_trigger: 0.60
+    high_pop_weight_for_rule: 0.80
+    low_pop_trigger: 0.10
+  blending:
+    enabled: true
+    H1: {lstm_weight: 1.0, cwa_weight: 0.0}
+    H2: {lstm_weight: 1.0, cwa_weight: 0.0}
+    H3: {lstm_weight: 0.5, cwa_weight: 0.5, cwa_source: current}
+    H4: {lstm_weight: 0.3, cwa_weight: 0.7, cwa_source: next}
+  probability_clip:
+    min: 0.0
+    max: 1.0
+  warning_thresholds:
+    watch: 0.30
+    warning: 0.50
+    stop: 0.70
+
+rain_probability:
+  enabled: true
+  task_type: binary_classification
+  threshold_mm: 0.0
+  output_name: rain_probability
+  class_weighting: true
+  focal_loss:
+    enabled: true
+    gamma: 2.0
+
+wind_speed:
+  enabled: true
+  task_type: regression_then_level_mapping
+  uncertainty_buffer_mps: 0.7
+  thresholds_mps:
+    watch: 8.0
+    warning: 10.8
+    high_risk: 13.9
+    stop: 17.2
+
+wind_gust:
+  enabled: true
+  task_type: regression_then_level_mapping
+  uncertainty_buffer_mps: 1.2
+  conservative_buffer_enabled: true
+  thresholds_mps:
+    watch: 10.8
+    warning: 13.9
+    high_risk: 17.2
+    stop: 20.8
+
+wind_scale:
+  enabled: true
+  output_beaufort_scale: true
+  output_operation_level: true
+
+cwa_pop:
+  enabled: true
+  mode: postprocess_prior
+  allowed_in_model_input: false
+  dataset_id: F-D0047-065
+  location_candidates: [前鎮區, 鼓山區, 苓雅區, 三民區, 鹽埕區, 小港區]
+  fallback_location: 前鎮區
+  max_adjustment_weight: 0.2
+  apply_to:
+    - rain_probability
+  apply_anchors:
+    - H3
+    - H4
+  unavailable_behavior: skip
+
+cwa_open_data:
+  enabled: true
+  api_key_env: CWA_API_KEY
+  base_url: https://opendata.cwa.gov.tw/api/v1/rest/datastore
+  timeout_seconds: 10
+  retry:
+    enabled: true
+    max_attempts: 3
+    backoff_seconds: 1
+  cache:
+    enabled: true
+    cache_minutes: 30
+    cache_dir: data/cache/cwa
+  pop_datasets:
+    candidates:
+      - dataset_id: F-D0047-091
+        description: 高雄市鄉鎮逐3小時天氣預報
+        priority: 1
+      - dataset_id: F-D0047-093
+        description: 高雄市鄉鎮逐6小時天氣預報
+        priority: 2
+      - dataset_id: F-C0032-001
+        description: 一般天氣預報，僅作背景 fallback
+        priority: 3
+        fallback_only: true
+  location_candidates:
+    - 前鎮區
+    - 小港區
+    - 鹽埕區
+    - 鼓山區
+    - 旗津區
+    - 苓雅區
+  element_name_candidates:
+    precipitation_probability:
+      - 3小時降雨機率
+      - 降雨機率
+      - PoP
+      - PoP3h
+      - PoP6h
+      - PoP12h
+    wind_speed:
+      - 風速
+      - Wind
+      - 平均風速
+    weather:
+      - 天氣現象
+      - Wx
+
+cwa_pop_prior:
+  enabled: true
+  allowed_in_model_input: false
+  max_weight: 0.20
+  apply_anchors:
+    - H3
+    - H4
+  resolution_weight_cap:
+    3h: 0.20
+    6h: 0.15
+    12h: 0.10
+    unknown: 0.05
+  require_quality_available: true
+  require_parse_status_ok: true
+  unavailable_behavior: skip
+
+cwa_pop_quality:
+  enabled: true
+  distinguish_zero_and_missing: true
+  require_parse_status_ok_for_prior: true
+  require_alignment_match_for_prior: true
+  missing_value_behavior: unavailable
+  parse_error_behavior: unavailable
+  out_of_range_behavior: unavailable
+
+dispatch_thresholds:
+  rain_probability:
+    watch: 0.30
+    warning: 0.50
+    high_risk: 0.70
+  wind_speed_mps:
+    watch: 8.0
+    warning: 10.8
+    high_risk: 13.9
+    stop: 17.2
+  wind_gust_mps:
+    watch: 10.8
+    warning: 13.9
+    high_risk: 17.2
+    stop: 20.8
+  visibility_m:
+    enabled: false
+    watch: 5000
+    warning: 3000
+    high_risk: 1000
+  tide_level:
+    enabled: false
+
+reliability:
+  wind_speed: high
+  wind_gust: medium_high
+  rain_probability: low_to_medium
+  tide: reference_only
+  visibility: optional
+  marine_transfer: low_confidence
+
+risk_trigger:
+  enabled: true
+  normal_state_primary_trigger: none
+  use_none_trigger_when_normal: true
+  trigger_priority:
+    - wind_gust
+    - wind_speed
+    - rain_probability
+    - visibility
+    - tide
+
+dispatch_action:
+  enabled: true
+  normal_trigger_action: normal_dispatch
+  degrade_low_reliability_trigger: true
+
+output:
+  include_raw_predictions: true
+  include_levels: true
+  include_dispatch_risk: true
+  include_trace: true
+  include_data_availability: true

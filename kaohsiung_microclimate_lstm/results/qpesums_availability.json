@@ -1,0 +1,36 @@
+{
+  "O-A0059-001": {
+    "http_status": 404,
+    "api_success": null,
+    "record_count": 0,
+    "sample_fields": []
+  },
+  "O-A0002-001": {
+    "http_status": 200,
+    "api_success": "true",
+    "record_count": 1320,
+    "sample_fields": [
+      "StationName",
+      "StationId",
+      "Maintainer",
+      "ObsTime",
+      "GeoInfo",
+      "RainfallElement"
+    ]
+  },
+  "O-A0064-001": {
+    "http_status": 404,
+    "api_success": null,
+    "record_count": 0,
+    "sample_fields": []
+  },
+  "O-A0065-001": {
+    "http_status": 404,
+    "api_success": null,
+    "record_count": 0,
+    "sample_fields": []
+  },
+  "_status": {
+    "qpesums_available": true
+  }
+}

@@ -1,7 +1,7 @@
 {
   "station_id": "467441",
   "target_group": "wind_speed_gust",
-  "model_version": "baseline_lstm_v1",
+  "model_version": "baseline_lstm_v2",
   "test_windows": 270,
   "beats_persistence": false,
   "accuracy_grade": {
@@ -13,7 +13,7 @@
     },
     "wind_gust": {
       "H1": "acceptable",
-      "H2": "acceptable",
+      "H2": "excellent",
       "H3": "excellent",
       "H4": "excellent"
     }
@@ -21,92 +21,92 @@
   "variables": {
     "wind_speed": {
       "H1": {
-        "mae": 0.7564792417238156,
-        "rmse": 0.9466657559404161,
-        "bias": 0.5145652850882875,
-        "mape": 119.10401584004242,
-        "r2": 0.16931784222121649,
+        "mae": 0.5341140180039737,
+        "rmse": 0.6883761766808738,
+        "bias": 0.020381456402440865,
+        "mape": 62.67161411589576,
+        "r2": 0.5607687705134342,
         "persistence_mae": 0.5633333362721735,
-        "beats_persistence": false,
+        "beats_persistence": true,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       },
       "H2": {
-        "mae": 0.8310101971071627,
-        "rmse": 1.0035452450105666,
-        "bias": -0.44172628492530847,
-        "mape": 68.23038316638187,
-        "r2": 0.06649754952025033,
+        "mae": 0.5368061822859778,
+        "rmse": 0.6903518326569174,
+        "bias": 0.014089799328810644,
+        "mape": 62.2485044082002,
+        "r2": 0.5582439444290603,
         "persistence_mae": 0.5633333362721735,
-        "beats_persistence": false,
+        "beats_persistence": true,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       },
       "H3": {
-        "mae": 0.8596173922634787,
-        "rmse": 1.0191927121253483,
-        "bias": -0.5843278136766619,
-        "mape": 83.94244418519824,
-        "r2": -0.06367184274658633,
+        "mae": 0.5882064361953073,
+        "rmse": 0.7307573783407797,
+        "bias": -0.15660232032338778,
+        "mape": 70.90225529891867,
+        "r2": 0.4531836874233748,
         "persistence_mae": 0.6944444453716277,
-        "beats_persistence": false,
+        "beats_persistence": true,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       },
       "H4": {
-        "mae": 0.7065371561712688,
-        "rmse": 0.8788369138376066,
-        "bias": 0.3476116633746359,
-        "mape": 128.6870722503612,
-        "r2": 0.2091181218287651,
+        "mae": 0.5784256226155494,
+        "rmse": 0.7207154075564328,
+        "bias": 0.057987312757306626,
+        "mape": 88.56765535922875,
+        "r2": 0.46810898143030844,
         "persistence_mae": 0.6944444453716277,
-        "beats_persistence": false,
+        "beats_persistence": true,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       }
     },
     "wind_gust": {
       "H1": {
-        "mae": 1.9899802876429424,
-        "rmse": 2.5835324092793357,
-        "bias": -1.28880901834755,
-        "mape": 39.88794600151329,
-        "r2": -0.260161001567508,
+        "mae": 1.2207195155598498,
+        "rmse": 1.5865262661757564,
+        "bias": 0.12960220452811969,
+        "mape": 31.321086071146038,
+        "r2": 0.5247821550030463,
         "persistence_mae": 0.9914814636304422,
         "beats_persistence": false,
         "unit": "m/s",
         "accuracy_grade": "acceptable"
       },
       "H2": {
-        "mae": 1.7055837617345428,
-        "rmse": 2.244886520915916,
-        "bias": -0.7959104210717812,
-        "mape": 38.63695562297478,
-        "r2": 0.04854776202707489,
+        "mae": 1.1373303713207996,
+        "rmse": 1.506550475144322,
+        "bias": -0.0770271628846727,
+        "mape": 28.187889905325758,
+        "r2": 0.5714854419503583,
         "persistence_mae": 0.9914814636304422,
-        "beats_persistence": false,
-        "unit": "m/s",
-        "accuracy_grade": "acceptable"
-      },
-      "H3": {
-        "mae": 1.4635736134013642,
-        "rmse": 1.8571054892292183,
-        "bias": 0.48100056680540226,
-        "mape": 43.63639711164641,
-        "r2": 0.3462119645070647,
-        "persistence_mae": 1.3633333407618378,
         "beats_persistence": false,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       },
-      "H4": {
-        "mae": 1.7289005910039497,
-        "rmse": 2.1842331445165324,
-        "bias": -0.986499679531488,
-        "mape": 38.937996703194194,
-        "r2": 0.0955973895315364,
+      "H3": {
+        "mae": 1.2227697171243253,
+        "rmse": 1.5846860624919095,
+        "bias": 0.030583155279358096,
+        "mape": 35.57887661076054,
+        "r2": 0.5239524901311374,
         "persistence_mae": 1.3633333407618378,
-        "beats_persistence": false,
+        "beats_persistence": true,
+        "unit": "m/s",
+        "accuracy_grade": "excellent"
+      },
+      "H4": {
+        "mae": 1.1960094002634285,
+        "rmse": 1.5742001972743453,
+        "bias": -0.1637982341122849,
+        "mape": 33.19156637146688,
+        "r2": 0.5302316578175873,
+        "persistence_mae": 1.3633333407618378,
+        "beats_persistence": true,
         "unit": "m/s",
         "accuracy_grade": "excellent"
       }

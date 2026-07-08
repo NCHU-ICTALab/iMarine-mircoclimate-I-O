@@ -1,0 +1,8 @@
+{
+  "station_id": "COMC08",
+  "target_group": "wind_speed_gust",
+  "mode": "zero_shot_transfer",
+  "source_checkpoint": "kaohsiung_microclimate_lstm\\models\\checkpoints\\467441_wind_speed_gust_best.pt",
+  "accuracy_grade": "low_confidence",
+  "reason": "valid_windows=0"
+}
