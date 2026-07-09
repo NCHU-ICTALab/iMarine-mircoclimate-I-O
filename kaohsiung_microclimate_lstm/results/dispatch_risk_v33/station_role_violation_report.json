@@ -1,0 +1,10 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "violations_found": false,
+  "checks": {
+    "467441_used_as_core_station": false,
+    "nearby_cwa_used_as_port_local_core": false,
+    "cwa_pop_used_as_model_input": false,
+    "khwd_is_only_port_local_station_group": true
+  }
+}

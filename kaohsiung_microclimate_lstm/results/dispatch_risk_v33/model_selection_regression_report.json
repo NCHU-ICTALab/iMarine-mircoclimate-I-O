@@ -1,0 +1,280 @@
+{
+  "generated_at": "2026-07-09T13:22:16+08:00",
+  "model_version": "kaohsiung_port_dispatch_risk_v3.3",
+  "total_cases": 4,
+  "passed_cases": 4,
+  "failed_cases": 0,
+  "cases": [
+    {
+      "case_id": "KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED",
+      "expected_mode": "port_local_postprocess",
+      "actual_mode": "port_local_postprocess",
+      "passed": true,
+      "selection": {
+        "selected_mode": "port_local_postprocess",
+        "fallback_chain": [
+          "port_local_model",
+          "port_local_postprocess",
+          "nearby_cwa_historical_model",
+          "fallback_baseline"
+        ],
+        "fallback_to_nearby_cwa_historical_model": false,
+        "fallback_to_467441": false,
+        "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+        "evaluated_modes": [
+          {
+            "mode": "port_local_model",
+            "eligible": false,
+            "reason_codes": [
+              "DATASET_NOT_READY",
+              "PORT_LOCAL_MODEL_NOT_TRAINED",
+              "PORT_LOCAL_MODEL_UNAVAILABLE",
+              "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "port_local_postprocess",
+            "eligible": true,
+            "reason_codes": [
+              "VALID_KHWD_REALTIME_AVAILABLE"
+            ],
+            "selected": true
+          },
+          {
+            "mode": "nearby_cwa_historical_model",
+            "eligible": true,
+            "reason_codes": [
+              "MODEL_AVAILABLE",
+              "MODEL_ACCEPTED",
+              "NOT_SELECTED_BECAUSE_KHWD_REALTIME_HAS_PRIORITY"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "fallback_baseline",
+            "eligible": true,
+            "reason_codes": [
+              "NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"
+            ],
+            "selected": false
+          }
+        ],
+        "blocking_reasons": {
+          "port_local_model": [
+            "DATASET_NOT_READY",
+            "PORT_LOCAL_MODEL_NOT_TRAINED",
+            "PORT_LOCAL_MODEL_UNAVAILABLE",
+            "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+          ]
+        },
+        "assertions": {
+          "khwd_realtime_overrides_nearby_cwa_historical": true,
+          "nearby_cwa_only_used_when_khwd_unavailable": true,
+          "no_core_station_role_violation": true,
+          "rain_probability_preserved_in_all_anchors": true,
+          "cwa_pop_zero_is_valid_probability": true,
+          "critical_under_warning_blocks_model_activation": true
+        },
+        "selection_case_id": "KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED"
+      }
+    },
+    {
+      "case_id": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED",
+      "expected_mode": "nearby_cwa_historical_model",
+      "actual_mode": "nearby_cwa_historical_model",
+      "passed": true,
+      "selection": {
+        "selected_mode": "nearby_cwa_historical_model",
+        "fallback_chain": [
+          "port_local_model",
+          "port_local_postprocess",
+          "nearby_cwa_historical_model",
+          "fallback_baseline"
+        ],
+        "fallback_to_nearby_cwa_historical_model": true,
+        "fallback_to_467441": false,
+        "selection_reason": "KHWD realtime unavailable; nearby CWA historical model accepted and all selected stations are closer than 467441.",
+        "evaluated_modes": [
+          {
+            "mode": "port_local_model",
+            "eligible": false,
+            "reason_codes": [
+              "DATASET_NOT_READY",
+              "PORT_LOCAL_MODEL_NOT_TRAINED",
+              "PORT_LOCAL_MODEL_UNAVAILABLE",
+              "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "port_local_postprocess",
+            "eligible": false,
+            "reason_codes": [
+              "KHWD_REALTIME_DISABLED_BY_REQUEST",
+              "KHWD_REALTIME_UNAVAILABLE",
+              "VALID_KHWD_STATION_COUNT_LT_2"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "nearby_cwa_historical_model",
+            "eligible": true,
+            "reason_codes": [
+              "MODEL_AVAILABLE",
+              "MODEL_ACCEPTED",
+              "ALL_SELECTED_STATIONS_CLOSER_THAN_467441"
+            ],
+            "selected": true
+          },
+          {
+            "mode": "fallback_baseline",
+            "eligible": true,
+            "reason_codes": [
+              "NOT_SELECTED_BECAUSE_NEARBY_CWA_MODEL_AVAILABLE"
+            ],
+            "selected": false
+          }
+        ],
+        "blocking_reasons": {
+          "port_local_model": [
+            "DATASET_NOT_READY",
+            "PORT_LOCAL_MODEL_NOT_TRAINED",
+            "PORT_LOCAL_MODEL_UNAVAILABLE",
+            "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+          ],
+          "port_local_postprocess": [
+            "KHWD_REALTIME_DISABLED_BY_REQUEST",
+            "KHWD_REALTIME_UNAVAILABLE",
+            "VALID_KHWD_STATION_COUNT_LT_2"
+          ]
+        },
+        "assertions": {
+          "khwd_realtime_overrides_nearby_cwa_historical": true,
+          "nearby_cwa_only_used_when_khwd_unavailable": true,
+          "no_core_station_role_violation": true,
+          "rain_probability_preserved_in_all_anchors": true,
+          "cwa_pop_zero_is_valid_probability": true,
+          "critical_under_warning_blocks_model_activation": true
+        },
+        "selection_case_id": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED"
+      }
+    },
+    {
+      "case_id": "KHWD_UNAVAILABLE_NEARBY_REJECTED",
+      "expected_mode": "fallback_baseline",
+      "actual_mode": "fallback_baseline",
+      "passed": true,
+      "selection": {
+        "selected_mode": "fallback_baseline",
+        "fallback_chain": [
+          "port_local_model",
+          "port_local_postprocess",
+          "nearby_cwa_historical_model",
+          "fallback_baseline"
+        ],
+        "fallback_to_nearby_cwa_historical_model": false,
+        "fallback_to_467441": true,
+        "selection_reason": "No accepted port-local or nearby CWA model is available; using 467441 fallback baseline.",
+        "evaluated_modes": [
+          {
+            "mode": "port_local_model",
+            "eligible": false,
+            "reason_codes": [
+              "DATASET_NOT_READY",
+              "PORT_LOCAL_MODEL_NOT_TRAINED",
+              "PORT_LOCAL_MODEL_UNAVAILABLE",
+              "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "port_local_postprocess",
+            "eligible": false,
+            "reason_codes": [
+              "KHWD_REALTIME_DISABLED_BY_REQUEST",
+              "KHWD_REALTIME_UNAVAILABLE",
+              "VALID_KHWD_STATION_COUNT_LT_2"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "nearby_cwa_historical_model",
+            "eligible": false,
+            "reason_codes": [
+              "NEARBY_CWA_MODEL_NOT_ACCEPTED"
+            ],
+            "selected": false
+          },
+          {
+            "mode": "fallback_baseline",
+            "eligible": true,
+            "reason_codes": [],
+            "selected": true
+          }
+        ],
+        "blocking_reasons": {
+          "port_local_model": [
+            "DATASET_NOT_READY",
+            "PORT_LOCAL_MODEL_NOT_TRAINED",
+            "PORT_LOCAL_MODEL_UNAVAILABLE",
+            "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+          ],
+          "port_local_postprocess": [
+            "KHWD_REALTIME_DISABLED_BY_REQUEST",
+            "KHWD_REALTIME_UNAVAILABLE",
+            "VALID_KHWD_STATION_COUNT_LT_2"
+          ],
+          "nearby_cwa_historical_model": [
+            "NEARBY_CWA_MODEL_NOT_ACCEPTED"
+          ]
+        },
+        "assertions": {
+          "khwd_realtime_overrides_nearby_cwa_historical": true,
+          "nearby_cwa_only_used_when_khwd_unavailable": true,
+          "no_core_station_role_violation": true,
+          "rain_probability_preserved_in_all_anchors": true,
+          "cwa_pop_zero_is_valid_probability": true,
+          "critical_under_warning_blocks_model_activation": true
+        },
+        "selection_case_id": "KHWD_UNAVAILABLE_NEARBY_REJECTED"
+      }
+    },
+    {
+      "case_id": "PORT_LOCAL_MODEL_ACCEPTED",
+      "expected_mode": "port_local_model",
+      "actual_mode": "port_local_model",
+      "passed": true,
+      "selection": {
+        "selected_mode": "port_local_model",
+        "fallback_chain": [
+          "port_local_model",
+          "port_local_postprocess",
+          "nearby_cwa_historical_model",
+          "fallback_baseline"
+        ],
+        "fallback_to_nearby_cwa_historical_model": false,
+        "fallback_to_467441": false,
+        "selection_reason": "Port-local model passed all acceptance thresholds.",
+        "evaluated_modes": [
+          {
+            "mode": "port_local_model",
+            "eligible": true,
+            "reason_codes": [],
+            "selected": true
+          }
+        ],
+        "blocking_reasons": {},
+        "assertions": {
+          "khwd_realtime_overrides_nearby_cwa_historical": true,
+          "nearby_cwa_only_used_when_khwd_unavailable": true,
+          "no_core_station_role_violation": true,
+          "rain_probability_preserved_in_all_anchors": true,
+          "cwa_pop_zero_is_valid_probability": true,
+          "critical_under_warning_blocks_model_activation": true
+        },
+        "selection_case_id": "PORT_LOCAL_MODEL_ACCEPTED"
+      }
+    }
+  ]
+}

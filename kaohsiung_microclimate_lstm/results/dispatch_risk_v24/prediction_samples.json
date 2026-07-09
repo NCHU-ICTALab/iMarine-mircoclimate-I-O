@@ -1,0 +1,180 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v2.4",
+  "generated_at": "2026-07-07T22:29:26+08:00",
+  "target_area": {
+    "name": "Kaohsiung Port",
+    "port_code": "KHH",
+    "target_station_id": "467441"
+  },
+  "forecast_anchors": [
+    {
+      "label": "H1",
+      "offset_minutes": 30,
+      "timestamp": "2026-07-05T23:30:00+08:00",
+      "rain": {
+        "probability": 0.3463,
+        "level": "watch",
+        "source": "model_postprocess",
+        "confidence": "low_to_medium"
+      },
+      "wind_speed": {
+        "predicted_mps": 1.352,
+        "level": "normal",
+        "confidence": "high"
+      },
+      "wind_gust": {
+        "predicted_mps": 4.149,
+        "level": "normal",
+        "confidence": "medium_high",
+        "buffer_applied": true,
+        "buffer_mps": 1.2
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "watch",
+      "dispatch_suggestion": "可派工但需提高警戒，留意降雨、風速與陣風變化。"
+    },
+    {
+      "label": "H2",
+      "offset_minutes": 60,
+      "timestamp": "2026-07-06T00:00:00+08:00",
+      "rain": {
+        "probability": 0.296,
+        "level": "normal",
+        "source": "model_postprocess",
+        "confidence": "low_to_medium"
+      },
+      "wind_speed": {
+        "predicted_mps": 1.218,
+        "level": "normal",
+        "confidence": "high"
+      },
+      "wind_gust": {
+        "predicted_mps": 3.433,
+        "level": "normal",
+        "confidence": "medium_high",
+        "buffer_applied": true,
+        "buffer_mps": 1.2
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "dispatch_suggestion": "可正常派工，持續監測天氣變化。"
+    },
+    {
+      "label": "H3",
+      "offset_minutes": 90,
+      "timestamp": "2026-07-06T00:30:00+08:00",
+      "rain": {
+        "probability": 0.1843,
+        "level": "normal",
+        "source": "model_postprocess",
+        "confidence": "low_to_medium"
+      },
+      "wind_speed": {
+        "predicted_mps": 1.063,
+        "level": "normal",
+        "confidence": "high"
+      },
+      "wind_gust": {
+        "predicted_mps": 3.346,
+        "level": "normal",
+        "confidence": "medium_high",
+        "buffer_applied": true,
+        "buffer_mps": 1.2
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "dispatch_suggestion": "可正常派工，持續監測天氣變化。"
+    },
+    {
+      "label": "H4",
+      "offset_minutes": 120,
+      "timestamp": "2026-07-06T01:00:00+08:00",
+      "rain": {
+        "probability": 0.2374,
+        "level": "normal",
+        "source": "model_postprocess",
+        "confidence": "low_to_medium"
+      },
+      "wind_speed": {
+        "predicted_mps": 1.537,
+        "level": "normal",
+        "confidence": "high"
+      },
+      "wind_gust": {
+        "predicted_mps": 3.361,
+        "level": "normal",
+        "confidence": "medium_high",
+        "buffer_applied": true,
+        "buffer_mps": 1.2
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "dispatch_suggestion": "可正常派工，持續監測天氣變化。"
+    }
+  ],
+  "data_availability": {
+    "target_station_available": true,
+    "nearby_station_available": true,
+    "nearby_station_count": 3,
+    "cwa_pop_available": false,
+    "tide_available": false,
+    "visibility_available": false
+  },
+  "reliability": {
+    "wind_speed": "high",
+    "wind_gust": "medium_high",
+    "rain_probability": "low_to_medium",
+    "tide": "reference_only",
+    "visibility": "optional",
+    "marine_transfer": "low_confidence"
+  },
+  "trace": {
+    "port_local_scope": true,
+    "multi_station_input": true,
+    "city_wide_forecast_as_target": false,
+    "train_inference_mismatch_prevented": true,
+    "cwa_pop_used_as_model_input": false,
+    "cwa_pop_used_as_postprocess_prior": false,
+    "dispatch_risk_aggregation": "max_level_rule",
+    "base_models": {
+      "rain": "baseline_lstm_v2.3_pure_temporal",
+      "wind_speed_gust": "baseline_lstm_v2"
+    }
+  }
+}

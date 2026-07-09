@@ -1,0 +1,193 @@
+station_pool_version: v2.7
+station_pool_mode: port_local_priority
+
+target_area:
+  name: Kaohsiung Port
+  port_code: KHH
+  target_mode: port_area
+  target_area_role: dispatch_risk_area
+
+priority_groups:
+  port_local_wind:
+    priority: 1
+    required_for_core_prediction: true
+    min_available_stations: 2
+    stations:
+      - station_id: KHWD01
+        name: Kaohsiung Port Wind Station 01
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+      - station_id: KHWD04
+        name: Kaohsiung Port Wind Station 04
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+      - station_id: KHWD05
+        name: Kaohsiung Port Wind Station 05
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+      - station_id: KHWD06
+        name: Kaohsiung Port Wind Station 06
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+      - station_id: KHWD07
+        name: Kaohsiung Port Wind Station 07
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+      - station_id: KHWD08
+        name: Kaohsiung Port Wind Station 08
+        source: twport
+        type: wind
+        role: port_local_wind_station
+        is_port_local: true
+        is_core_station: true
+        enabled: true
+
+  port_local_tide:
+    priority: 2
+    required_for_core_prediction: false
+    role: reference_only
+    stations:
+      - station_id: KHTD01
+        source: twport
+        type: tide
+        role: port_local_tide_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+      - station_id: KHTD04
+        source: twport
+        type: tide
+        role: port_local_tide_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+      - station_id: KHTD05
+        source: twport
+        type: tide
+        role: port_local_tide_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+
+  port_local_wave_current:
+    priority: 3
+    required_for_core_prediction: false
+    role: reference_only
+    stations:
+      - station_id: KHAW01
+        source: twport
+        type: wave_current
+        role: port_local_wave_current_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+      - station_id: KHAW07
+        source: twport
+        type: wave_current
+        role: port_local_wave_current_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+      - station_id: KHAW08
+        source: twport
+        type: wave_current
+        role: port_local_wave_current_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+      - station_id: KHAW09
+        source: twport
+        type: wave_current
+        role: port_local_wave_current_station
+        is_port_local: true
+        is_core_station: false
+        enabled: true
+
+  cwa_forecast_auxiliary:
+    priority: 4
+    role: forecast_prior
+    stations_or_locations:
+      - dataset_id: F-D0047-091
+        location_name: Qianzhen District
+        element_name: PoP3h
+        role: rain_probability_prior
+        is_observation: false
+        enabled: true
+
+  fallback_baseline:
+    priority: 5
+    role: fallback_only
+    stations:
+      - station_id: "467441"
+        name: CWA Kaohsiung Weather Station
+        source: cwa
+        type: weather
+        role: fallback_baseline
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        usage: fallback_only
+
+  reference_only:
+    priority: 6
+    role: reference_only
+    included_in_dispatch_risk: false
+    stations:
+      - station_id: C4Q01
+        name: Xiaoliuqiu Tide Station
+        source: twport
+        type: tide
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+      - station_id: C4Q02
+        name: Donggang Tide Station
+        source: twport
+        type: tide
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+      - station_id: C4P01
+        name: Kaohsiung Tide Station
+        source: twport
+        type: tide
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+      - station_id: COMC08
+        name: Mituo Data Buoy
+        source: marine
+        type: buoy
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+
+fallback_policy:
+  allow_fallback_to_467441: true
+  require_trace_when_fallback: true
+  fallback_only_if_port_local_unavailable: true
+  fallback_only_if_port_local_model_poor: true

@@ -1,0 +1,77 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v2.8.1",
+  "generated_at": "2026-07-08T23:31:58+08:00",
+  "station_priority_summary": {
+    "prediction_mode": "port_local_postprocess",
+    "target_area": "KHH",
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "core_station_group": "port_local_wind",
+    "fallback_to_467441": false,
+    "fallback_station_id": null,
+    "fallback_reason": null,
+    "port_local_model_available": false,
+    "model_retraining_required": true,
+    "station_priority_policy": "port_local_first",
+    "467441_used_as_core_station": false,
+    "467441_usage": "not_used_or_fallback_only",
+    "configured_port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08",
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ]
+  },
+  "trace": {
+    "prediction_mode": "port_local_postprocess",
+    "using_port_local_station": true,
+    "fallback_to_467441": false,
+    "467441_used_as_core_station": false,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ]
+  },
+  "anchor_risk_levels": {
+    "H1": "watch",
+    "H2": "normal",
+    "H3": "normal",
+    "H4": "normal"
+  },
+  "anchor_action_levels": {
+    "H1": "observe_only",
+    "H2": "normal_dispatch",
+    "H3": "normal_dispatch",
+    "H4": "normal_dispatch"
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "models": [
+    {
+      "model_id": "port_local_model",
+      "model_family": "port_local_model",
+      "trained": false,
+      "available": false,
+      "accepted": false,
+      "activation_status": "disabled",
+      "reason": "KHWD historical dataset is not ready.",
+      "metrics_available": false,
+      "metrics_status": "not_available"
+    },
+    {
+      "model_id": "nearby_cwa_historical_model",
+      "model_family": "nearby_cwa_historical_model",
+      "trained": true,
+      "available": true,
+      "accepted": true,
+      "activation_status": "fallback_available",
+      "selected_in_normal_mode": false,
+      "selected_when_no_realtime_khwd_mode": true,
+      "training_station_ids": [
+        "C0V890",
+        "C0V490",
+        "C0V840",
+        "C0V810",
+        "C0V450",
+        "C0V900"
+      ],
+      "metrics_available": true,
+      "metrics_status": "available",
+      "reason": null,
+      "metrics": {
+        "wind_speed": {
+          "H1": {
+            "mae_mps": 0.5919,
+            "rmse_mps": 1.6457,
+            "r2": 0.3698,
+            "bias": -0.0579,
+            "critical_under_warning_count": 0
+          },
+          "H2": {
+            "mae_mps": 0.592,
+            "rmse_mps": 1.6458,
+            "r2": 0.3697,
+            "bias": -0.0579,
+            "critical_under_warning_count": 0
+          },
+          "H3": {
+            "mae_mps": 0.7156,
+            "rmse_mps": 1.6933,
+            "r2": 0.3329,
+            "bias": -0.1013,
+            "critical_under_warning_count": 0
+          },
+          "H4": {
+            "mae_mps": 0.7156,
+            "rmse_mps": 1.6934,
+            "r2": 0.3329,
+            "bias": -0.1012,
+            "critical_under_warning_count": 0
+          }
+        },
+        "wind_gust": {
+          "H1": {
+            "mae_mps": 0.6835,
+            "rmse_mps": 0.9632,
+            "r2": 0.8519,
+            "bias": 0.0692,
+            "critical_under_warning_count": 0
+          },
+          "H2": {
+            "mae_mps": 0.6835,
+            "rmse_mps": 0.9632,
+            "r2": 0.8519,
+            "bias": 0.0691,
+            "critical_under_warning_count": 0
+          },
+          "H3": {
+            "mae_mps": 0.9458,
+            "rmse_mps": 1.3301,
+            "r2": 0.7175,
+            "bias": 0.0126,
+            "critical_under_warning_count": 0
+          },
+          "H4": {
+            "mae_mps": 0.9458,
+            "rmse_mps": 1.3302,
+            "r2": 0.7175,
+            "bias": 0.0125,
+            "critical_under_warning_count": 0
+          }
+        },
+        "rain_probability": {
+          "H1": {
+            "brier_score": 0.0183,
+            "pod": 0.6187,
+            "far": 0.181,
+            "auc": 0.9638,
+            "csi": 0.5443
+          },
+          "H2": {
+            "brier_score": 0.0183,
+            "pod": 0.6187,
+            "far": 0.181,
+            "auc": 0.9638,
+            "csi": 0.5443
+          },
+          "H3": {
+            "brier_score": 0.0261,
+            "pod": 0.3705,
+            "far": 0.2536,
+            "auc": 0.9274,
+            "csi": 0.3291
+          },
+          "H4": {
+            "brier_score": 0.0261,
+            "pod": 0.3705,
+            "far": 0.2536,
+            "auc": 0.9274,
+            "csi": 0.3291
+          }
+        }
+      },
+      "acceptance": {
+        "model_accepted": true,
+        "critical_under_warning_count": 0,
+        "wind_speed_passed": true,
+        "wind_gust_passed": true,
+        "rain_probability_passed": true
+      }
+    }
+  ]
+}

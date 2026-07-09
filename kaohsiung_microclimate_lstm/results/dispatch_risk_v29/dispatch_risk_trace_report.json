@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-07-09T22:15:40+08:00",
+  "trace": {
+    "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+    "prediction_mode": "port_local_model",
+    "using_port_local_station": true,
+    "port_local_wind_station_count": 6,
+    "port_local_wind_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "port_local_wind_postprocess_enabled": true,
+    "port_local_gust_postprocess_enabled": true,
+    "rain_probability_preserved": true,
+    "rain_probability_model_used": true,
+    "cwa_pop_prior_enabled": true,
+    "cwa_pop_quality_gate_enabled": true,
+    "dispatch_risk_uses_postprocessed_wind_gust": true,
+    "467441_used_as_core_station": false
+  },
+  "postprocess_report_path": "results/dispatch_risk_v29/port_local_postprocess_report.json",
+  "rain_probability_report_path": "results/dispatch_risk_v29/rain_probability_report.json"
+}

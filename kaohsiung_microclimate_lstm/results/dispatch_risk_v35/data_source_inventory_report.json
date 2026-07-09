@@ -1,0 +1,66 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "data_sources": [
+    {
+      "source_id": "KHWD",
+      "source_name": "TWPort Kaohsiung Harbor Wind Stations",
+      "source_type": "port_local_realtime",
+      "role": "primary_realtime_wind_gust_source",
+      "used_for": [
+        "wind_speed",
+        "wind_gust",
+        "dispatch_risk"
+      ],
+      "used_as_model_input": false,
+      "used_as_realtime_postprocess": true,
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "status": "available"
+    },
+    {
+      "source_id": "nearby_cwa_historical",
+      "source_name": "Nearby CWA/CODIS historical stations",
+      "source_type": "historical_training_reference",
+      "role": "fallback_historical_model_training",
+      "used_for": [
+        "wind_speed",
+        "wind_gust",
+        "rain_probability"
+      ],
+      "used_as_model_input": true,
+      "used_as_realtime_postprocess": false,
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "status": "available"
+    },
+    {
+      "source_id": "467441",
+      "source_name": "CWA Kaohsiung Weather Station",
+      "source_type": "fallback_baseline",
+      "role": "last_resort_baseline_only",
+      "used_for": [
+        "fallback_wind",
+        "fallback_gust",
+        "fallback_rain_reference"
+      ],
+      "used_as_model_input": false,
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "status": "available"
+    },
+    {
+      "source_id": "CWA_PoP_Qianzhen",
+      "source_name": "CWA 3-hour PoP rain prior",
+      "source_type": "rain_prior",
+      "role": "postprocess_rain_prior_only",
+      "used_for": [
+        "rain_probability_adjustment"
+      ],
+      "used_as_model_input": false,
+      "used_for_current_prediction": true,
+      "cwa_pop_zero_treated_as_valid": true,
+      "status": "available"
+    }
+  ]
+}

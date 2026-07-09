@@ -1,0 +1,36 @@
+{
+  "registry_version": "v3.4",
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "generated_at": "2026-07-09T22:15:39+08:00",
+  "models": {
+    "port_local_model": {
+      "model_family": "port_local_model",
+      "artifact_version": "port_local_v34",
+      "manifest_path": "kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
+      "trained": false,
+      "available": false,
+      "accepted": false,
+      "reason": "manifest_missing"
+    },
+    "nearby_cwa_historical_model": {
+      "model_family": "nearby_cwa_historical_model",
+      "artifact_version": "nearby_cwa_v34",
+      "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+      "trained": true,
+      "available": true,
+      "accepted": true,
+      "selected_station_ids": [
+        "C0V890",
+        "C0V490",
+        "C0V840",
+        "C0V810",
+        "C0V450",
+        "C0V900"
+      ],
+      "all_selected_stations_closer_than_467441": true,
+      "is_port_local_core": false,
+      "reason": null
+    }
+  }
+}

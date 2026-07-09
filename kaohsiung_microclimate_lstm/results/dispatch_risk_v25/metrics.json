@@ -1,0 +1,74 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v2.5",
+  "generated_at": "2026-07-07T23:27:40+08:00",
+  "anchor_count": 4,
+  "dispatch_risk_levels": {
+    "H1": "watch",
+    "H2": "normal",
+    "H3": "normal",
+    "H4": "normal"
+  },
+  "dispatch_action_levels": {
+    "H1": "observe_only",
+    "H2": "normal_dispatch",
+    "H3": "normal_dispatch",
+    "H4": "normal_dispatch"
+  },
+  "primary_triggers": {
+    "H1": "rain_probability",
+    "H2": "wind_gust",
+    "H3": "wind_gust",
+    "H4": "wind_gust"
+  },
+  "rain_final_probabilities": {
+    "H1": 0.3463,
+    "H2": 0.296,
+    "H3": 0.1474,
+    "H4": 0.1899
+  },
+  "wind_speed_mps": {
+    "H1": 1.352,
+    "H2": 1.218,
+    "H3": 1.063,
+    "H4": 1.537
+  },
+  "wind_speed_beaufort": {
+    "H1": 1,
+    "H2": 1,
+    "H3": 1,
+    "H4": 1
+  },
+  "wind_gust_mps": {
+    "H1": 4.149,
+    "H2": 3.433,
+    "H3": 3.346,
+    "H4": 3.361
+  },
+  "wind_gust_beaufort": {
+    "H1": 3,
+    "H2": 3,
+    "H3": 2,
+    "H4": 2
+  },
+  "data_availability": {
+    "target_station_available": true,
+    "nearby_station_available": true,
+    "nearby_station_count": 3,
+    "cwa_pop_available": true,
+    "tide_available": false,
+    "visibility_available": false
+  },
+  "trace": {
+    "port_local_scope": true,
+    "multi_station_input": true,
+    "city_wide_forecast_as_target": false,
+    "train_inference_mismatch_prevented": true,
+    "cwa_pop_used_as_model_input": false,
+    "cwa_pop_used_as_postprocess_prior": true,
+    "dispatch_risk_aggregation": "max_level_rule",
+    "base_models": {
+      "rain": "baseline_lstm_v2.3_pure_temporal",
+      "wind_speed_gust": "baseline_lstm_v2"
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "generated_at": "2026-07-09T22:15:40+08:00",
+  "rain_probability_preserved": true,
+  "rain_probability_model_used": true,
+  "port_local_rain_data_available": false,
+  "cwa_prior_enabled": true,
+  "cwa_prior_applied_anchors": [
+    "H3",
+    "H4"
+  ],
+  "anchors": {
+    "H1": {
+      "raw_model_probability": 0.3463,
+      "nearby_adjusted_probability": 0.3463,
+      "port_local_adjusted_probability": null,
+      "cwa_adjusted_probability": null,
+      "final_probability": 0.3463,
+      "level": "watch",
+      "source_detail": {
+        "model_used": true,
+        "nearby_postprocess_applied": false,
+        "cwa_prior_applied": false,
+        "cwa_weight": 0.0,
+        "cwa_dataset_id": null,
+        "cwa_location_name": null,
+        "cwa_element_name": "3小時降雨機率",
+        "cwa_source_resolution": null,
+        "cwa_pop_quality": {
+          "anchor": "H1",
+          "anchor_time": "2026-07-09T22:45:39.840461+08:00",
+          "available": true,
+          "raw_value": "20",
+          "normalized_value": 0.2,
+          "parse_status": "ok",
+          "quality_status": "valid",
+          "reason": null,
+          "alignment_status": "matched_forecast_period",
+          "source": {
+            "dataset_id": "F-D0047-091",
+            "location_name": "前鎮區",
+            "element_name": "3小時降雨機率",
+            "source_resolution": "3h"
+          }
+        },
+        "port_local_rain_postprocess_applied": false,
+        "port_local_rain_data_available": false,
+        "port_local_rain_reason": "No port-local precipitation station available."
+      }
+    },
+    "H2": {
+      "raw_model_probability": 0.296,
+      "nearby_adjusted_probability": 0.296,
+      "port_local_adjusted_probability": null,
+      "cwa_adjusted_probability": null,
+      "final_probability": 0.296,
+      "level": "normal",
+      "source_detail": {
+        "model_used": true,
+        "nearby_postprocess_applied": false,
+        "cwa_prior_applied": false,
+        "cwa_weight": 0.0,
+        "cwa_dataset_id": null,
+        "cwa_location_name": null,
+        "cwa_element_name": "3小時降雨機率",
+        "cwa_source_resolution": null,
+        "cwa_pop_quality": {
+          "anchor": "H2",
+          "anchor_time": "2026-07-09T23:15:39.840461+08:00",
+          "available": true,
+          "raw_value": "20",
+          "normalized_value": 0.2,
+          "parse_status": "ok",
+          "quality_status": "valid",
+          "reason": null,
+          "alignment_status": "matched_forecast_period",
+          "source": {
+            "dataset_id": "F-D0047-091",
+            "location_name": "前鎮區",
+            "element_name": "3小時降雨機率",
+            "source_resolution": "3h"
+          }
+        },
+        "port_local_rain_postprocess_applied": false,
+        "port_local_rain_data_available": false,
+        "port_local_rain_reason": "No port-local precipitation station available."
+      }
+    },
+    "H3": {
+      "raw_model_probability": 0.1843,
+      "nearby_adjusted_probability": 0.1843,
+      "port_local_adjusted_probability": null,
+      "cwa_adjusted_probability": 0.1874,
+      "final_probability": 0.1874,
+      "level": "normal",
+      "source_detail": {
+        "model_used": true,
+        "nearby_postprocess_applied": false,
+        "cwa_prior_applied": true,
+        "cwa_weight": 0.2,
+        "cwa_dataset_id": "F-D0047-091",
+        "cwa_location_name": "前鎮區",
+        "cwa_element_name": "3小時降雨機率",
+        "cwa_source_resolution": "3h",
+        "cwa_pop_quality": {
+          "anchor": "H3",
+          "anchor_time": "2026-07-09T23:45:39.840461+08:00",
+          "available": true,
+          "raw_value": "20",
+          "normalized_value": 0.2,
+          "parse_status": "ok",
+          "quality_status": "valid",
+          "reason": null,
+          "alignment_status": "matched_forecast_period",
+          "source": {
+            "dataset_id": "F-D0047-091",
+            "location_name": "前鎮區",
+            "element_name": "3小時降雨機率",
+            "source_resolution": "3h"
+          }
+        },
+        "port_local_rain_postprocess_applied": false,
+        "port_local_rain_data_available": false,
+        "port_local_rain_reason": "No port-local precipitation station available."
+      }
+    },
+    "H4": {
+      "raw_model_probability": 0.2374,
+      "nearby_adjusted_probability": 0.2374,
+      "port_local_adjusted_probability": null,
+      "cwa_adjusted_probability": 0.2299,
+      "final_probability": 0.2299,
+      "level": "normal",
+      "source_detail": {
+        "model_used": true,
+        "nearby_postprocess_applied": false,
+        "cwa_prior_applied": true,
+        "cwa_weight": 0.2,
+        "cwa_dataset_id": "F-D0047-091",
+        "cwa_location_name": "前鎮區",
+        "cwa_element_name": "3小時降雨機率",
+        "cwa_source_resolution": "3h",
+        "cwa_pop_quality": {
+          "anchor": "H4",
+          "anchor_time": "2026-07-10T00:15:39.840461+08:00",
+          "available": true,
+          "raw_value": "20",
+          "normalized_value": 0.2,
+          "parse_status": "ok",
+          "quality_status": "valid",
+          "reason": null,
+          "alignment_status": "matched_forecast_period",
+          "source": {
+            "dataset_id": "F-D0047-091",
+            "location_name": "前鎮區",
+            "element_name": "3小時降雨機率",
+            "source_resolution": "3h"
+          }
+        },
+        "port_local_rain_postprocess_applied": false,
+        "port_local_rain_data_available": false,
+        "port_local_rain_reason": "No port-local precipitation station available."
+      }
+    }
+  }
+}

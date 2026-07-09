@@ -1,0 +1,8 @@
+{
+  "wind_speed": "high",
+  "wind_gust": "medium_high",
+  "rain_probability": "low_to_medium",
+  "tide": "reference_only",
+  "visibility": "optional",
+  "marine_transfer": "low_confidence"
+}

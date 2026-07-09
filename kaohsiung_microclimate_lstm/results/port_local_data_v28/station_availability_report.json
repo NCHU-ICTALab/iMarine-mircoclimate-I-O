@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-07-08T23:31:15+08:00",
+  "station_pool_version": "v2.7",
+  "port_local_stations_configured": [
+    "KHWD01",
+    "KHWD04",
+    "KHWD05",
+    "KHWD06",
+    "KHWD07",
+    "KHWD08"
+  ],
+  "port_local_stations_available": [
+    "KHWD01",
+    "KHWD04",
+    "KHWD05",
+    "KHWD06",
+    "KHWD07",
+    "KHWD08"
+  ],
+  "port_local_stations_missing": [],
+  "khwd_available_count": 6,
+  "khtd_available_count": 0,
+  "khaw_available_count": 0,
+  "port_local_wind_available": true,
+  "port_local_tide_available": false,
+  "port_local_wave_current_available": false,
+  "fallback_to_467441_required": false,
+  "recommended_prediction_mode": "port_local_postprocess"
+}

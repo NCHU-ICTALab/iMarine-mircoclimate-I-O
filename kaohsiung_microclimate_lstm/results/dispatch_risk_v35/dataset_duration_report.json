@@ -1,0 +1,70 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "datasets": [
+    {
+      "dataset_id": "khwd_realtime_recent",
+      "dataset_name": "KHWD port-local realtime station data",
+      "source_group": "KHWD",
+      "role": "realtime_postprocess",
+      "station_ids": [
+        "KHWD01",
+        "KHWD04",
+        "KHWD05",
+        "KHWD06",
+        "KHWD07",
+        "KHWD08"
+      ],
+      "time_start": "2026-07-08T23:27:00+08:00",
+      "time_end": "2026-07-08T23:29:00+08:00",
+      "duration_days": 0.001,
+      "total_rows": 12,
+      "valid_rows": 12,
+      "valid_ratio": 1.0,
+      "used_for_training": false,
+      "used_for_current_prediction": true,
+      "status": "available"
+    },
+    {
+      "dataset_id": "nearby_cwa_historical_training",
+      "dataset_name": "Nearby CWA historical training dataset",
+      "source_group": "nearby_cwa",
+      "role": "fallback_historical_model_training",
+      "station_ids": [
+        "C0V890",
+        "C0V490",
+        "C0V840",
+        "C0V810",
+        "C0V450",
+        "C0V900"
+      ],
+      "time_start": null,
+      "time_end": null,
+      "duration_days": 1282,
+      "total_rows": 184614,
+      "valid_rows": 184385,
+      "valid_ratio": 0.9988,
+      "used_for_training": true,
+      "used_for_current_prediction": false,
+      "status": "available"
+    },
+    {
+      "dataset_id": "fallback_467441",
+      "dataset_name": "467441 fallback baseline data",
+      "source_group": "cwa_baseline",
+      "role": "fallback_baseline",
+      "station_ids": [
+        "467441"
+      ],
+      "time_start": "2026-01-07T01:00:00+08:00",
+      "time_end": "2026-07-05T23:00:00+08:00",
+      "duration_days": 179.917,
+      "total_rows": 4144,
+      "valid_rows": 4144,
+      "valid_ratio": 1.0,
+      "used_for_training": false,
+      "used_for_current_prediction": false,
+      "status": "available"
+    }
+  ]
+}

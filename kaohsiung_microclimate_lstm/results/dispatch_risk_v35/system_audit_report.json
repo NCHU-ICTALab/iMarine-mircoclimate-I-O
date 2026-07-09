@@ -1,0 +1,667 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "generated_at": "2026-07-09T22:15:40+08:00",
+  "system_status_summary": {
+    "overall_status": "ready_for_demo_and_operation",
+    "normal_prediction_mode": "port_local_postprocess",
+    "nearby_cwa_historical_model_status": "trained_available_accepted",
+    "port_local_model_status": "disabled_dataset_not_ready",
+    "fallback_baseline_status": "available_last_resort_only",
+    "rain_probability_preserved": true
+  },
+  "data_source_summary": {
+    "primary_realtime_source": "KHWD",
+    "historical_fallback_training_source": "nearby_cwa_historical",
+    "fallback_baseline_source": "467441",
+    "rain_prior_source": "CWA_PoP_Qianzhen"
+  },
+  "station_summary": {
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "nearby_cwa_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "baseline_station_id": "467441"
+  },
+  "dataset_duration_summary": {
+    "khwd_realtime_recent": {
+      "dataset_id": "khwd_realtime_recent",
+      "dataset_name": "KHWD port-local realtime station data",
+      "source_group": "KHWD",
+      "role": "realtime_postprocess",
+      "station_ids": [
+        "KHWD01",
+        "KHWD04",
+        "KHWD05",
+        "KHWD06",
+        "KHWD07",
+        "KHWD08"
+      ],
+      "time_start": "2026-07-08T23:27:00+08:00",
+      "time_end": "2026-07-08T23:29:00+08:00",
+      "duration_days": 0.001,
+      "total_rows": 12,
+      "valid_rows": 12,
+      "valid_ratio": 1.0,
+      "used_for_training": false,
+      "used_for_current_prediction": true,
+      "status": "available"
+    },
+    "nearby_cwa_historical_training": {
+      "dataset_id": "nearby_cwa_historical_training",
+      "dataset_name": "Nearby CWA historical training dataset",
+      "source_group": "nearby_cwa",
+      "role": "fallback_historical_model_training",
+      "station_ids": [
+        "C0V890",
+        "C0V490",
+        "C0V840",
+        "C0V810",
+        "C0V450",
+        "C0V900"
+      ],
+      "time_start": null,
+      "time_end": null,
+      "duration_days": 1282,
+      "total_rows": 184614,
+      "valid_rows": 184385,
+      "valid_ratio": 0.9988,
+      "used_for_training": true,
+      "used_for_current_prediction": false,
+      "status": "available"
+    },
+    "fallback_467441": {
+      "dataset_id": "fallback_467441",
+      "dataset_name": "467441 fallback baseline data",
+      "source_group": "cwa_baseline",
+      "role": "fallback_baseline",
+      "station_ids": [
+        "467441"
+      ],
+      "time_start": "2026-01-07T01:00:00+08:00",
+      "time_end": "2026-07-05T23:00:00+08:00",
+      "duration_days": 179.917,
+      "total_rows": 4144,
+      "valid_rows": 4144,
+      "valid_ratio": 1.0,
+      "used_for_training": false,
+      "used_for_current_prediction": false,
+      "status": "available"
+    }
+  },
+  "model_accuracy_summary": {
+    "nearby_cwa_historical_model": {
+      "trained": true,
+      "accepted": true,
+      "wind_speed_h1_mae_mps": 0.5919,
+      "wind_gust_h1_mae_mps": 0.6835,
+      "rain_probability_brier_score": 0.0183,
+      "metrics_available": true
+    },
+    "port_local_model": {
+      "trained": false,
+      "accepted": false,
+      "reason": "KHWD historical dataset is not ready."
+    }
+  },
+  "model_selection_summary": {
+    "normal_mode_selected": "port_local_postprocess",
+    "no_realtime_khwd_mode_selected": "nearby_cwa_historical_model",
+    "fallback_chain": [
+      "port_local_model",
+      "port_local_postprocess",
+      "nearby_cwa_historical_model",
+      "fallback_baseline"
+    ]
+  },
+  "current_station_usage": {
+    "selected_prediction_mode": "port_local_postprocess",
+    "active_wind_source": "KHWD",
+    "active_gust_source": "KHWD",
+    "active_rain_source": "nearby_cwa_historical_rain_model_plus_cwa_prior",
+    "port_local_station_ids_used": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "nearby_cwa_station_ids_available": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "nearby_cwa_station_ids_used_for_current_prediction": [],
+    "baseline_station_id": "467441",
+    "baseline_station_used_for_current_prediction": false,
+    "cwa_pop_prior_used": true
+  },
+  "dashboard_cards": [
+    {
+      "card_id": "prediction_mode",
+      "title": "目前預測模式",
+      "value": "port_local_postprocess",
+      "description": "KHWD 即時資料可用時，正常模式使用 port_local_postprocess。"
+    },
+    {
+      "card_id": "model_status",
+      "title": "模型狀態",
+      "value": "nearby CWA model accepted",
+      "description": "port_local_model 尚未啟用；nearby CWA historical model 已訓練並通過驗收。"
+    },
+    {
+      "card_id": "station_usage",
+      "title": "目前使用測站",
+      "value": "KHWD01, KHWD04, KHWD05, KHWD06, KHWD07, KHWD08",
+      "description": "目前 wind/gust 使用 KHWD 港區即時測站。"
+    },
+    {
+      "card_id": "safety_invariants",
+      "title": "角色不變條件",
+      "value": "PASS",
+      "description": "467441 不作核心測站；nearby CWA 不作 port-local core；CWA PoP 不作 model input。"
+    }
+  ],
+  "dashboard_tables": {
+    "data_sources": [
+      {
+        "source_id": "KHWD",
+        "source_name": "TWPort Kaohsiung Harbor Wind Stations",
+        "source_type": "port_local_realtime",
+        "role": "primary_realtime_wind_gust_source",
+        "used_for": [
+          "wind_speed",
+          "wind_gust",
+          "dispatch_risk"
+        ],
+        "used_as_model_input": false,
+        "used_as_realtime_postprocess": true,
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "status": "available"
+      },
+      {
+        "source_id": "nearby_cwa_historical",
+        "source_name": "Nearby CWA/CODIS historical stations",
+        "source_type": "historical_training_reference",
+        "role": "fallback_historical_model_training",
+        "used_for": [
+          "wind_speed",
+          "wind_gust",
+          "rain_probability"
+        ],
+        "used_as_model_input": true,
+        "used_as_realtime_postprocess": false,
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "status": "available"
+      },
+      {
+        "source_id": "467441",
+        "source_name": "CWA Kaohsiung Weather Station",
+        "source_type": "fallback_baseline",
+        "role": "last_resort_baseline_only",
+        "used_for": [
+          "fallback_wind",
+          "fallback_gust",
+          "fallback_rain_reference"
+        ],
+        "used_as_model_input": false,
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "status": "available"
+      },
+      {
+        "source_id": "CWA_PoP_Qianzhen",
+        "source_name": "CWA 3-hour PoP rain prior",
+        "source_type": "rain_prior",
+        "role": "postprocess_rain_prior_only",
+        "used_for": [
+          "rain_probability_adjustment"
+        ],
+        "used_as_model_input": false,
+        "used_for_current_prediction": true,
+        "cwa_pop_zero_treated_as_valid": true,
+        "status": "available"
+      }
+    ],
+    "stations": [
+      {
+        "station_id": "KHWD01",
+        "station_name": "Kaohsiung Port Wind Station 01",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "KHWD04",
+        "station_name": "Kaohsiung Port Wind Station 04",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "KHWD05",
+        "station_name": "Kaohsiung Port Wind Station 05",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "KHWD06",
+        "station_name": "Kaohsiung Port Wind Station 06",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "KHWD07",
+        "station_name": "Kaohsiung Port Wind Station 07",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "KHWD08",
+        "station_name": "Kaohsiung Port Wind Station 08",
+        "station_group": "KHWD",
+        "role": "port_local_realtime_core",
+        "data_type": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "used_for_current_prediction": true,
+        "is_port_local_core": true,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V890",
+        "station_name": "Qianzhen",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V490",
+        "station_name": "Gushan",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V840",
+        "station_name": "Xiaogang",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V810",
+        "station_name": "Zuoying",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V450",
+        "station_name": "Xiaogang Outer",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "C0V900",
+        "station_name": "Linyuan",
+        "station_group": "nearby_cwa",
+        "role": "nearby_cwa_historical_fallback_reference",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": true,
+        "is_fallback_baseline": false
+      },
+      {
+        "station_id": "467441",
+        "station_name": "Kaohsiung",
+        "station_group": "cwa_baseline",
+        "role": "fallback_baseline_only",
+        "data_type": [
+          "wind_speed",
+          "wind_gust",
+          "rain_reference"
+        ],
+        "used_for_current_prediction": false,
+        "is_port_local_core": false,
+        "is_historical_training_reference": false,
+        "is_fallback_baseline": true
+      }
+    ],
+    "dataset_durations": [
+      {
+        "dataset_id": "khwd_realtime_recent",
+        "dataset_name": "KHWD port-local realtime station data",
+        "source_group": "KHWD",
+        "role": "realtime_postprocess",
+        "station_ids": [
+          "KHWD01",
+          "KHWD04",
+          "KHWD05",
+          "KHWD06",
+          "KHWD07",
+          "KHWD08"
+        ],
+        "time_start": "2026-07-08T23:27:00+08:00",
+        "time_end": "2026-07-08T23:29:00+08:00",
+        "duration_days": 0.001,
+        "total_rows": 12,
+        "valid_rows": 12,
+        "valid_ratio": 1.0,
+        "used_for_training": false,
+        "used_for_current_prediction": true,
+        "status": "available"
+      },
+      {
+        "dataset_id": "nearby_cwa_historical_training",
+        "dataset_name": "Nearby CWA historical training dataset",
+        "source_group": "nearby_cwa",
+        "role": "fallback_historical_model_training",
+        "station_ids": [
+          "C0V890",
+          "C0V490",
+          "C0V840",
+          "C0V810",
+          "C0V450",
+          "C0V900"
+        ],
+        "time_start": null,
+        "time_end": null,
+        "duration_days": 1282,
+        "total_rows": 184614,
+        "valid_rows": 184385,
+        "valid_ratio": 0.9988,
+        "used_for_training": true,
+        "used_for_current_prediction": false,
+        "status": "available"
+      },
+      {
+        "dataset_id": "fallback_467441",
+        "dataset_name": "467441 fallback baseline data",
+        "source_group": "cwa_baseline",
+        "role": "fallback_baseline",
+        "station_ids": [
+          "467441"
+        ],
+        "time_start": "2026-01-07T01:00:00+08:00",
+        "time_end": "2026-07-05T23:00:00+08:00",
+        "duration_days": 179.917,
+        "total_rows": 4144,
+        "valid_rows": 4144,
+        "valid_ratio": 1.0,
+        "used_for_training": false,
+        "used_for_current_prediction": false,
+        "status": "available"
+      }
+    ],
+    "model_metrics": [
+      {
+        "model_id": "port_local_model",
+        "model_family": "port_local_model",
+        "trained": false,
+        "available": false,
+        "accepted": false,
+        "activation_status": "disabled",
+        "reason": "KHWD historical dataset is not ready.",
+        "metrics_available": false,
+        "metrics_status": "not_available"
+      },
+      {
+        "model_id": "nearby_cwa_historical_model",
+        "model_family": "nearby_cwa_historical_model",
+        "trained": true,
+        "available": true,
+        "accepted": true,
+        "activation_status": "fallback_available",
+        "selected_in_normal_mode": false,
+        "selected_when_no_realtime_khwd_mode": true,
+        "training_station_ids": [
+          "C0V890",
+          "C0V490",
+          "C0V840",
+          "C0V810",
+          "C0V450",
+          "C0V900"
+        ],
+        "metrics_available": true,
+        "metrics_status": "available",
+        "reason": null,
+        "metrics": {
+          "wind_speed": {
+            "H1": {
+              "mae_mps": 0.5919,
+              "rmse_mps": 1.6457,
+              "r2": 0.3698,
+              "bias": -0.0579,
+              "critical_under_warning_count": 0
+            },
+            "H2": {
+              "mae_mps": 0.592,
+              "rmse_mps": 1.6458,
+              "r2": 0.3697,
+              "bias": -0.0579,
+              "critical_under_warning_count": 0
+            },
+            "H3": {
+              "mae_mps": 0.7156,
+              "rmse_mps": 1.6933,
+              "r2": 0.3329,
+              "bias": -0.1013,
+              "critical_under_warning_count": 0
+            },
+            "H4": {
+              "mae_mps": 0.7156,
+              "rmse_mps": 1.6934,
+              "r2": 0.3329,
+              "bias": -0.1012,
+              "critical_under_warning_count": 0
+            }
+          },
+          "wind_gust": {
+            "H1": {
+              "mae_mps": 0.6835,
+              "rmse_mps": 0.9632,
+              "r2": 0.8519,
+              "bias": 0.0692,
+              "critical_under_warning_count": 0
+            },
+            "H2": {
+              "mae_mps": 0.6835,
+              "rmse_mps": 0.9632,
+              "r2": 0.8519,
+              "bias": 0.0691,
+              "critical_under_warning_count": 0
+            },
+            "H3": {
+              "mae_mps": 0.9458,
+              "rmse_mps": 1.3301,
+              "r2": 0.7175,
+              "bias": 0.0126,
+              "critical_under_warning_count": 0
+            },
+            "H4": {
+              "mae_mps": 0.9458,
+              "rmse_mps": 1.3302,
+              "r2": 0.7175,
+              "bias": 0.0125,
+              "critical_under_warning_count": 0
+            }
+          },
+          "rain_probability": {
+            "H1": {
+              "brier_score": 0.0183,
+              "pod": 0.6187,
+              "far": 0.181,
+              "auc": 0.9638,
+              "csi": 0.5443
+            },
+            "H2": {
+              "brier_score": 0.0183,
+              "pod": 0.6187,
+              "far": 0.181,
+              "auc": 0.9638,
+              "csi": 0.5443
+            },
+            "H3": {
+              "brier_score": 0.0261,
+              "pod": 0.3705,
+              "far": 0.2536,
+              "auc": 0.9274,
+              "csi": 0.3291
+            },
+            "H4": {
+              "brier_score": 0.0261,
+              "pod": 0.3705,
+              "far": 0.2536,
+              "auc": 0.9274,
+              "csi": 0.3291
+            }
+          }
+        },
+        "acceptance": {
+          "model_accepted": true,
+          "critical_under_warning_count": 0,
+          "wind_speed_passed": true,
+          "wind_gust_passed": true,
+          "rain_probability_passed": true
+        }
+      }
+    ],
+    "model_selection": [
+      {
+        "endpoint": "/api/v1/dispatch/risk?target_area=KHH",
+        "selected_mode": "port_local_postprocess",
+        "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+        "active_wind_source": "KHWD",
+        "active_gust_source": "KHWD",
+        "fallback_to_nearby_cwa_historical_model": false,
+        "fallback_to_467441": false
+      },
+      {
+        "endpoint": "/api/v1/dispatch/risk?target_area=KHH&no_realtime_khwd_mode=true",
+        "selected_mode": "nearby_cwa_historical_model",
+        "selection_reason": "KHWD realtime unavailable; nearby CWA historical model accepted and all selected stations are closer than 467441.",
+        "active_wind_source": "nearby_cwa_historical_model",
+        "active_gust_source": "nearby_cwa_historical_model",
+        "fallback_to_nearby_cwa_historical_model": true,
+        "fallback_to_467441": false
+      }
+    ]
+  },
+  "trace": {
+    "system_audit_version": "v3.5",
+    "metrics_loaded": true,
+    "dataset_duration_loaded": true,
+    "station_inventory_loaded": true,
+    "no_fabricated_metrics": true,
+    "no_fabricated_dataset_duration": true,
+    "467441_used_as_core_station": false,
+    "nearby_cwa_used_as_port_local_core": false,
+    "cwa_pop_used_as_model_input": false,
+    "rain_probability_preserved": true
+  }
+}

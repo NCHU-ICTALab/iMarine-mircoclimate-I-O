@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-07-08T23:31:15+08:00",
+  "source": "twport",
+  "station_results": {
+    "KHWD01": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:28:00+08:00",
+      "time_end": "2026-07-08T23:28:00+08:00",
+      "error": null
+    },
+    "KHWD04": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:27:00+08:00",
+      "time_end": "2026-07-08T23:27:00+08:00",
+      "error": null
+    },
+    "KHWD05": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:28:00+08:00",
+      "time_end": "2026-07-08T23:28:00+08:00",
+      "error": null
+    },
+    "KHWD06": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:29:00+08:00",
+      "time_end": "2026-07-08T23:29:00+08:00",
+      "error": null
+    },
+    "KHWD07": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:28:00+08:00",
+      "time_end": "2026-07-08T23:28:00+08:00",
+      "error": null
+    },
+    "KHWD08": {
+      "requested": true,
+      "available": true,
+      "record_count": 2,
+      "time_start": "2026-07-08T23:27:00+08:00",
+      "time_end": "2026-07-08T23:27:00+08:00",
+      "error": null
+    }
+  },
+  "summary": {
+    "requested_count": 6,
+    "available_count": 6,
+    "missing_count": 0,
+    "created_files": [
+      "KHWD01.csv",
+      "KHWD04.csv",
+      "KHWD05.csv",
+      "KHWD06.csv",
+      "KHWD07.csv",
+      "KHWD08.csv"
+    ]
+  }
+}

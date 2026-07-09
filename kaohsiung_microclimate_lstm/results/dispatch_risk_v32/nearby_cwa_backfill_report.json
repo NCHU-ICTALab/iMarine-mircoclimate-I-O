@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-07-09T12:51:24+08:00",
+  "source_mode": "downloader_get",
+  "start_date": "20230101",
+  "end_date": "20260708",
+  "records": [
+    {
+      "station_id": "C0V890",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V890\\C0V890_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V890.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V490",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V490\\C0V490_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V490.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V810",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V810\\C0V810_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V810.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V840",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V840\\C0V840_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V840.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V450",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V450\\C0V450_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V450.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V900",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V900\\C0V900_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V900.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V680",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V680\\C0V680_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V680.parquet",
+      "storage_format": "parquet"
+    },
+    {
+      "station_id": "C0V610",
+      "success": true,
+      "row_count": 30769,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V610\\C0V610_20230101_20260708.csv",
+      "processed_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V610.parquet",
+      "storage_format": "parquet"
+    }
+  ],
+  "success_count": 8
+}

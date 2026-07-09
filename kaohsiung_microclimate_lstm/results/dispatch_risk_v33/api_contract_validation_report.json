@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-07-09T13:22:36+08:00",
+  "model_version": "kaohsiung_port_dispatch_risk_v3.3",
+  "scenario": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED",
+  "api_url": "http://localhost:8000/api/v1/dispatch/risk?target_area=KHH&no_realtime_khwd_mode=true",
+  "passed": true,
+  "checks": {
+    "model_version_v33": true,
+    "expected_prediction_mode": true,
+    "467441_not_core": true,
+    "nearby_cwa_not_core": true,
+    "cwa_pop_not_model_input": true,
+    "rain_probability_preserved": true,
+    "evaluated_modes_present": true
+  },
+  "snapshot_path": "api_contract_snapshot_v33.json"
+}

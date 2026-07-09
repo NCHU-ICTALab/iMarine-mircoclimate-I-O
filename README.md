@@ -1,20 +1,63 @@
-# 高雄港微氣候資料 API
+# 高雄港微氣候派工風險 API
 
-這是一個以 Python/FastAPI 建立的微氣候資料服務，用來擷取、正規化並提供高雄港周邊的海氣象資料。此服務定位為後續排程、風險評估與其他模組的上游輸入來源。
+本專案提供高雄港周邊微氣候資料擷取、模型預測與派工風險 API。最新後端版本為 `kaohsiung_port_dispatch_risk_v3.5`。
 
-這份公開 README 只說明可執行服務、操作方式與穩定 I/O 合約；私人規劃或規格文件不是執行專案必要內容，也不應提交到公開儲存庫。
+## v3.5 重點
 
-## 功能
+- 保留 v3.3 deterministic model selection：`port_local_model -> port_local_postprocess -> nearby_cwa_historical_model -> fallback_baseline`。
+- 保留 v3.4 training orchestration、model registry、model manifest、station usage payload。
+- 新增 System Audit：盤點資料來源、測站角色、資料期間、模型誤差指標與選模摘要。
+- API 回傳 `system_audit_summary`，完整內容由 `/api/v1/dispatch/system-audit` 查詢。
+- demo 頁面會顯示 System Audit cards、資料來源表、資料期間表、模型指標表與測站角色表。
+- debug/admin 端點：
+  - `GET /api/v1/dispatch/model-status?target_area=KHH`
+  - `GET /api/v1/dispatch/station-usage?target_area=KHH`
+  - `GET /api/v1/dispatch/system-audit?target_area=KHH`
 
-- TWPort 即時港區觀測資料。
-- CWA 即時氣象觀測資料。
-- CWA 歷史資料即時查詢，不將歷史回補寫入本地儲存。
-- 透過 CWA `O-B0075-001` 查詢海象與潮位歷史資料。
-- CODiS 備援歷史查詢，用於冷啟動或長時間停機後的補查。
-- 首頁儀表板可查看資料新鮮度、過期/停擺狀態與手動抓取控制。
-- `/api/v1/...` 提供版本化且穩定的 JSON 輸出合約。
+目前正常 KHWD 可用時：
 
-## 快速開始
+```json
+{
+  "prediction_mode": "port_local_postprocess",
+  "active_wind_source": "KHWD",
+  "active_gust_source": "KHWD",
+  "training_required": false,
+  "training_skipped": true
+}
+```
+
+模擬 `no_realtime_khwd_mode=true` 時：
+
+```json
+{
+  "prediction_mode": "nearby_cwa_historical_model",
+  "active_wind_source": "nearby_cwa_historical_model",
+  "active_gust_source": "nearby_cwa_historical_model",
+  "baseline_station_used_for_current_prediction": false
+}
+```
+
+## 不變條件
+
+```json
+{
+  "467441_used_as_core_station": false,
+  "nearby_cwa_used_as_port_local_core": false,
+  "cwa_pop_used_as_model_input": false,
+  "rain_probability_preserved": true
+}
+```
+
+角色定義：
+
+```text
+KHWD = 港區即時核心測站
+nearby CWA stations = historical fallback training reference
+467441 = fallback baseline only
+CWA PoP = rain prior only
+```
+
+## 安裝
 
 ```powershell
 python -m venv .venv
@@ -23,247 +66,132 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-編輯 `.env`，填入 CWA Open Data 授權碼：
+`.env` 內可放 CWA Open Data API key，例如：
 
 ```text
 CWA_API_KEY=your-cwa-open-data-key
 ```
 
-啟動 API：
+請勿將真實 API key commit 到 Git。
+
+## 啟動 API
 
 ```powershell
 uvicorn app.api:app --reload
 ```
 
-開啟首頁：
-
-```text
-http://127.0.0.1:8000/
-```
-
-Swagger 測試頁：
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-## 設定
-
-常用 `.env` 設定：
-
-```text
-CWA_API_KEY=
-CWA_DATA_ID=O-A0001-001
-CWA_STATION_NAMES=高雄,小港,旗后,高雄港
-CWA_COUNTY_NAMES=高雄市
-CWA_HISTORY_DATA_ID=O-A0001-001
-CWA_HISTORY_STATIONS=467441:cwb:Kaohsiung
-CWA_MARINE_DATA_ID=O-B0075-001
-CWA_MARINE_STATION_IDS=C4P01,1786,COMC08,46714D,C4Q02,C4Q01
-CWA_VERIFY_SSL=true
-TWPORT_BASE_URL=https://wwtf.twport.com.tw/twport/display/Realtime_Panel_Port_GatData_2024.aspx
-TWPORT_PORT_ID=5
-TWPORT_VERIFY_SSL=true
-DATABASE_URL=microclimate.sqlite3
-```
-
-如果本機 Python 環境遇到憑證鏈問題，可在受信任環境中暫時將對應的 verify 設為 `false`。
-
-## I/O 總覽
-
-### 輸入
-
-服務接受三類輸入：
-
-| 輸入類型 | 位置 | 用途 |
-| --- | --- | --- |
-| 執行設定 | `.env` | API key、來源 ID、測站篩選、資料庫路徑 |
-| 手動抓取請求 | Admin endpoints 與首頁按鈕 | 觸發 TWPort/CWA 即時資料抓取 |
-| 歷史資料即時查詢 | `/api/v1/cwa/history` | 查詢 CWA 歷史資料，不寫入 SQLite |
-
-外部資料來源：
-
-| 來源 | 資料 | 本地儲存 |
-| --- | --- | --- |
-| TWPort | 即時風、能見度、潮位、浪、海流 | 執行 admin fetch 時寫入 |
-| CWA Open Data | 即時氣象觀測 | 執行 admin fetch 時寫入 |
-| CWA historyapi | 陸上氣象歷史資料 | 不寫入 |
-| CWA `O-B0075-001` | 滾動 48 小時海象/潮位資料 | 不寫入 |
-| CODiS fallback | 備援測站歷史資料 | 不寫入 |
-
-### 中間儲存
-
-即時抓取資料會寫入 SQLite：
-
-```text
-microclimate.sqlite3
-```
-
-主要資料表：
-
-```text
-microclimate_observations
-```
-
-CWA 歷史回補查詢刻意採即時查詢，不寫入 SQLite，避免本地儲存持續成長。
-
-### 輸出
-
-後續模組應優先使用穩定 v1 endpoints：
-
-```text
-GET /api/v1/schema
-GET /api/v1/microclimate/current
-GET /api/v1/microclimate/forecast?minutes=90
-GET /api/v1/cwa/history?hours=24&source=official_land
-```
-
-舊版 endpoints，例如 `/microclimate/current`，仍保留給相容與人工檢查；新模組不應依賴其輸出格式。
-
-## 穩定輸出合約
-
-所有 v1 endpoints 使用相同 response envelope：
-
-```json
-{
-  "schema_version": "microclimate.v1",
-  "endpoint": "/api/v1/microclimate/current",
-  "generated_at": "2026-07-02T18:45:00+08:00",
-  "time_zone": "Asia/Taipei",
-  "request": {},
-  "metadata": {},
-  "data_quality": {},
-  "data": []
-}
-```
-
-`data` 內每筆 observation 使用固定 record shape：
-
-```json
-{
-  "record_id": "twport:WIND:KHWD01M01:observed:2026-07-02T18:40:00+08:00",
-  "source": "twport",
-  "device_type": "WIND",
-  "station": {
-    "station_id": "KHWD01M01",
-    "station_name": "station display name",
-    "location": "station location",
-    "port_code": "5",
-    "longitude": 120.28,
-    "latitude": 22.61,
-    "elevation": null
-  },
-  "time": {
-    "observed_at": "2026-07-02T18:40:00+08:00",
-    "fetched_at": "2026-07-02T18:43:00+08:00",
-    "time_zone": "Asia/Taipei"
-  },
-  "metrics": {
-    "wind_speed_mps": 2.5,
-    "wind_gust_mps": 4.1,
-    "wind_direction_deg": 270.0,
-    "wind_gust_direction_deg": null,
-    "precipitation_10min_mm": null,
-    "precipitation_1hr_mm": null,
-    "precipitation_24hr_mm": null,
-    "air_temperature_c": null,
-    "relative_humidity_percent": null,
-    "air_pressure_hpa": null,
-    "visibility_m": null,
-    "tide_level": null,
-    "tide_level_unit": "raw",
-    "wave_height_m": null,
-    "wave_period_s": null,
-    "wave_max_height_m": null,
-    "current_speed_mps": null,
-    "current_direction_deg": null
-  },
-  "quality": {
-    "is_forecast": false,
-    "confidence": "high",
-    "stale_at_fetch": false,
-    "status_level": "current",
-    "status_label": "正常",
-    "is_stale_now": false,
-    "obs_age_minutes": 5,
-    "fetch_age_minutes": 2,
-    "threshold_minutes": 20,
-    "expected_update_interval": "現場風站約 1-5 分鐘；模擬風站可能整點更新"
-  }
-}
-```
-
-相容性規則：
-
-- `schema_version` 維持 `microclimate.v1` 時，既有欄位名稱與單位不可變更。
-- 破壞性變更必須新增版本，例如 `microclimate.v2`。
-- v1 輸出不暴露來源原始 payload。
-
-完整合約可查：
-
-```text
-GET /api/v1/schema
-```
-
-## 主要 Endpoints
-
-### 首頁與健康檢查
+常用端點：
 
 ```text
 GET /
+GET /dispatch-risk-demo
 GET /health
 GET /docs
-```
-
-### 手動抓取
-
-```text
-POST /admin/fetch?wind_mode=1
-POST /admin/fetch-cwa
-POST /admin/fetch-all?wind_mode=1
-```
-
-`wind_mode` 支援：
-
-| 值 | 意義 |
-| --- | --- |
-| `1` | 1 分鐘平均風速 |
-| `10` | 10 分鐘平均風速 |
-| `15` | 15 分鐘平均風速 |
-
-### 穩定 v1 輸出
-
-```text
 GET /api/v1/schema
+GET /api/v1/dispatch/risk?target_area=KHH
+GET /api/v1/dispatch/risk?target_area=KHH&refresh_port_local=true
+GET /api/v1/dispatch/risk?target_area=KHH&no_realtime_khwd_mode=true
+GET /api/v1/dispatch/model-status?target_area=KHH
+GET /api/v1/dispatch/station-usage?target_area=KHH
+GET /api/v1/dispatch/system-audit?target_area=KHH
 GET /api/v1/microclimate/current
 GET /api/v1/microclimate/forecast?minutes=90
-GET /api/v1/cwa/history?hours=24&source=official_land
 ```
 
-`/api/v1/cwa/history` 支援：
+## Port-local 資料抓取
 
-| 參數 | 可用值 |
-| --- | --- |
-| `hours` | `6`, `12`, `24`, `48` |
-| `source` | `official_land`, `marine`, `all`, `codis_fallback` |
+```powershell
+python kaohsiung_microclimate_lstm/src/tools/fetch_port_local_stations.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --station-pool kaohsiung_microclimate_lstm/config/station_pool.yaml `
+  --output-dir kaohsiung_microclimate_lstm/data/raw/observed_hourly `
+  --report-dir kaohsiung_microclimate_lstm/results/port_local_data_v28
+```
 
-### 診斷
+目前港區風力測站：
 
 ```text
-GET /microclimate/status
-GET /cwa/history/diagnostics?hours=6
+KHWD01, KHWD04, KHWD05, KHWD06, KHWD07, KHWD08
 ```
 
-`/microclimate/status` 適合檢查資料新鮮度。`/cwa/history/diagnostics` 會檢查 CWA 歷史與海象來源是否可用，並遮蔽 CWA key。
+## Nearby CWA Historical 訓練成果
 
-## 文件
+已完成 nearby CWA/CODIS historical fallback model 訓練，使用比 `467441` 更接近高雄港的測站：
 
-更細的操作與規則文件：
+```text
+C0V890, C0V490, C0V840, C0V810, C0V450, C0V900
+```
 
-- [I/O 合約](docs/io_contract.md)
-- [資料來源與新鮮度規則](docs/data_sources.md)
-- [操作手冊](docs/operations.md)
-- [開發維護說明](docs/development.md)
+主要成效：
+
+```text
+training_days: 1282
+station_samples: 184614
+wind_speed H1 MAE: 0.5919 m/s
+wind_gust H1 MAE: 0.6835 m/s
+rain H1 Brier Score: 0.0183
+rain H1 AUC: 0.9638
+critical_under_warning_count: 0
+```
+
+## v3.5 CLI
+
+System audit：
+
+```powershell
+python kaohsiung_microclimate_lstm/src/tools/build_v35_system_audit_report.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --target-area KHH `
+  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v35
+```
+
+## v3.4 CLI
+
+Training orchestration：
+
+```powershell
+python kaohsiung_microclimate_lstm/src/tools/run_v34_training_orchestration.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --target-area KHH `
+  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v34
+```
+
+Model selection regression：
+
+```powershell
+python kaohsiung_microclimate_lstm/src/tools/run_model_selection_regression.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v34
+```
+
+## v3.5 報表
+
+```text
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/system_audit_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/data_source_inventory_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/station_inventory_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/dataset_duration_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/model_accuracy_summary_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/model_selection_summary_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/ui_dashboard_payload_v35.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/api_contract_snapshot_v35.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v35/prediction_samples_v35.json
+```
+
+## v3.4 報表
+
+```text
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/training_orchestration_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_registry_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_manifest_validation_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/current_station_usage_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/ui_payload_snapshot.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/api_contract_snapshot_v34.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_selection_regression_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/rain_probability_integrity_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/station_role_violation_report.json
+kaohsiung_microclimate_lstm/results/dispatch_risk_v34/prediction_samples.json
+```
 
 ## 測試
 
@@ -271,23 +199,26 @@ GET /cwa/history/diagnostics?hours=6
 python -m pytest
 ```
 
-目前測試涵蓋 parser 行為、CWA 正規化、歷史資料 collectors、儲存層新鮮度狀態、預報輸出與 v1 contract shape。
-
-## 安全與公開儲存庫注意事項
-
-- 不要提交 `.env`。
-- 不要提交本地 SQLite 資料庫。
-- 不要提交私人規劃或規格文件。
-- 不要把 API key 放進 logs、README 範例、截圖或 issue。
-- 如果私人檔案已被 Git 追蹤，push 前先從 index 移除：
+v3.5 指定測試：
 
 ```powershell
-git rm --cached "<private-spec-file>"
-git rm --cached "<private-prompt-file>"
+python -m pytest tests/test_dispatch_risk_v35_system_audit.py tests/test_dispatch_risk_v35_dataset_duration.py tests/test_dispatch_risk_v35_model_accuracy_summary.py tests/test_dispatch_risk_v35_station_inventory.py tests/test_dispatch_risk_v35_ui_dashboard_payload.py --basetemp .tmp_pytest_v35
 ```
 
-## 已知限制
+v3.4 指定測試：
 
-- TWPort parser 依賴目前 HTML table 結構。
-- CWA 歷史查詢為即時查詢，刻意不落地儲存。
-- 短期預報是簡易趨勢估計，不是精準天氣預報。
+```powershell
+python -m pytest tests/test_dispatch_risk_v34_training_orchestration.py tests/test_dispatch_risk_v34_model_registry.py tests/test_dispatch_risk_v34_station_usage.py tests/test_dispatch_risk_v34_ui_payload.py tests/test_dispatch_risk_v34_api_contract.py --basetemp .tmp_pytest_v34
+```
+
+## 文件
+
+- [v3.5 API Contract](docs/dispatch_risk_api_contract_v35.md)
+- [v3.4 API Contract](docs/dispatch_risk_api_contract_v34.md)
+- [v3.3 API Contract](docs/dispatch_risk_api_contract_v33.md)
+- [v3.2 API Contract](docs/dispatch_risk_api_contract_v32.md)
+- [v3.0 API Contract](docs/dispatch_risk_api_contract_v30.md)
+- [v2.9 API Contract](docs/dispatch_risk_api_contract_v29.md)
+- [v2.8 API Contract](docs/dispatch_risk_api_contract_v28.md)
+- [v2.7 API Contract](docs/dispatch_risk_api_contract_v27.md)
+- [v2.6 API Contract](docs/dispatch_risk_api_contract_v26.md)

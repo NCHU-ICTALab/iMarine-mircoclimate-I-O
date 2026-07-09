@@ -1,0 +1,1261 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "generated_at": "2026-07-09T22:15:38+08:00",
+  "target_area": {
+    "name": "Kaohsiung Port",
+    "port_code": "KHH",
+    "target_mode": "port_area"
+  },
+  "forecast_anchors": [
+    {
+      "label": "H1",
+      "offset_minutes": 30,
+      "timestamp": "2026-07-05T23:30:00+08:00",
+      "rain": {
+        "raw_model_probability": 0.3463,
+        "nearby_adjusted_probability": 0.3463,
+        "cwa_adjusted_probability": null,
+        "final_probability": 0.3463,
+        "level": "watch",
+        "confidence": "low_to_medium",
+        "source_detail": {
+          "model_used": true,
+          "nearby_postprocess_applied": false,
+          "cwa_prior_applied": false,
+          "cwa_weight": 0.0,
+          "cwa_dataset_id": null,
+          "cwa_location_name": null,
+          "cwa_element_name": "3小時降雨機率",
+          "cwa_source_resolution": null,
+          "cwa_pop_quality": {
+            "anchor": "H1",
+            "anchor_time": "2026-07-09T22:45:38.449862+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
+            "source": {
+              "dataset_id": "F-D0047-091",
+              "location_name": "前鎮區",
+              "element_name": "3小時降雨機率",
+              "source_resolution": "3h"
+            }
+          },
+          "port_local_rain_postprocess_applied": false,
+          "port_local_rain_data_available": false,
+          "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "port_local_adjusted_probability": null
+      },
+      "wind_speed": {
+        "predicted_mps": 1.352,
+        "beaufort": {
+          "scale": 1,
+          "label_zh": "軟風",
+          "range_mps": "0.3-1.5"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "high",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false,
+          "source": "KHWD",
+          "station_ids_used": [
+            "KHWD01",
+            "KHWD04",
+            "KHWD05",
+            "KHWD06",
+            "KHWD07",
+            "KHWD08"
+          ],
+          "base_operation_level": "normal",
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
+          "khwd_wind_speed_max": 4.318,
+          "threshold_triggered": null
+        }
+      },
+      "wind_gust": {
+        "predicted_mps": 4.149,
+        "beaufort": {
+          "scale": 3,
+          "label_zh": "微風",
+          "range_mps": "3.4-5.4"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "medium_high",
+        "buffer_applied": false,
+        "buffer_mps": 1.2,
+        "original_level_without_buffer": "normal",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false,
+          "source": "KHWD",
+          "station_ids_used": [
+            "KHWD01",
+            "KHWD04",
+            "KHWD05",
+            "KHWD06",
+            "KHWD07",
+            "KHWD08"
+          ],
+          "base_operation_level": "normal",
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed gust postprocess thresholds.",
+          "khwd_wind_gust_max": 4.68,
+          "threshold_triggered": null
+        }
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "watch",
+      "risk_trigger_detail": {
+        "primary_trigger": "rain_probability",
+        "primary_trigger_level": "watch",
+        "primary_trigger_reliability": "low_to_medium",
+        "all_trigger_levels": {
+          "rain": "watch",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
+          "visibility": null,
+          "tide": null
+        },
+        "is_low_reliability_trigger": true
+      },
+      "dispatch_action_level": "observe_only",
+      "dispatch_action": {
+        "dispatch_action_level": "observe_only",
+        "action_label": "觀察",
+        "action_description": "風險來源可靠度較低，建議先觀察並加強現場回報。"
+      },
+      "dispatch_suggestion": "風險來源可靠度較低，建議先觀察並加強現場回報。",
+      "port_local_postprocess": {
+        "enabled": false,
+        "mode": "fallback_baseline",
+        "port_local_wind_postprocess_applied": false,
+        "port_local_gust_postprocess_applied": false,
+        "port_local_rain_postprocess_applied": false,
+        "port_local_station_ids_used": [
+          "KHWD01",
+          "KHWD04",
+          "KHWD05",
+          "KHWD06",
+          "KHWD07",
+          "KHWD08"
+        ],
+        "port_local_features_used": []
+      }
+    },
+    {
+      "label": "H2",
+      "offset_minutes": 60,
+      "timestamp": "2026-07-06T00:00:00+08:00",
+      "rain": {
+        "raw_model_probability": 0.296,
+        "nearby_adjusted_probability": 0.296,
+        "cwa_adjusted_probability": null,
+        "final_probability": 0.296,
+        "level": "normal",
+        "confidence": "low_to_medium",
+        "source_detail": {
+          "model_used": true,
+          "nearby_postprocess_applied": false,
+          "cwa_prior_applied": false,
+          "cwa_weight": 0.0,
+          "cwa_dataset_id": null,
+          "cwa_location_name": null,
+          "cwa_element_name": "3小時降雨機率",
+          "cwa_source_resolution": null,
+          "cwa_pop_quality": {
+            "anchor": "H2",
+            "anchor_time": "2026-07-09T23:15:38.449862+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
+            "source": {
+              "dataset_id": "F-D0047-091",
+              "location_name": "前鎮區",
+              "element_name": "3小時降雨機率",
+              "source_resolution": "3h"
+            }
+          },
+          "port_local_rain_postprocess_applied": false,
+          "port_local_rain_data_available": false,
+          "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "port_local_adjusted_probability": null
+      },
+      "wind_speed": {
+        "predicted_mps": 1.218,
+        "beaufort": {
+          "scale": 1,
+          "label_zh": "軟風",
+          "range_mps": "0.3-1.5"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "high",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false,
+          "source": "KHWD",
+          "station_ids_used": [
+            "KHWD01",
+            "KHWD04",
+            "KHWD05",
+            "KHWD06",
+            "KHWD07",
+            "KHWD08"
+          ],
+          "base_operation_level": "normal",
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
+          "khwd_wind_speed_max": 4.318,
+          "threshold_triggered": null
+        }
+      },
+      "wind_gust": {
+        "predicted_mps": 3.433,
+        "beaufort": {
+          "scale": 3,
+          "label_zh": "微風",
+          "range_mps": "3.4-5.4"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "medium_high",
+        "buffer_applied": false,
+        "buffer_mps": 1.2,
+        "original_level_without_buffer": "normal",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false,
+          "source": "KHWD",
+          "station_ids_used": [
+            "KHWD01",
+            "KHWD04",
+            "KHWD05",
+            "KHWD06",
+            "KHWD07",
+            "KHWD08"
+          ],
+          "base_operation_level": "normal",
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed gust postprocess thresholds.",
+          "khwd_wind_gust_max": 4.68,
+          "threshold_triggered": null
+        }
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "risk_trigger_detail": {
+        "primary_trigger": "none",
+        "primary_trigger_level": "normal",
+        "primary_trigger_reliability": null,
+        "all_trigger_levels": {
+          "rain": "normal",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
+          "visibility": null,
+          "tide": null
+        },
+        "is_low_reliability_trigger": false
+      },
+      "dispatch_action_level": "normal_dispatch",
+      "dispatch_action": {
+        "dispatch_action_level": "normal_dispatch",
+        "action_label": "正常派工",
+        "action_description": "可正常安排作業，持續監測天氣變化。"
+      },
+      "dispatch_suggestion": "可正常安排作業，持續監測天氣變化。",
+      "port_local_postprocess": {
+        "enabled": false,
+        "mode": "fallback_baseline",
+        "port_local_wind_postprocess_applied": false,
+        "port_local_gust_postprocess_applied": false,
+        "port_local_rain_postprocess_applied": false,
+        "port_local_station_ids_used": [
+          "KHWD01",
+          "KHWD04",
+          "KHWD05",
+          "KHWD06",
+          "KHWD07",
+          "KHWD08"
+        ],
+        "port_local_features_used": []
+      }
+    },
+    {
+      "label": "H3",
+      "offset_minutes": 90,
+      "timestamp": "2026-07-06T00:30:00+08:00",
+      "rain": {
+        "raw_model_probability": 0.1843,
+        "nearby_adjusted_probability": 0.1843,
+        "cwa_adjusted_probability": 0.1874,
+        "final_probability": 0.1874,
+        "level": "normal",
+        "confidence": "low_to_medium",
+        "source_detail": {
+          "model_used": true,
+          "nearby_postprocess_applied": false,
+          "cwa_prior_applied": true,
+          "cwa_weight": 0.2,
+          "cwa_dataset_id": "F-D0047-091",
+          "cwa_location_name": "前鎮區",
+          "cwa_element_name": "3小時降雨機率",
+          "cwa_source_resolution": "3h",
+          "cwa_pop_quality": {
+            "anchor": "H3",
+            "anchor_time": "2026-07-09T23:45:38.449862+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
+            "source": {
+              "dataset_id": "F-D0047-091",
+              "location_name": "前鎮區",
+              "element_name": "3小時降雨機率",
+              "source_resolution": "3h"
+            }
+          },
+          "port_local_rain_postprocess_applied": false,
+          "port_local_rain_data_available": false,
+          "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "port_local_adjusted_probability": null
+      },
+      "wind_speed": {
+        "predicted_mps": 1.063,
+        "beaufort": {
+          "scale": 1,
+          "label_zh": "軟風",
+          "range_mps": "0.3-1.5"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "high",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false
+        }
+      },
+      "wind_gust": {
+        "predicted_mps": 3.346,
+        "beaufort": {
+          "scale": 2,
+          "label_zh": "輕風",
+          "range_mps": "1.6-3.3"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "medium_high",
+        "buffer_applied": false,
+        "buffer_mps": 1.2,
+        "original_level_without_buffer": "normal",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false
+        }
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "risk_trigger_detail": {
+        "primary_trigger": "none",
+        "primary_trigger_level": "normal",
+        "primary_trigger_reliability": null,
+        "all_trigger_levels": {
+          "rain": "normal",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
+          "visibility": null,
+          "tide": null
+        },
+        "is_low_reliability_trigger": false
+      },
+      "dispatch_action_level": "normal_dispatch",
+      "dispatch_action": {
+        "dispatch_action_level": "normal_dispatch",
+        "action_label": "正常派工",
+        "action_description": "可正常安排作業，持續監測天氣變化。"
+      },
+      "dispatch_suggestion": "可正常安排作業，持續監測天氣變化。",
+      "port_local_postprocess": {
+        "enabled": false,
+        "mode": "fallback_baseline",
+        "port_local_wind_postprocess_applied": false,
+        "port_local_gust_postprocess_applied": false,
+        "port_local_rain_postprocess_applied": false,
+        "port_local_station_ids_used": [
+          "KHWD01",
+          "KHWD04",
+          "KHWD05",
+          "KHWD06",
+          "KHWD07",
+          "KHWD08"
+        ],
+        "port_local_features_used": []
+      }
+    },
+    {
+      "label": "H4",
+      "offset_minutes": 120,
+      "timestamp": "2026-07-06T01:00:00+08:00",
+      "rain": {
+        "raw_model_probability": 0.2374,
+        "nearby_adjusted_probability": 0.2374,
+        "cwa_adjusted_probability": 0.2299,
+        "final_probability": 0.2299,
+        "level": "normal",
+        "confidence": "low_to_medium",
+        "source_detail": {
+          "model_used": true,
+          "nearby_postprocess_applied": false,
+          "cwa_prior_applied": true,
+          "cwa_weight": 0.2,
+          "cwa_dataset_id": "F-D0047-091",
+          "cwa_location_name": "前鎮區",
+          "cwa_element_name": "3小時降雨機率",
+          "cwa_source_resolution": "3h",
+          "cwa_pop_quality": {
+            "anchor": "H4",
+            "anchor_time": "2026-07-10T00:15:38.449862+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
+            "source": {
+              "dataset_id": "F-D0047-091",
+              "location_name": "前鎮區",
+              "element_name": "3小時降雨機率",
+              "source_resolution": "3h"
+            }
+          },
+          "port_local_rain_postprocess_applied": false,
+          "port_local_rain_data_available": false,
+          "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "port_local_adjusted_probability": null
+      },
+      "wind_speed": {
+        "predicted_mps": 1.537,
+        "beaufort": {
+          "scale": 1,
+          "label_zh": "軟風",
+          "range_mps": "0.3-1.5"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "high",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false
+        }
+      },
+      "wind_gust": {
+        "predicted_mps": 3.361,
+        "beaufort": {
+          "scale": 2,
+          "label_zh": "輕風",
+          "range_mps": "1.6-3.3"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "medium_high",
+        "buffer_applied": false,
+        "buffer_mps": 1.2,
+        "original_level_without_buffer": "normal",
+        "port_local_postprocess_applied": false,
+        "port_local_postprocess": {
+          "applied": false
+        }
+      },
+      "visibility": {
+        "available": false,
+        "level": null,
+        "confidence": "unavailable"
+      },
+      "tide": {
+        "available": false,
+        "level": null,
+        "confidence": "reference_only"
+      },
+      "dispatch_risk_level": "normal",
+      "risk_trigger_detail": {
+        "primary_trigger": "none",
+        "primary_trigger_level": "normal",
+        "primary_trigger_reliability": null,
+        "all_trigger_levels": {
+          "rain": "normal",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
+          "visibility": null,
+          "tide": null
+        },
+        "is_low_reliability_trigger": false
+      },
+      "dispatch_action_level": "normal_dispatch",
+      "dispatch_action": {
+        "dispatch_action_level": "normal_dispatch",
+        "action_label": "正常派工",
+        "action_description": "可正常安排作業，持續監測天氣變化。"
+      },
+      "dispatch_suggestion": "可正常安排作業，持續監測天氣變化。",
+      "port_local_postprocess": {
+        "enabled": false,
+        "mode": "fallback_baseline",
+        "port_local_wind_postprocess_applied": false,
+        "port_local_gust_postprocess_applied": false,
+        "port_local_rain_postprocess_applied": false,
+        "port_local_station_ids_used": [
+          "KHWD01",
+          "KHWD04",
+          "KHWD05",
+          "KHWD06",
+          "KHWD07",
+          "KHWD08"
+        ],
+        "port_local_features_used": []
+      }
+    }
+  ],
+  "cwa_forecast": {
+    "available": true,
+    "dataset_id": "F-D0047-091",
+    "location_name": "前鎮區",
+    "element_name": "3小時降雨機率",
+    "source_resolution": "3h",
+    "fetched_at": "2026-07-08T00:09:14+08:00",
+    "anchor_pop": {
+      "H1": 0.2,
+      "H2": 0.2,
+      "H3": 0.2,
+      "H4": 0.2
+    },
+    "anchor_pop_quality": {
+      "H1": {
+        "anchor": "H1",
+        "anchor_time": "2026-07-09T22:45:38.449862+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
+        "source": {
+          "dataset_id": "F-D0047-091",
+          "location_name": "前鎮區",
+          "element_name": "3小時降雨機率",
+          "source_resolution": "3h"
+        }
+      },
+      "H2": {
+        "anchor": "H2",
+        "anchor_time": "2026-07-09T23:15:38.449862+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
+        "source": {
+          "dataset_id": "F-D0047-091",
+          "location_name": "前鎮區",
+          "element_name": "3小時降雨機率",
+          "source_resolution": "3h"
+        }
+      },
+      "H3": {
+        "anchor": "H3",
+        "anchor_time": "2026-07-09T23:45:38.449862+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
+        "source": {
+          "dataset_id": "F-D0047-091",
+          "location_name": "前鎮區",
+          "element_name": "3小時降雨機率",
+          "source_resolution": "3h"
+        }
+      },
+      "H4": {
+        "anchor": "H4",
+        "anchor_time": "2026-07-10T00:15:38.449862+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
+        "source": {
+          "dataset_id": "F-D0047-091",
+          "location_name": "前鎮區",
+          "element_name": "3小時降雨機率",
+          "source_resolution": "3h"
+        }
+      }
+    },
+    "reason": null
+  },
+  "data_availability": {
+    "target_station_available": true,
+    "nearby_station_available": false,
+    "nearby_station_count": 0,
+    "cwa_pop_available": true,
+    "tide_available": false,
+    "visibility_available": false,
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "fallback_station_available": true,
+    "port_local_data_acquisition": {
+      "refresh_attempted": false,
+      "refresh_success": null,
+      "created_files": [],
+      "report_path": "kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json"
+    },
+    "port_local_postprocess_validation": {
+      "khwd_station_count": 6,
+      "quality_status": "ok",
+      "report_path": "results/dispatch_risk_v29/port_local_postprocess_report.json"
+    },
+    "model_registry_loaded": true,
+    "model_manifest_checked": true,
+    "nearby_cwa_historical_model_available": true,
+    "nearby_cwa_historical_model_accepted": true
+  },
+  "reliability": {
+    "wind_speed": "high",
+    "wind_gust": "medium_high",
+    "rain_probability": "low_to_medium",
+    "tide": "reference_only",
+    "visibility": "optional",
+    "marine_transfer": "low_confidence"
+  },
+  "trace": {
+    "port_local_scope": true,
+    "multi_station_input": true,
+    "city_wide_forecast_as_target": false,
+    "train_inference_mismatch_prevented": true,
+    "cwa_pop_used_as_model_input": false,
+    "cwa_pop_used_as_postprocess_prior": true,
+    "cwa_pop_quality_gate_enabled": true,
+    "zero_pop_distinguished_from_missing": true,
+    "normal_state_primary_trigger_none": true,
+    "risk_trigger_semantics_patch_applied": true,
+    "dispatch_risk_aggregation": "max_level_rule",
+    "base_models": {
+      "rain": "baseline_lstm_v2.3_pure_temporal",
+      "wind_speed_gust": "baseline_lstm_v2"
+    },
+    "target_area": "KHH",
+    "station_priority_policy": "port_local_first",
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "available_port_local_wind_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "fallback_to_467441": false,
+    "fallback_reason": "Dataset readiness failed; using port-local postprocess.",
+    "467441_used_as_core_station": false,
+    "467441_usage": "not_used_or_fallback_only",
+    "prediction_mode": "port_local_postprocess",
+    "port_local_model_available": true,
+    "model_retraining_required": false,
+    "port_local_data_acquisition_enabled": true,
+    "port_local_data_refresh_attempted": false,
+    "port_local_data_refresh_success": null,
+    "port_local_station_files_created": [],
+    "port_local_data_report_path": "kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json",
+    "fallback_to_existing_files": true,
+    "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+    "port_local_wind_station_count": 6,
+    "port_local_wind_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "port_local_wind_postprocess_enabled": true,
+    "port_local_gust_postprocess_enabled": true,
+    "rain_probability_preserved": true,
+    "rain_probability_model_used": true,
+    "cwa_pop_prior_enabled": true,
+    "dispatch_risk_uses_postprocessed_wind_gust": true,
+    "port_local_model_training_enabled": true,
+    "port_local_model_selected": false,
+    "port_local_model_accepted": false,
+    "fallback_to_port_local_postprocess": true,
+    "rain_model_mode": "nearby_cwa_historical_rain_model_plus_cwa_prior",
+    "nearby_cwa_historical_training_enabled": true,
+    "nearby_cwa_historical_model_available": true,
+    "nearby_cwa_historical_model_accepted": true,
+    "nearby_cwa_selected_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "all_nearby_cwa_stations_closer_than_467441": true,
+    "nearby_cwa_used_as_port_local_core": false,
+    "fallback_to_nearby_cwa_historical_model": false,
+    "selection_engine_version": "v3.4",
+    "selection_case_id": "KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED",
+    "khwd_realtime_available": true,
+    "valid_khwd_station_count": 6,
+    "no_realtime_khwd_mode": false,
+    "khwd_realtime_disabled_by_request": false,
+    "selection_assertions": {
+      "khwd_realtime_overrides_nearby_cwa_historical": true,
+      "nearby_cwa_only_used_when_khwd_unavailable": true,
+      "no_core_station_role_violation": true,
+      "rain_probability_preserved_in_all_anchors": true,
+      "cwa_pop_zero_is_valid_probability": true,
+      "critical_under_warning_blocks_model_activation": true,
+      "station_usage_exported_to_ui": true,
+      "model_training_status_exported_to_ui": true
+    },
+    "model_registry_loaded": true,
+    "model_manifest_checked": true,
+    "training_orchestration_version": "v3.4",
+    "training_required": false,
+    "training_skipped": true,
+    "port_local_station_ids_used": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "baseline_station_id": "467441"
+  },
+  "station_priority_summary": {
+    "prediction_mode": "port_local_postprocess",
+    "target_area": "KHH",
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "core_station_group": "port_local_wind",
+    "fallback_to_467441": false,
+    "fallback_station_id": null,
+    "fallback_reason": null,
+    "port_local_model_available": true,
+    "model_retraining_required": false,
+    "station_priority_policy": "port_local_first",
+    "467441_used_as_core_station": false,
+    "467441_usage": "not_used_or_fallback_only",
+    "configured_port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08",
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ]
+  },
+  "prediction_mode": "port_local_postprocess",
+  "model_selection_summary": {
+    "selected_mode": "port_local_postprocess",
+    "dataset_ready": false,
+    "port_local_model_trained": false,
+    "port_local_model_accepted": false,
+    "fallback_to_port_local_postprocess": true,
+    "fallback_to_467441": false,
+    "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+    "failed_reasons": [
+      "sample_count below min_total_samples",
+      "training_days below min_training_days",
+      "feature missing ratio above threshold",
+      "label missing ratio above threshold",
+      "H1 valid labels below threshold",
+      "H2 valid labels below threshold",
+      "H3 valid labels below threshold",
+      "H4 valid labels below threshold"
+    ],
+    "fallback_chain": [
+      "port_local_model",
+      "port_local_postprocess",
+      "nearby_cwa_historical_model",
+      "fallback_baseline"
+    ],
+    "nearby_cwa_historical_model_accepted": true,
+    "fallback_to_nearby_cwa_historical_model": false,
+    "port_local_postprocess_available": true,
+    "nearby_cwa_historical_model_available": true,
+    "evaluated_modes": [
+      {
+        "mode": "port_local_model",
+        "eligible": false,
+        "reason_codes": [
+          "DATASET_NOT_READY",
+          "PORT_LOCAL_MODEL_NOT_TRAINED",
+          "PORT_LOCAL_MODEL_UNAVAILABLE",
+          "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+        ],
+        "selected": false
+      },
+      {
+        "mode": "port_local_postprocess",
+        "eligible": true,
+        "reason_codes": [
+          "VALID_KHWD_REALTIME_AVAILABLE"
+        ],
+        "selected": true
+      },
+      {
+        "mode": "nearby_cwa_historical_model",
+        "eligible": true,
+        "reason_codes": [
+          "MODEL_AVAILABLE",
+          "MODEL_ACCEPTED",
+          "NOT_SELECTED_BECAUSE_KHWD_REALTIME_HAS_PRIORITY"
+        ],
+        "selected": false
+      },
+      {
+        "mode": "fallback_baseline",
+        "eligible": true,
+        "reason_codes": [
+          "NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"
+        ],
+        "selected": false
+      }
+    ],
+    "blocking_reasons": {
+      "port_local_model": [
+        "DATASET_NOT_READY",
+        "PORT_LOCAL_MODEL_NOT_TRAINED",
+        "PORT_LOCAL_MODEL_UNAVAILABLE",
+        "PORT_LOCAL_MODEL_NOT_ACCEPTED"
+      ]
+    },
+    "model_registry_used": true,
+    "model_manifest_checked": true,
+    "selected_model_artifact_version": null,
+    "training_status_used_for_selection": true
+  },
+  "nearby_cwa_historical_summary": {
+    "enabled": true,
+    "model_available": true,
+    "model_accepted": true,
+    "selected_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "all_selected_stations_closer_than_467441": true,
+    "baseline_station_id": "467441",
+    "usage": "fallback_training_reference",
+    "is_port_local_core": false,
+    "fallback_eligible": true,
+    "selected_for_this_request": false,
+    "not_selected_reason": "KHWD realtime data is available; port_local_postprocess has higher priority."
+  },
+  "model_training_status": {
+    "training_checked": true,
+    "training_required": false,
+    "training_skipped": true,
+    "skip_reason": "Existing accepted nearby CWA historical model found.",
+    "training_reason": null,
+    "last_training_run_at": "2026-07-09T22:15:37+08:00",
+    "available_models": {
+      "port_local_model": {
+        "trained": false,
+        "available": false,
+        "accepted": false,
+        "reason": "manifest_missing"
+      },
+      "nearby_cwa_historical_model": {
+        "trained": true,
+        "available": true,
+        "accepted": true,
+        "artifact_version": "nearby_cwa_v34",
+        "selected_station_ids": [
+          "C0V890",
+          "C0V490",
+          "C0V840",
+          "C0V810",
+          "C0V450",
+          "C0V900"
+        ],
+        "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+        "reason": null
+      }
+    }
+  },
+  "model_registry_summary": {
+    "model_registry_used": true,
+    "registry_version": "v3.4",
+    "registry_path": "kaohsiung_microclimate_lstm/models/model_registry.json",
+    "available_model_families": [
+      "nearby_cwa_historical_model"
+    ],
+    "accepted_model_families": [
+      "nearby_cwa_historical_model"
+    ],
+    "models": {
+      "port_local_model": {
+        "model_family": "port_local_model",
+        "artifact_version": "port_local_v34",
+        "manifest_path": "kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
+        "trained": false,
+        "available": false,
+        "accepted": false,
+        "reason": "manifest_missing"
+      },
+      "nearby_cwa_historical_model": {
+        "model_family": "nearby_cwa_historical_model",
+        "artifact_version": "nearby_cwa_v34",
+        "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+        "trained": true,
+        "available": true,
+        "accepted": true,
+        "selected_station_ids": [
+          "C0V890",
+          "C0V490",
+          "C0V840",
+          "C0V810",
+          "C0V450",
+          "C0V900"
+        ],
+        "all_selected_stations_closer_than_467441": true,
+        "is_port_local_core": false,
+        "reason": null
+      }
+    }
+  },
+  "current_station_usage": {
+    "selected_prediction_mode": "port_local_postprocess",
+    "active_wind_source": "KHWD",
+    "active_gust_source": "KHWD",
+    "active_rain_source": "nearby_cwa_historical_rain_model_plus_cwa_prior",
+    "port_local_station_ids_used": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "nearby_cwa_station_ids_available": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "nearby_cwa_station_ids_used_for_current_prediction": [],
+    "baseline_station_id": "467441",
+    "baseline_station_used_for_current_prediction": false,
+    "cwa_pop_prior_used": true
+  },
+  "station_display_rows": [
+    {
+      "station_id": "KHWD01",
+      "station_name": "Kaohsiung Port Wind Station 01",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "KHWD04",
+      "station_name": "Kaohsiung Port Wind Station 04",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "KHWD05",
+      "station_name": "Kaohsiung Port Wind Station 05",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "KHWD06",
+      "station_name": "Kaohsiung Port Wind Station 06",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "KHWD07",
+      "station_name": "Kaohsiung Port Wind Station 07",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "KHWD08",
+      "station_name": "Kaohsiung Port Wind Station 08",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_fallback_reference": false,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V890",
+      "station_name": "Qianzhen",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V490",
+      "station_name": "Gushan",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V840",
+      "station_name": "Xiaogang",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V810",
+      "station_name": "Zuoying",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V450",
+      "station_name": "Xiaogang Outer",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "C0V900",
+      "station_name": "Linyuan",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": false
+    },
+    {
+      "station_id": "467441",
+      "station_name": "Kaohsiung",
+      "station_group": "cwa_baseline",
+      "role": "fallback_baseline_only",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain_reference"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_fallback_reference": true,
+      "is_baseline_station": true
+    }
+  ]
+}

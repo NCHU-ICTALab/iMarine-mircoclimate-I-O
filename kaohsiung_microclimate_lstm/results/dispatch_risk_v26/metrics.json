@@ -1,0 +1,135 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v2.6",
+  "generated_at": "2026-07-08T13:55:04+08:00",
+  "input_station_summary": {
+    "target_station_id": "467441",
+    "input_station_count": 5,
+    "input_station_ids": [
+      "467441",
+      "C4Q01",
+      "C4Q02",
+      "C4P01",
+      "COMC08"
+    ],
+    "available_station_ids": [
+      "467441",
+      "C4Q01",
+      "C4Q02",
+      "C4P01",
+      "COMC08"
+    ],
+    "missing_station_ids": [],
+    "multi_station_input": true,
+    "fallback_to_single_station": false,
+    "fallback_reason": null,
+    "station_pool_mode": "port_local",
+    "multi_station_feature_mode": "postprocess_only"
+  },
+  "dispatch_risk_levels": {
+    "H1": "watch",
+    "H2": "normal",
+    "H3": "normal",
+    "H4": "normal"
+  },
+  "dispatch_action_levels": {
+    "H1": "observe_only",
+    "H2": "normal_dispatch",
+    "H3": "normal_dispatch",
+    "H4": "normal_dispatch"
+  },
+  "primary_triggers": {
+    "H1": "rain_probability",
+    "H2": "none",
+    "H3": "none",
+    "H4": "none"
+  },
+  "rain_final_probabilities": {
+    "H1": 0.3463,
+    "H2": 0.296,
+    "H3": 0.1474,
+    "H4": 0.1899
+  },
+  "nearby_postprocess": {
+    "H1": {
+      "nearby_rain_postprocess_applied": false,
+      "nearby_wind_postprocess_applied": false,
+      "nearby_gust_postprocess_applied": false,
+      "nearby_station_count": 4,
+      "nearby_features_used": [
+        "nearby_wind_speed_max",
+        "nearby_wind_gust_max",
+        "nearby_precipitation_1hr_max",
+        "nearby_rainy_station_count"
+      ]
+    },
+    "H2": {
+      "nearby_rain_postprocess_applied": false,
+      "nearby_wind_postprocess_applied": false,
+      "nearby_gust_postprocess_applied": false,
+      "nearby_station_count": 4,
+      "nearby_features_used": [
+        "nearby_wind_speed_max",
+        "nearby_wind_gust_max",
+        "nearby_precipitation_1hr_max",
+        "nearby_rainy_station_count"
+      ]
+    },
+    "H3": {
+      "nearby_rain_postprocess_applied": false,
+      "nearby_wind_postprocess_applied": false,
+      "nearby_gust_postprocess_applied": false,
+      "nearby_station_count": 4,
+      "nearby_features_used": [
+        "nearby_wind_speed_max",
+        "nearby_wind_gust_max",
+        "nearby_precipitation_1hr_max",
+        "nearby_rainy_station_count"
+      ]
+    },
+    "H4": {
+      "nearby_rain_postprocess_applied": false,
+      "nearby_wind_postprocess_applied": false,
+      "nearby_gust_postprocess_applied": false,
+      "nearby_station_count": 4,
+      "nearby_features_used": [
+        "nearby_wind_speed_max",
+        "nearby_wind_gust_max",
+        "nearby_precipitation_1hr_max",
+        "nearby_rainy_station_count"
+      ]
+    }
+  },
+  "trace": {
+    "port_local_scope": true,
+    "multi_station_input": true,
+    "city_wide_forecast_as_target": false,
+    "train_inference_mismatch_prevented": true,
+    "cwa_pop_used_as_model_input": false,
+    "cwa_pop_used_as_postprocess_prior": true,
+    "cwa_pop_quality_gate_enabled": true,
+    "zero_pop_distinguished_from_missing": true,
+    "normal_state_primary_trigger_none": true,
+    "risk_trigger_semantics_patch_applied": true,
+    "dispatch_risk_aggregation": "max_level_rule",
+    "base_models": {
+      "rain": "baseline_lstm_v2.3_pure_temporal",
+      "wind_speed_gust": "baseline_lstm_v2"
+    },
+    "target_station_id": "467441",
+    "target_station_role": "port_area_proxy",
+    "input_station_count": 5,
+    "input_station_ids": [
+      "467441",
+      "C4Q01",
+      "C4Q02",
+      "C4P01",
+      "COMC08"
+    ],
+    "nearby_station_count": 4,
+    "fallback_to_single_station": false,
+    "fallback_reason": null,
+    "multi_station_feature_mode": "postprocess_only",
+    "multi_station_features_used_as_model_input": false,
+    "multi_station_features_used_as_postprocess": true
+  }
+}

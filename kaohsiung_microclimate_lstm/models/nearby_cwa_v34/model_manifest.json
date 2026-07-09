@@ -1,0 +1,91 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.4",
+  "model_family": "nearby_cwa_historical_model",
+  "model_artifact_version": "nearby_cwa_v34",
+  "artifact_source_version": "nearby_cwa_v32",
+  "target_area": "KHH",
+  "trained": true,
+  "trained_at": "2026-07-09T14:46:56+08:00",
+  "training_data_start": null,
+  "training_data_end": null,
+  "training_data_hash": "sha256:c3d5430b120a2000d9068a9464a365bb1ab06ce2e4dd290542c8cf81c658d9e0",
+  "feature_schema_hash": "sha256:895f6b7c139f26347472fb8ee3bb9180c40422291af17fcee38be0071c20c794",
+  "selected_station_ids": [
+    "C0V890",
+    "C0V490",
+    "C0V840",
+    "C0V810",
+    "C0V450",
+    "C0V900"
+  ],
+  "baseline_station_id": "467441",
+  "all_selected_stations_closer_than_467441": true,
+  "is_port_local_core": false,
+  "models": {
+    "wind_speed": {
+      "accepted": true,
+      "artifacts": {
+        "wind_speed_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H1.joblib",
+        "wind_speed_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H2.joblib",
+        "wind_speed_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H3.joblib",
+        "wind_speed_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H4.joblib"
+      },
+      "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json",
+      "artifact_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H1.joblib"
+    },
+    "wind_gust": {
+      "accepted": true,
+      "artifacts": {
+        "wind_gust_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H1.joblib",
+        "wind_gust_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H2.joblib",
+        "wind_gust_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H3.joblib",
+        "wind_gust_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H4.joblib"
+      },
+      "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json",
+      "artifact_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H1.joblib"
+    },
+    "rain_probability": {
+      "accepted": true,
+      "artifacts": {
+        "rain_probability_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H1.joblib",
+        "rain_probability_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H2.joblib",
+        "rain_probability_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H3.joblib",
+        "rain_probability_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H4.joblib"
+      },
+      "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json",
+      "artifact_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H1.joblib"
+    }
+  },
+  "acceptance": {
+    "model_accepted": true,
+    "critical_under_warning_count": 0,
+    "wind_speed_passed": true,
+    "wind_gust_passed": true,
+    "rain_probability_passed": true
+  },
+  "source_reports": {
+    "metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\dispatch_risk_v32\\nearby_cwa_model_metrics.json",
+    "dataset_report_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\dispatch_risk_v32\\nearby_cwa_training_dataset_report.json",
+    "ranking_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\dispatch_risk_v32\\nearby_station_ranking_report.json",
+    "source_manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\model_manifest.json"
+  },
+  "readiness": {
+    "ready": true,
+    "selected_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "station_count": 6,
+    "sample_count": 184614,
+    "training_days": 1282,
+    "valid_wind_samples": 184385,
+    "valid_gust_samples": 183821,
+    "valid_rain_samples": 184614,
+    "failed_reasons": [],
+    "warnings": []
+  }
+}

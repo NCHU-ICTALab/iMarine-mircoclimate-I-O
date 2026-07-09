@@ -9,8 +9,8 @@ anchor_offsets_minutes:
 
 project:
   name: kaohsiung_port_dispatch_risk
-  version: v2.5.2
-  model_version: kaohsiung_port_dispatch_risk_v2.5.2
+  version: v3.5
+  model_version: kaohsiung_port_dispatch_risk_v3.5
   timezone: Asia/Taipei
 
 forecast:
@@ -25,6 +25,8 @@ spatial_scope:
   mode: port_local
   port_code: KHH
   target_area_name: Kaohsiung Port
+  target_mode: port_area
+  station_priority: port_local_first
   target_station_id: "467441"
   station_pool:
     mode: distance_or_manual
@@ -36,6 +38,383 @@ spatial_scope:
   exclude:
     city_wide_forecast_as_target: true
     district_level_forecast_as_target: true
+
+target:
+  mode: port_area
+  target_area: KHH
+  fallback_station_id: "467441"
+  fallback_station_role: city_background_reference
+  description: "Kaohsiung Port dispatch risk is port-area scoped. 467441 is a city background fallback, not a core port-local station."
+
+station_priority:
+  enabled: true
+  primary_source: port_local_twport
+  secondary_source: cwa_forecast_auxiliary
+  fallback_source: cwa_467441
+  enforce_port_local_first: true
+  allow_467441_as_core_station: false
+
+station_pool:
+  enabled: true
+  mode: port_local_priority
+  station_pool_config: config/station_pool.yaml
+  min_required_port_local_wind_stations: 2
+  allow_partial_port_local_pool: true
+  allow_fallback_to_467441: true
+  require_fallback_trace: true
+
+prediction_mode:
+  preferred_order:
+    - port_local_model
+    - port_local_postprocess
+    - fallback_baseline
+  default_mode: port_local_postprocess
+  allow_fallback_baseline: true
+
+port_local_training:
+  enabled: true
+  dataset_output: data/processed/port_local_training_dataset.parquet
+  min_total_samples: 500
+  min_valid_label_samples_per_horizon: 100
+  min_training_days: 14
+  max_feature_missing_ratio: 0.30
+  max_label_missing_ratio: 0.30
+  label_alignment:
+    method: nearest_with_tolerance
+    tolerance_minutes: 30
+
+port_local_model:
+  enabled: true
+  model_family: tree_baseline
+  train_wind_speed: true
+  train_wind_gust: true
+  train_rain_probability_if_labels_available: true
+  output_dir: models/port_local_v30
+  requires_retraining: true
+
+model_selection:
+  enabled: true
+  selection_engine_version: v3.4
+  preferred_order:
+    - port_local_model
+    - port_local_postprocess
+    - nearby_cwa_historical_model
+    - fallback_baseline
+  prefer_realtime_khwd_postprocess_over_nearby_historical: true
+  allow_fallback_to_port_local_postprocess: true
+  allow_fallback_to_467441: true
+  require_trace_for_fallback: true
+  require_reason_codes: true
+  require_evaluated_modes: true
+  allow_no_realtime_khwd_mode: true
+  port_local_model_acceptance:
+    wind_speed:
+      max_h1_mae_mps: 1.0
+      max_h2_mae_mps: 1.2
+      must_beat_persistence_h1: true
+      max_critical_under_warning_count: 0
+    wind_gust:
+      max_h1_mae_mps: 2.0
+      max_h2_mae_mps: 2.2
+      must_beat_persistence_h1: false
+      max_critical_under_warning_count: 0
+    rain_probability:
+      required: false
+
+rain_probability:
+  enabled: true
+  preserve_in_all_modes: true
+  require_rain_object_in_all_forecast_anchors: true
+  cwa_pop_zero_is_valid_probability: true
+  cwa_pop_used_as_model_input: false
+  allow_nearby_cwa_historical_rain_model: true
+  fallback_to_existing_model_if_port_local_unavailable: true
+  fallback_to_existing_model_plus_cwa_prior: true
+  cwa_prior_enabled: true
+
+model_selection_regression:
+  enabled: true
+  report_dir: results/dispatch_risk_v34
+  required_cases:
+    - KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED
+    - KHWD_UNAVAILABLE_NEARBY_ACCEPTED
+    - KHWD_UNAVAILABLE_NEARBY_REJECTED
+    - PORT_LOCAL_MODEL_ACCEPTED
+
+station_role_validation:
+  enabled: true
+  enforce_467441_not_core: true
+  enforce_nearby_cwa_not_port_local_core: true
+  enforce_cwa_pop_not_model_input: true
+
+training_orchestration:
+  enabled: true
+  run_before_api_deploy: true
+  allow_api_runtime_training: false
+  force_train_default: false
+  dry_run_default: false
+  report_dir: results/dispatch_risk_v34
+
+model_registry:
+  enabled: true
+  registry_path: kaohsiung_microclimate_lstm/models/model_registry.json
+  require_model_manifest: true
+  allow_reuse_existing_accepted_model: true
+  require_training_data_hash: true
+  stale_model_policy: warn_only
+
+station_usage_export:
+  enabled: true
+  include_current_station_usage: true
+  include_station_display_rows: true
+  frontend_consumes_api_station_rows: true
+
+ui:
+  show_model_status_card: true
+  show_current_station_usage_card: true
+  show_station_table: true
+  show_training_status: true
+  show_prediction_mode: true
+  show_station_role_labels: true
+  show_system_audit_page: true
+  show_data_source_table: true
+  show_station_inventory_table: true
+  show_dataset_duration_table: true
+  show_model_accuracy_table: true
+  show_model_selection_flow: true
+
+system_audit:
+  enabled: true
+  report_dir: results/dispatch_risk_v35
+  allow_missing_metrics: true
+  allow_missing_dataset_duration: true
+  forbid_fabricated_metrics: true
+  forbid_fabricated_dataset_duration: true
+
+dashboard_summary:
+  enabled: true
+  expose_system_audit_endpoint: true
+  include_data_source_inventory: true
+  include_station_inventory: true
+  include_dataset_duration: true
+  include_model_accuracy_summary: true
+  include_model_selection_summary: true
+  include_ui_dashboard_payload: true
+
+kaohsiung_port_reference_points:
+  - name: first_harbor
+    longitude: 120.283
+    latitude: 22.617
+  - name: qianzhen_fishing_port
+    longitude: 120.304
+    latitude: 22.574
+  - name: second_harbor
+    longitude: 120.340
+    latitude: 22.552
+  - name: container_terminal_area
+    longitude: 120.300
+    latitude: 22.600
+
+nearby_cwa_historical_training:
+  enabled: true
+  source_name: Raingel/historical_weather
+  source_mode_preference: [downloader_get, github_raw]
+  observation_type: hourly
+  start_date: "20230101"
+  end_date: yesterday
+  baseline_station_id: "467441"
+  select_only_stations_closer_than_baseline: true
+  min_selected_stations: 2
+  max_selected_stations: 6
+  candidate_station_ids: [C0V890, C0V490, C0V810, C0V840, C0V450, C0V900, C0V680, C0V610]
+  priority_1_station_ids: [C0V890, C0V490, C0V810, C0V840]
+  training_thresholds:
+    min_total_samples: 1000
+    min_training_days: 30
+    min_valid_wind_samples: 500
+    min_valid_gust_samples: 500
+    min_valid_rain_samples: 500
+
+nearby_cwa_historical_station_pool:
+  priority_1_near_port:
+    - station_id: C0V890
+      name: Qianzhen
+      source: cwa_codis
+      role: nearby_cwa_historical
+      longitude: 120.3117
+      latitude: 22.5718
+      start_date: "2022-12-26"
+      reason: Located in Qianzhen near Kaohsiung Port.
+      expected_training_use: [wind_speed, wind_gust, rain_probability]
+    - station_id: C0V490
+      name: Gushan
+      source: cwa_codis
+      role: nearby_cwa_historical
+      longitude: 120.298803
+      latitude: 22.627422
+      start_date: "2009-12-01"
+      reason: Closer to Kaohsiung Port urban core than 467441.
+      expected_training_use: [wind_speed, wind_gust, rain_probability]
+    - station_id: C0V810
+      name: Zuoying
+      source: cwa_codis
+      role: nearby_cwa_historical
+      longitude: 120.28491
+      latitude: 22.67491
+      start_date: "2015-09-21"
+      reason: North-side coastal and urban reference.
+      expected_training_use: [wind_speed, wind_gust, rain_probability]
+    - station_id: C0V840
+      name: Xiaogang
+      source: cwa_codis
+      role: nearby_cwa_historical
+      longitude: 120.3591
+      latitude: 22.5083
+      start_date: "2022-12-26"
+      reason: South-side coastal reference near southern Kaohsiung Port.
+      expected_training_use: [wind_speed, wind_gust, rain_probability]
+  priority_2_outer_nearby:
+    - station_id: C0V450
+      name: Xiaogang Outer
+      source: cwa_codis
+      role: nearby_cwa_historical_outer
+      longitude: 120.392592
+      latitude: 22.545064
+      start_date: "2013-12-01"
+      reason: Xiaogang-side outer reference.
+    - station_id: C0V900
+      name: Linyuan
+      source: cwa_codis
+      role: nearby_cwa_historical_outer
+      longitude: 120.4151
+      latitude: 22.4782
+      start_date: "2022-12-26"
+      reason: South coastal reference.
+    - station_id: C0V680
+      name: Nanzi
+      source: cwa_codis
+      role: nearby_cwa_historical_outer
+      longitude: 120.347722
+      latitude: 22.701083
+      start_date: "2013-12-01"
+      reason: Urban inland reference.
+    - station_id: C0V610
+      name: Ziguan
+      source: cwa_codis
+      role: nearby_cwa_historical_outer
+      longitude: 120.267211
+      latitude: 22.760558
+      start_date: "2013-12-01"
+      reason: Coastal north-side reference.
+
+fallback_baseline_station:
+  station_id: "467441"
+  name: Kaohsiung
+  source: cwa_codis
+  role: fallback_baseline
+  longitude: 120.312516
+  latitude: 22.730432
+  start_date: "2022-01-24"
+  is_port_local: false
+  is_core_station: false
+  usage: fallback_only
+
+nearby_cwa_historical_model_acceptance:
+  wind_speed:
+    max_h1_mae_mps: 1.3
+    max_h2_mae_mps: 1.5
+    must_beat_persistence_h1: true
+    max_critical_under_warning_count: 0
+  wind_gust:
+    max_h1_mae_mps: 2.4
+    max_h2_mae_mps: 2.8
+    must_beat_persistence_h1: false
+    max_critical_under_warning_count: 0
+  rain_probability:
+    max_brier_score: 0.25
+    max_far: 0.75
+    min_pod: 0.30
+
+port_local_postprocess:
+  enabled: true
+  use_khwd_wind_adjustment: true
+  use_khwd_gust_adjustment: true
+  use_port_local_rain_adjustment: true
+  preserve_existing_base_model: true
+
+fallback_baseline:
+  enabled: true
+  station_id: "467441"
+  usage: fallback_only
+  require_explicit_trace: true
+
+port_local_data_acquisition:
+  enabled: true
+  source: twport
+  base_url_env: TWPORT_BASE_URL
+  timeout_seconds: 10
+  retry_attempts: 3
+  cache_minutes: 10
+  output_dir: data/raw/observed_hourly
+  report_dir: results/port_local_data_v28
+  station_types:
+    wind:
+      prefix: KHWD
+      station_ids: [KHWD01, KHWD04, KHWD05, KHWD06, KHWD07, KHWD08]
+    tide:
+      prefix: KHTD
+      station_ids: [KHTD01, KHTD04, KHTD05]
+    wave_current:
+      prefix: KHAW
+      station_ids: [KHAW01, KHAW07, KHAW08, KHAW09]
+
+port_local_postprocess_validation:
+  enabled: true
+  validate_wind_adjustment: true
+  validate_gust_adjustment: true
+  output_postprocess_report: true
+
+port_local_wind_postprocess:
+  enabled: true
+  apply_anchors: [H1, H2]
+  source_station_prefix: KHWD
+  min_required_khwd_stations: 2
+  use_khwd_wind_speed_max: true
+  use_khwd_wind_gust_max: true
+
+port_local_rain_postprocess:
+  enabled: true
+  apply_anchors: [H1, H2]
+  require_port_local_rain_data: false
+  unavailable_behavior: skip_and_preserve_base_rain
+
+multi_station_features:
+  enabled: true
+  mode: postprocess_only
+  aggregation_window_minutes: 60
+  required_min_valid_ratio: 0.5
+  features:
+    wind_speed:
+      aggregations: [mean, max, min, std, target_minus_nearby_mean, nearby_max_minus_target]
+    wind_gust:
+      aggregations: [mean, max, min, std, target_minus_nearby_mean, nearby_max_minus_target]
+    precipitation_1hr:
+      aggregations: [mean, max, sum, rainy_station_count, rainy_station_ratio]
+    temperature:
+      aggregations: [mean, max, min]
+    humidity:
+      aggregations: [mean, max, min]
+
+fallback_behavior:
+  if_no_nearby_station_available:
+    use_target_station_only: true
+    set_multi_station_input: false
+    set_fallback_to_single_station: true
+    fallback_reason: "No valid nearby station data available."
+  if_some_nearby_station_available:
+    use_available_stations: true
+    set_multi_station_input: true
+    set_partial_station_pool: true
 
 targets:
   wind_speed_gust:

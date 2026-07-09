@@ -1,0 +1,200 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "target_area": "KHH",
+  "stations": [
+    {
+      "station_id": "KHWD01",
+      "station_name": "Kaohsiung Port Wind Station 01",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "KHWD04",
+      "station_name": "Kaohsiung Port Wind Station 04",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "KHWD05",
+      "station_name": "Kaohsiung Port Wind Station 05",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "KHWD06",
+      "station_name": "Kaohsiung Port Wind Station 06",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "KHWD07",
+      "station_name": "Kaohsiung Port Wind Station 07",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "KHWD08",
+      "station_name": "Kaohsiung Port Wind Station 08",
+      "station_group": "KHWD",
+      "role": "port_local_realtime_core",
+      "data_type": [
+        "wind_speed",
+        "wind_gust"
+      ],
+      "used_for_current_prediction": true,
+      "is_port_local_core": true,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V890",
+      "station_name": "Qianzhen",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V490",
+      "station_name": "Gushan",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V840",
+      "station_name": "Xiaogang",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V810",
+      "station_name": "Zuoying",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V450",
+      "station_name": "Xiaogang Outer",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "C0V900",
+      "station_name": "Linyuan",
+      "station_group": "nearby_cwa",
+      "role": "nearby_cwa_historical_fallback_reference",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": true,
+      "is_fallback_baseline": false
+    },
+    {
+      "station_id": "467441",
+      "station_name": "Kaohsiung",
+      "station_group": "cwa_baseline",
+      "role": "fallback_baseline_only",
+      "data_type": [
+        "wind_speed",
+        "wind_gust",
+        "rain_reference"
+      ],
+      "used_for_current_prediction": false,
+      "is_port_local_core": false,
+      "is_historical_training_reference": false,
+      "is_fallback_baseline": true
+    }
+  ],
+  "invariants": {
+    "467441_used_as_core_station": false,
+    "nearby_cwa_used_as_port_local_core": false,
+    "khwd_is_only_port_local_station_group": true
+  }
+}

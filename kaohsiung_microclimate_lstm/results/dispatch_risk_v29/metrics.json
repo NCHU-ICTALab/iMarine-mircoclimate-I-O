@@ -1,0 +1,138 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v2.9",
+  "generated_at": "2026-07-08T23:48:28+08:00",
+  "station_priority_summary": {
+    "prediction_mode": "port_local_postprocess",
+    "target_area": "KHH",
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "core_station_group": "port_local_wind",
+    "fallback_to_467441": false,
+    "fallback_station_id": null,
+    "fallback_reason": null,
+    "port_local_model_available": false,
+    "model_retraining_required": true,
+    "station_priority_policy": "port_local_first",
+    "467441_used_as_core_station": false,
+    "467441_usage": "not_used_or_fallback_only",
+    "configured_port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08",
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ]
+  },
+  "trace": {
+    "port_local_scope": true,
+    "multi_station_input": true,
+    "city_wide_forecast_as_target": false,
+    "train_inference_mismatch_prevented": true,
+    "cwa_pop_used_as_model_input": false,
+    "cwa_pop_used_as_postprocess_prior": true,
+    "cwa_pop_quality_gate_enabled": true,
+    "zero_pop_distinguished_from_missing": true,
+    "normal_state_primary_trigger_none": true,
+    "risk_trigger_semantics_patch_applied": true,
+    "dispatch_risk_aggregation": "max_level_rule",
+    "base_models": {
+      "rain": "baseline_lstm_v2.3_pure_temporal",
+      "wind_speed_gust": "baseline_lstm_v2"
+    },
+    "target_area": "KHH",
+    "station_priority_policy": "port_local_first",
+    "using_port_local_station": true,
+    "port_local_station_count": 6,
+    "port_local_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "available_port_local_wind_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "missing_port_local_station_ids": [
+      "KHTD01",
+      "KHTD04",
+      "KHTD05",
+      "KHAW01",
+      "KHAW07",
+      "KHAW08",
+      "KHAW09"
+    ],
+    "fallback_to_467441": false,
+    "fallback_reason": null,
+    "467441_used_as_core_station": false,
+    "467441_usage": "not_used_or_fallback_only",
+    "prediction_mode": "port_local_postprocess",
+    "port_local_model_available": false,
+    "model_retraining_required": true,
+    "port_local_data_acquisition_enabled": true,
+    "port_local_data_refresh_attempted": false,
+    "port_local_data_refresh_success": null,
+    "port_local_station_files_created": [],
+    "port_local_data_report_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json",
+    "fallback_to_existing_files": true,
+    "model_version": "kaohsiung_port_dispatch_risk_v2.9",
+    "port_local_wind_station_count": 6,
+    "port_local_wind_station_ids": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
+    "port_local_wind_postprocess_enabled": true,
+    "port_local_gust_postprocess_enabled": true,
+    "rain_probability_preserved": true,
+    "rain_probability_model_used": true,
+    "cwa_pop_prior_enabled": true,
+    "dispatch_risk_uses_postprocessed_wind_gust": true
+  },
+  "anchor_risk_levels": {
+    "H1": "watch",
+    "H2": "normal",
+    "H3": "normal",
+    "H4": "normal"
+  },
+  "anchor_action_levels": {
+    "H1": "observe_only",
+    "H2": "normal_dispatch",
+    "H3": "normal_dispatch",
+    "H4": "normal_dispatch"
+  }
+}

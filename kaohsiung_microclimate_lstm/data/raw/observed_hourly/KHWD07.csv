@@ -1,0 +1,3 @@
+timestamp,obs_time,station_id,station_type,source,quality_flag,fetched_at,wind_speed,wind_gust,wind_direction,wind_gust_direction,raw_station_ref,raw_wind_speed,raw_wind_gust,raw_wind_direction,raw_wind_gust_direction,unit_conversion_applied,original_unit,normalized_unit
+2026-07-08T23:28:00+08:00,2026-07-08T23:28:00+08:00,KHWD07,wind,twport,ok,2026-07-08T23:31:16.290446+08:00,1.69,2.48,316.0,308.0,,1.69,2.48,316.0,308.0,False,,m/s
+2026-07-08T23:28:00+08:00,2026-07-08T23:28:00+08:00,KHWD07,wind,twport_realtime_panel,ok,2026-07-08T23:31:16+08:00,1.69,2.48,316.0,308.0,KHWD07M01,1.69,2.48,316.0,308.0,False,,m/s

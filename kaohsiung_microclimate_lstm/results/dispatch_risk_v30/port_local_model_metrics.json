@@ -1,0 +1,26 @@
+{
+  "model_version": "port_local_v30",
+  "port_local_model_trained": false,
+  "dataset_ready": false,
+  "failed_reasons": [
+    "sample_count below min_total_samples",
+    "training_days below min_training_days",
+    "feature missing ratio above threshold",
+    "label missing ratio above threshold",
+    "H1 valid labels below threshold",
+    "H2 valid labels below threshold",
+    "H3 valid labels below threshold",
+    "H4 valid labels below threshold"
+  ],
+  "wind_speed": {},
+  "wind_gust": {},
+  "risk_level_evaluation": {
+    "critical_under_warning_count": null,
+    "level_accuracy": null
+  },
+  "rain_probability": {
+    "port_local_rain_model_trained": false,
+    "reason": "No valid port-local rain labels available or dataset not ready.",
+    "fallback_rain_method": "existing_rain_probability_model_plus_cwa_prior"
+  }
+}

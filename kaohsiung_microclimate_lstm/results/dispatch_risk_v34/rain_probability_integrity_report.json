@@ -1,0 +1,6 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "rain_probability_preserved": true,
+  "missing_rain_anchors": [],
+  "cwa_pop_used_as_model_input": false
+}

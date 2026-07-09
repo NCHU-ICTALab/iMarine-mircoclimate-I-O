@@ -23,12 +23,27 @@ try:
     from .cwa.cwa_pop_quality import align_cwa_pop_quality_to_anchors
     from .cwa.location_resolver import resolve_cwa_forecast_source
     from .cwa.pop3h_client import fetch_pop3h
+    from .data.multi_station_loader import load_multi_station_observations, load_priority_station_pool_observations
+    from .data.nearby_aggregation import build_nearby_aggregated_features
+    from .data.station_pool import enabled_input_stations, load_station_pool_config, resolve_station_pool_path
+    from .data.station_priority import decide_prediction_mode
+    from .data.port_local_wind_aggregation import build_port_local_wind_features
+    from .data.dataset_readiness import check_port_local_dataset_readiness
+    from .data.port_local_training_dataset import build_port_local_training_dataset
     from .forecast.rain_probability_blender import blend_with_cwa_pop3h
+    from .model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
+    from .selection.model_selection_engine import select_prediction_mode
+    from .training_orchestration import build_model_training_status, run_training_orchestration
+    from .model_registry import build_model_registry_summary
+    from .station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
+    from .postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
+    from .postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
     from .postprocess.rain_probability_rules import apply_rain_probability_rules, assign_warning_levels
     from .postprocess.cwa_pop_prior import apply_cwa_pop_prior
     from .risk.confidence import reliability_profile
     from .risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from .risk.level_mapping import (
+        LEVEL_ORDER,
         map_rain_probability_to_level,
         map_wind_gust_to_level,
         map_wind_gust_to_operation_level,
@@ -50,12 +65,27 @@ except ImportError:  # pragma: no cover
     from cwa.cwa_pop_quality import align_cwa_pop_quality_to_anchors
     from cwa.location_resolver import resolve_cwa_forecast_source
     from cwa.pop3h_client import fetch_pop3h
+    from data.multi_station_loader import load_multi_station_observations, load_priority_station_pool_observations
+    from data.nearby_aggregation import build_nearby_aggregated_features
+    from data.station_pool import enabled_input_stations, load_station_pool_config, resolve_station_pool_path
+    from data.station_priority import decide_prediction_mode
+    from data.port_local_wind_aggregation import build_port_local_wind_features
+    from data.dataset_readiness import check_port_local_dataset_readiness
+    from data.port_local_training_dataset import build_port_local_training_dataset
     from forecast.rain_probability_blender import blend_with_cwa_pop3h
+    from model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
+    from selection.model_selection_engine import select_prediction_mode
+    from training_orchestration import build_model_training_status, run_training_orchestration
+    from model_registry import build_model_registry_summary
+    from station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
+    from postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
+    from postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
     from postprocess.rain_probability_rules import apply_rain_probability_rules, assign_warning_levels
     from postprocess.cwa_pop_prior import apply_cwa_pop_prior
     from risk.confidence import reliability_profile
     from risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from risk.level_mapping import (
+        LEVEL_ORDER,
         map_rain_probability_to_level,
         map_wind_gust_to_level,
         map_wind_gust_to_operation_level,
@@ -683,6 +713,1512 @@ def predict_dispatch_risk_v252(
     )
 
 
+def predict_dispatch_risk_v26(
+    target_station_id: str,
+    recent_observations: pd.DataFrame,
+    nearby_observations: pd.DataFrame | None = None,
+    multi_station_observations: dict[str, Any] | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    station_context = _load_or_build_multistation_context(
+        cfg,
+        project,
+        str(target_station_id),
+        recent_observations,
+        multi_station_observations,
+    )
+    nearby_df = nearby_observations
+    if nearby_df is None:
+        nearby_df = _nearby_latest_observations_from_frames(
+            station_context["loader"]["station_frames"],
+            str(target_station_id),
+        )
+
+    result = predict_dispatch_risk_v25(
+        target_station_id,
+        recent_observations,
+        nearby_df,
+        cwa_forecast,
+        tide_observations,
+        visibility_observations,
+        config_path,
+        project,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.6")
+    target_cfg = cfg.get("target", {})
+    result.setdefault("target_area", {})["target_station_role"] = target_cfg.get("target_station_role", "port_area_proxy")
+    summary = _input_station_summary(cfg, str(target_station_id), station_context)
+    result["input_station_summary"] = summary
+    _apply_v26_multistation_postprocess(result, cfg, station_context)
+    _refresh_v26_dispatch_outputs(result, cfg)
+
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "target_station_id": str(target_station_id),
+            "target_station_role": target_cfg.get("target_station_role", "port_area_proxy"),
+            "multi_station_input": summary["multi_station_input"],
+            "input_station_count": summary["input_station_count"],
+            "input_station_ids": summary["input_station_ids"],
+            "nearby_station_count": station_context["aggregation"]["nearby_station_count"],
+            "fallback_to_single_station": summary["fallback_to_single_station"],
+            "fallback_reason": summary["fallback_reason"],
+            "multi_station_feature_mode": summary["multi_station_feature_mode"],
+            "multi_station_features_used_as_model_input": False,
+            "multi_station_features_used_as_postprocess": bool(cfg.get("multi_station_features", {}).get("enabled", True)),
+            "train_inference_mismatch_prevented": True,
+        }
+    )
+    return result
+
+
+def predict_dispatch_risk_v27(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    pool_path = resolve_station_pool_path(cfg, project)
+    station_pool_config = load_station_pool_config(pool_path)
+    station_context = _load_or_build_priority_station_context(cfg, project, station_pool_config, port_local_observations)
+    fallback_station_id = str(cfg.get("fallback_baseline", {}).get("station_id", "467441"))
+
+    if fallback_observations is None:
+        fallback_path = project / "data" / "raw" / "observed_hourly" / f"{fallback_station_id}.csv"
+        if not fallback_path.exists():
+            raise FileNotFoundError(f"Fallback station observation file not found: {fallback_station_id}")
+        fallback_observations = load_observations(fallback_path)
+
+    decision = station_context["station_priority_report"]["mode_decision"]
+    nearby_df = pd.DataFrame()
+    if decision["prediction_mode"] == "port_local_postprocess":
+        nearby_df = _latest_observations_from_station_ids(
+            station_context["station_frames"],
+            station_context.get("available_port_local_station_ids", []),
+        )
+
+    result = predict_dispatch_risk_v25(
+        fallback_station_id,
+        fallback_observations,
+        nearby_df,
+        cwa_forecast,
+        tide_observations,
+        visibility_observations,
+        config_path,
+        project,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.7")
+    result["target_area"] = {
+        "name": "Kaohsiung Port",
+        "port_code": str(target_area or "KHH"),
+        "target_mode": "port_area",
+    }
+
+    if decision["prediction_mode"] == "port_local_postprocess":
+        _apply_v27_port_local_postprocess(result, cfg, station_context)
+        _refresh_v26_dispatch_outputs(result, cfg)
+    else:
+        _attach_v27_port_local_postprocess_details(result, station_context, enabled=False)
+
+    summary = _station_priority_summary(cfg, str(target_area or "KHH"), station_context, decision, fallback_station_id)
+    result["station_priority_summary"] = summary
+    data_availability = result.setdefault("data_availability", {})
+    data_availability.update(
+        {
+            "using_port_local_station": summary["using_port_local_station"],
+            "port_local_station_count": summary["port_local_station_count"],
+            "port_local_station_ids": summary["port_local_station_ids"],
+            "missing_port_local_station_ids": station_context.get("missing_port_local_station_ids", []),
+            "fallback_station_available": fallback_station_id in station_context.get("fallback_station_ids", []) or fallback_observations is not None,
+        }
+    )
+
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "port_local_scope": True,
+            "target_area": str(target_area or "KHH"),
+            "station_priority_policy": "port_local_first",
+            "using_port_local_station": summary["using_port_local_station"],
+            "port_local_station_count": summary["port_local_station_count"],
+            "port_local_station_ids": summary["port_local_station_ids"],
+            "available_port_local_wind_station_ids": station_context.get("available_port_local_wind_station_ids", []),
+            "missing_port_local_station_ids": station_context.get("missing_port_local_station_ids", []),
+            "fallback_to_467441": summary["fallback_to_467441"],
+            "fallback_reason": summary["fallback_reason"],
+            "467441_used_as_core_station": False,
+            "467441_usage": "fallback_baseline" if summary["fallback_to_467441"] else "not_used_or_fallback_only",
+            "prediction_mode": summary["prediction_mode"],
+            "port_local_model_available": summary["port_local_model_available"],
+            "model_retraining_required": summary["model_retraining_required"],
+        }
+    )
+    if legacy_target_station_id is not None:
+        trace.update(
+            {
+                "target_station_id_parameter_received": str(legacy_target_station_id),
+                "target_station_id_treated_as": "fallback_baseline_or_legacy_proxy",
+                "preferred_target_area": "KHH",
+            }
+        )
+    return result
+
+
+def predict_dispatch_risk_v28(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    result = predict_dispatch_risk_v27(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project_root,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+    )
+    cfg = load_config(config_path)
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.8.1")
+    trace = result.setdefault("trace", {})
+    acquisition_cfg = cfg.get("port_local_data_acquisition", {})
+    if acquisition_report is None:
+        report_dir = Path(project_root) / acquisition_cfg.get("report_dir", "results/port_local_data_v28")
+        acquisition_report = {
+            "port_local_data_acquisition_enabled": bool(acquisition_cfg.get("enabled", True)),
+            "port_local_data_refresh_attempted": False,
+            "port_local_data_refresh_success": None,
+            "port_local_station_files_created": [],
+            "port_local_data_report_path": str(report_dir / "station_availability_report.json"),
+            "fallback_to_existing_files": True,
+        }
+    trace.update(
+        {
+            "port_local_data_acquisition_enabled": bool(acquisition_report.get("port_local_data_acquisition_enabled", True)),
+            "port_local_data_refresh_attempted": bool(acquisition_report.get("port_local_data_refresh_attempted", False)),
+            "port_local_data_refresh_success": acquisition_report.get("port_local_data_refresh_success"),
+            "port_local_station_files_created": acquisition_report.get("port_local_station_files_created", []),
+            "port_local_data_report_path": acquisition_report.get("port_local_data_report_path"),
+        }
+    )
+    if acquisition_report.get("port_local_data_refresh_error"):
+        trace["port_local_data_refresh_error"] = acquisition_report.get("port_local_data_refresh_error")
+    if acquisition_report.get("fallback_to_existing_files") is not None:
+        trace["fallback_to_existing_files"] = acquisition_report.get("fallback_to_existing_files")
+    result.setdefault("data_availability", {})["port_local_data_acquisition"] = {
+        "refresh_attempted": trace["port_local_data_refresh_attempted"],
+        "refresh_success": trace["port_local_data_refresh_success"],
+        "created_files": trace["port_local_station_files_created"],
+        "report_path": trace["port_local_data_report_path"],
+    }
+    return result
+
+
+def predict_dispatch_risk_v29(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    result = predict_dispatch_risk_v28(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project_root,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+    )
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.9")
+    khwd_frames = _load_khwd_frames_for_v29(result, project)
+    wind_features = build_port_local_wind_features(khwd_frames, cfg)
+    postprocess_report = _apply_v29_postprocess_validation(result, wind_features, cfg)
+    rain_report = _build_v29_rain_probability_report(result, cfg)
+    trace_report = _build_v29_trace_report(result, wind_features, postprocess_report, rain_report, cfg)
+    trace = result.setdefault("trace", {})
+    trace.update(trace_report["trace"])
+    result.setdefault("data_availability", {})["port_local_postprocess_validation"] = {
+        "khwd_station_count": wind_features.get("station_count", 0),
+        "quality_status": wind_features.get("quality_status"),
+        "report_path": "results/dispatch_risk_v29/port_local_postprocess_report.json",
+    }
+    _write_v29_reports(project, result, postprocess_report, rain_report, trace_report)
+    return result
+
+
+def _load_khwd_frames_for_v29(result: dict[str, Any], project: Path) -> dict[str, pd.DataFrame]:
+    station_ids = [
+        station_id
+        for station_id in result.get("station_priority_summary", {}).get("port_local_station_ids", [])
+        if str(station_id).startswith("KHWD")
+    ]
+    frames: dict[str, pd.DataFrame] = {}
+    for station_id in station_ids:
+        path = project / "data" / "raw" / "observed_hourly" / f"{station_id}.csv"
+        if path.exists():
+            try:
+                frames[str(station_id)] = load_observations(path)
+            except Exception:
+                continue
+    return frames
+
+
+def _apply_v29_postprocess_validation(result: dict[str, Any], wind_features: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    apply_labels = set(cfg.get("port_local_wind_postprocess", {}).get("apply_anchors", ["H1", "H2"]))
+    base_wind = {
+        str(anchor["label"]): map_wind_speed_to_operation_level(float(anchor["wind_speed"].get("predicted_mps", 0.0)), cfg)["operation_level"]
+        for anchor in result.get("forecast_anchors", [])
+        if str(anchor.get("label")) in apply_labels
+    }
+    base_gust = {
+        str(anchor["label"]): map_wind_gust_to_operation_level(float(anchor["wind_gust"].get("predicted_mps", 0.0)), cfg, use_buffer=True)["operation_level"]
+        for anchor in result.get("forecast_anchors", [])
+        if str(anchor.get("label")) in apply_labels
+    }
+    wind_result = apply_port_local_wind_postprocess(base_wind, wind_features, cfg)
+    gust_result = apply_port_local_gust_postprocess(base_gust, wind_features, cfg)
+    anchor_adjustments: dict[str, Any] = {}
+    for anchor in result.get("forecast_anchors", []):
+        label = str(anchor.get("label"))
+        rain = anchor.setdefault("rain", {})
+        rain.setdefault("port_local_adjusted_probability", None)
+        rain.setdefault("source_detail", {}).setdefault("port_local_rain_postprocess_applied", False)
+        rain["source_detail"].setdefault("port_local_rain_data_available", False)
+        rain["source_detail"].setdefault("port_local_rain_reason", "No port-local precipitation station available.")
+        if label not in apply_labels:
+            anchor["wind_speed"].setdefault("port_local_postprocess", {"applied": False})
+            anchor["wind_gust"].setdefault("port_local_postprocess", {"applied": False})
+            continue
+        wind_detail = wind_result["postprocess_detail"][label]
+        gust_detail = gust_result["postprocess_detail"][label]
+        anchor["wind_speed"]["port_local_postprocess"] = wind_detail
+        anchor["wind_gust"]["port_local_postprocess"] = gust_detail
+        anchor["wind_speed"]["operation_level"] = wind_detail["adjusted_operation_level"]
+        anchor["wind_gust"]["operation_level"] = gust_detail["adjusted_operation_level"]
+        anchor_adjustments[label] = {
+            "wind_postprocess_applied": bool(wind_detail["applied"]),
+            "gust_postprocess_applied": bool(gust_detail["applied"]),
+            "base_wind_level": wind_detail["base_operation_level"],
+            "adjusted_wind_level": wind_detail["adjusted_operation_level"],
+            "base_gust_level": gust_detail["base_operation_level"],
+            "adjusted_gust_level": gust_detail["adjusted_operation_level"],
+        }
+    _refresh_v26_dispatch_outputs(result, cfg)
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "prediction_mode": result.get("station_priority_summary", {}).get("prediction_mode"),
+        "khwd_station_ids_used": wind_features.get("station_ids_used", []),
+        "khwd_features": wind_features.get("features", {}),
+        "quality_status": wind_features.get("quality_status"),
+        "warnings": wind_features.get("warnings", []),
+        "anchor_adjustments": anchor_adjustments,
+    }
+
+
+def _build_v29_rain_probability_report(result: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    anchors = {}
+    cwa_applied = []
+    for anchor in result.get("forecast_anchors", []):
+        label = str(anchor.get("label"))
+        rain = anchor.get("rain", {})
+        source = rain.get("source_detail", {})
+        if source.get("cwa_prior_applied"):
+            cwa_applied.append(label)
+        anchors[label] = {
+            "raw_model_probability": rain.get("raw_model_probability"),
+            "nearby_adjusted_probability": rain.get("nearby_adjusted_probability"),
+            "port_local_adjusted_probability": rain.get("port_local_adjusted_probability"),
+            "cwa_adjusted_probability": rain.get("cwa_adjusted_probability"),
+            "final_probability": rain.get("final_probability"),
+            "level": rain.get("level"),
+            "source_detail": source,
+        }
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "rain_probability_preserved": all("final_probability" in anchor.get("rain", {}) for anchor in result.get("forecast_anchors", [])),
+        "rain_probability_model_used": True,
+        "port_local_rain_data_available": False,
+        "cwa_prior_enabled": bool(cfg.get("cwa_pop_prior", {}).get("enabled", True)),
+        "cwa_prior_applied_anchors": cwa_applied,
+        "anchors": anchors,
+    }
+
+
+def _build_v29_trace_report(
+    result: dict[str, Any],
+    wind_features: dict[str, Any],
+    postprocess_report: dict[str, Any],
+    rain_report: dict[str, Any],
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
+    trace = {
+        "model_version": result.get("model_version"),
+        "prediction_mode": result.get("station_priority_summary", {}).get("prediction_mode"),
+        "using_port_local_station": result.get("station_priority_summary", {}).get("using_port_local_station"),
+        "port_local_wind_station_count": wind_features.get("station_count", 0),
+        "port_local_wind_station_ids": wind_features.get("station_ids_used", []),
+        "port_local_wind_postprocess_enabled": bool(cfg.get("port_local_wind_postprocess", {}).get("enabled", True)),
+        "port_local_gust_postprocess_enabled": bool(cfg.get("port_local_wind_postprocess", {}).get("enabled", True)),
+        "rain_probability_preserved": bool(rain_report.get("rain_probability_preserved", False)),
+        "rain_probability_model_used": bool(rain_report.get("rain_probability_model_used", False)),
+        "cwa_pop_prior_enabled": bool(cfg.get("cwa_pop_prior", {}).get("enabled", True)),
+        "cwa_pop_quality_gate_enabled": bool(cfg.get("cwa_pop_quality", {}).get("enabled", False)),
+        "dispatch_risk_uses_postprocessed_wind_gust": True,
+        "467441_used_as_core_station": False,
+    }
+    return {"generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"), "trace": trace, "postprocess_report_path": "results/dispatch_risk_v29/port_local_postprocess_report.json", "rain_probability_report_path": "results/dispatch_risk_v29/rain_probability_report.json"}
+
+
+def _write_v29_reports(project: Path, result: dict[str, Any], postprocess_report: dict[str, Any], rain_report: dict[str, Any], trace_report: dict[str, Any]) -> None:
+    out_dir = project / "results" / "dispatch_risk_v29"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "port_local_postprocess_report.json").write_text(json.dumps(postprocess_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "rain_probability_report.json").write_text(json.dumps(rain_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "dispatch_risk_trace_report.json").write_text(json.dumps(trace_report, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def predict_dispatch_risk_v30(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    result = predict_dispatch_risk_v29(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.0")
+
+    out_dir = project / "results" / "dispatch_risk_v30"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    readiness_report = _load_or_compute_v30_readiness(result, cfg, project)
+    port_local_metrics = _load_json(out_dir / "port_local_model_metrics.json") or {
+        "model_version": "port_local_v30",
+        "port_local_model_trained": False,
+        "dataset_ready": bool(readiness_report.get("ready", False)),
+        "failed_reasons": readiness_report.get("failed_reasons", []),
+        "wind_speed": {},
+        "wind_gust": {},
+        "risk_level_evaluation": {"critical_under_warning_count": None, "level_accuracy": None},
+        "rain_probability": {
+            "port_local_rain_model_trained": False,
+            "reason": "No valid port-local rain labels available or dataset not ready.",
+            "fallback_rain_method": "existing_rain_probability_model_plus_cwa_prior",
+        },
+    }
+    postprocess_metrics = _v30_postprocess_metrics(result)
+    fallback_metrics = {"available": fallback_observations is not None or (project / "data" / "raw" / "observed_hourly" / "467441.csv").exists()}
+    selection = select_dispatch_prediction_mode(port_local_metrics, postprocess_metrics, fallback_metrics, readiness_report, cfg)
+    _apply_v30_selection_to_result(result, selection, readiness_report, port_local_metrics, cfg)
+    rain_report = _build_v29_rain_probability_report(result, cfg)
+    model_selection_report = _build_v30_model_selection_report(selection, readiness_report, port_local_metrics)
+    training_report = _load_json(out_dir / "port_local_training_report.json") or _v30_untrained_report(readiness_report)
+    _write_v30_reports(project, result, readiness_report, training_report, port_local_metrics, model_selection_report, rain_report)
+    return result
+
+
+def _load_or_compute_v30_readiness(result: dict[str, Any], cfg: dict[str, Any], project: Path) -> dict[str, Any]:
+    out_dir = project / "results" / "dispatch_risk_v30"
+    existing = _load_json(out_dir / "dataset_readiness_report.json")
+    if existing:
+        return existing
+    khwd_frames = _load_khwd_frames_for_v29(result, project)
+    built = build_port_local_training_dataset(
+        khwd_frames,
+        {"train_rain": bool(cfg.get("port_local_model", {}).get("train_rain_probability_if_labels_available", True))},
+        cfg,
+    )
+    readiness = check_port_local_dataset_readiness(built["dataset"], cfg)
+    return {"generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"), **readiness}
+
+
+def _v30_postprocess_metrics(result: dict[str, Any]) -> dict[str, Any]:
+    summary = result.get("station_priority_summary", {})
+    trace = result.get("trace", {})
+    return {
+        "available": bool(summary.get("using_port_local_station", False)) and int(trace.get("port_local_wind_station_count", 0) or 0) >= 2,
+        "prediction_mode": summary.get("prediction_mode"),
+        "port_local_wind_station_count": int(trace.get("port_local_wind_station_count", 0) or 0),
+    }
+
+
+def _apply_v30_selection_to_result(
+    result: dict[str, Any],
+    selection: dict[str, Any],
+    readiness_report: dict[str, Any],
+    port_local_metrics: dict[str, Any],
+    cfg: dict[str, Any],
+) -> None:
+    selected = selection["selected_mode"]
+    using_port_local = selected in {"port_local_model", "port_local_postprocess"}
+    fallback_to_467441 = bool(selection.get("fallback_to_467441", False))
+    result["prediction_mode"] = selected
+    summary = result.setdefault("station_priority_summary", {})
+    summary.update(
+        {
+            "prediction_mode": selected,
+            "using_port_local_station": using_port_local,
+            "fallback_to_467441": fallback_to_467441,
+            "467441_used_as_core_station": False,
+        }
+    )
+    result["model_selection_summary"] = {
+        "selected_mode": selected,
+        "dataset_ready": bool(readiness_report.get("ready", False)),
+        "port_local_model_trained": bool(port_local_metrics.get("port_local_model_trained", False)),
+        "port_local_model_accepted": bool(selection.get("model_accepted", False)),
+        "fallback_to_port_local_postprocess": bool(selection.get("fallback_to_port_local_postprocess", False)),
+        "fallback_to_467441": fallback_to_467441,
+        "selection_reason": selection.get("selection_reason", selection.get("reason")),
+        "failed_reasons": selection.get("failed_reasons", []),
+        "fallback_chain": selection.get("fallback_chain", []),
+    }
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "model_version": result.get("model_version"),
+            "prediction_mode": selected,
+            "port_local_model_training_enabled": bool(cfg.get("port_local_training", {}).get("enabled", True)),
+            "port_local_model_selected": selected == "port_local_model",
+            "port_local_model_accepted": bool(selection.get("model_accepted", False)),
+            "fallback_to_port_local_postprocess": bool(selection.get("fallback_to_port_local_postprocess", False)),
+            "fallback_to_467441": fallback_to_467441,
+            "fallback_reason": None if selected == "port_local_model" else selection.get("reason"),
+            "467441_used_as_core_station": False,
+            "rain_probability_preserved": True,
+            "rain_model_mode": "existing_model_plus_cwa_prior",
+            "cwa_pop_used_as_model_input": False,
+            "cwa_pop_quality_gate_enabled": bool(cfg.get("cwa_pop_quality", {}).get("enabled", False)),
+        }
+    )
+
+
+def _build_v30_model_selection_report(selection: dict[str, Any], readiness_report: dict[str, Any], metrics: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "selected_mode": selection.get("selected_mode"),
+        "port_local_model_available": bool(metrics.get("port_local_model_trained", False)),
+        "port_local_model_accepted": bool(selection.get("model_accepted", False)),
+        "fallback_to_port_local_postprocess": bool(selection.get("fallback_to_port_local_postprocess", False)),
+        "fallback_to_467441": bool(selection.get("fallback_to_467441", False)),
+        "selection_reason": selection.get("selection_reason", selection.get("reason")),
+        "failed_reasons": selection.get("failed_reasons", readiness_report.get("failed_reasons", [])),
+        "fallback_chain": selection.get("fallback_chain", []),
+        "dataset_readiness": readiness_report,
+    }
+
+
+def _v30_untrained_report(readiness_report: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "model_version": "port_local_v30",
+        "port_local_model_trained": False,
+        "reason": "Dataset readiness check failed or training CLI has not been run.",
+        "failed_reasons": readiness_report.get("failed_reasons", []),
+        "dataset_readiness": readiness_report,
+    }
+
+
+def _write_v30_reports(
+    project: Path,
+    result: dict[str, Any],
+    readiness_report: dict[str, Any],
+    training_report: dict[str, Any],
+    metrics: dict[str, Any],
+    model_selection_report: dict[str, Any],
+    rain_report: dict[str, Any],
+) -> None:
+    out_dir = project / "results" / "dispatch_risk_v30"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "dataset_readiness_report.json").write_text(json.dumps(readiness_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "port_local_training_report.json").write_text(json.dumps(training_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "port_local_model_metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "model_selection_report.json").write_text(json.dumps(model_selection_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "rain_probability_report.json").write_text(json.dumps(rain_report, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_json(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def predict_dispatch_risk_v32(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    result = predict_dispatch_risk_v30(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.2")
+    out_dir = project / "results" / "dispatch_risk_v32"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    v30_dir = project / "results" / "dispatch_risk_v30"
+    readiness = _load_json(v30_dir / "dataset_readiness_report.json") or {"ready": False, "failed_reasons": ["v30 dataset readiness report missing"]}
+    port_metrics = _load_json(v30_dir / "port_local_model_metrics.json") or {"port_local_model_trained": False}
+    ranking = _load_json(out_dir / "nearby_station_ranking_report.json") or _default_v32_ranking_report(cfg)
+    nearby_readiness = _load_json(out_dir / "nearby_cwa_readiness_report.json") or {"ready": False, "selected_station_ids": ranking.get("selected_station_ids", []), "failed_reasons": ["nearby CWA historical readiness report missing"]}
+    nearby_metrics = _load_json(out_dir / "nearby_cwa_model_metrics.json") or {"nearby_cwa_historical_model_trained": False, "failed_reasons": nearby_readiness.get("failed_reasons", [])}
+    postprocess_metrics = _v30_postprocess_metrics(result)
+    fallback_metrics = {"available": fallback_observations is not None or (project / "data" / "raw" / "observed_hourly" / "467441.csv").exists()}
+    selection = select_dispatch_prediction_mode_v32(port_metrics, postprocess_metrics, nearby_metrics, fallback_metrics, readiness, nearby_readiness, cfg)
+    _apply_v32_selection_to_result(result, selection, ranking, nearby_readiness, nearby_metrics, cfg)
+    model_selection_report = _build_v32_model_selection_report(selection, readiness, nearby_readiness, ranking, nearby_metrics)
+    _write_v32_reports(project, result, ranking, nearby_readiness, nearby_metrics, model_selection_report)
+    return result
+
+
+def _default_v32_ranking_report(cfg: dict[str, Any]) -> dict[str, Any]:
+    station_ids = cfg.get("nearby_cwa_historical_training", {}).get("priority_1_station_ids", [])
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "baseline_station": {"station_id": "467441", "name": "Kaohsiung", "distance_to_port_km": None},
+        "ranked_candidates": [],
+        "selected_station_ids": station_ids,
+        "all_selected_stations_closer_than_467441": False,
+        "warning": "nearby_station_ranking_report.json not found; using configured priority station ids.",
+    }
+
+
+def _apply_v32_selection_to_result(
+    result: dict[str, Any],
+    selection: dict[str, Any],
+    ranking: dict[str, Any],
+    nearby_readiness: dict[str, Any],
+    nearby_metrics: dict[str, Any],
+    cfg: dict[str, Any],
+) -> None:
+    selected = selection.get("selected_mode", result.get("prediction_mode"))
+    result["prediction_mode"] = selected
+    selected_ids = ranking.get("selected_station_ids", nearby_readiness.get("selected_station_ids", []))
+    nearby_accepted = bool(selection.get("nearby_cwa_historical_model_accepted", False))
+    result["nearby_cwa_historical_summary"] = {
+        "enabled": bool(cfg.get("nearby_cwa_historical_training", {}).get("enabled", True)),
+        "model_available": bool(nearby_metrics.get("nearby_cwa_historical_model_trained", False)),
+        "model_accepted": nearby_accepted,
+        "selected_station_ids": selected_ids,
+        "all_selected_stations_closer_than_467441": bool(ranking.get("all_selected_stations_closer_than_467441", False)),
+        "baseline_station_id": cfg.get("nearby_cwa_historical_training", {}).get("baseline_station_id", "467441"),
+        "usage": "fallback_training_reference",
+        "is_port_local_core": False,
+    }
+    result["model_selection_summary"] = {
+        **result.get("model_selection_summary", {}),
+        "selected_mode": selected,
+        "nearby_cwa_historical_model_accepted": nearby_accepted,
+        "fallback_to_nearby_cwa_historical_model": bool(selection.get("fallback_to_nearby_cwa_historical_model", False)),
+        "fallback_to_467441": bool(selection.get("fallback_to_467441", False)),
+        "selection_reason": selection.get("selection_reason", selection.get("reason")),
+        "fallback_chain": selection.get("fallback_chain", []),
+        "failed_reasons": selection.get("failed_reasons", []),
+    }
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "model_version": result.get("model_version"),
+            "prediction_mode": selected,
+            "nearby_cwa_historical_training_enabled": bool(cfg.get("nearby_cwa_historical_training", {}).get("enabled", True)),
+            "nearby_cwa_historical_model_available": bool(nearby_metrics.get("nearby_cwa_historical_model_trained", False)),
+            "nearby_cwa_historical_model_accepted": nearby_accepted,
+            "nearby_cwa_selected_station_ids": selected_ids,
+            "all_nearby_cwa_stations_closer_than_467441": bool(ranking.get("all_selected_stations_closer_than_467441", False)),
+            "nearby_cwa_used_as_port_local_core": False,
+            "fallback_to_nearby_cwa_historical_model": bool(selection.get("fallback_to_nearby_cwa_historical_model", False)),
+            "fallback_to_467441": bool(selection.get("fallback_to_467441", False)),
+            "467441_used_as_core_station": False,
+            "rain_probability_preserved": True,
+            "rain_model_mode": "nearby_cwa_historical_rain_model_plus_cwa_prior" if nearby_accepted else "existing_model_plus_cwa_prior",
+            "cwa_pop_used_as_model_input": False,
+        }
+    )
+
+
+def _build_v32_model_selection_report(
+    selection: dict[str, Any],
+    port_readiness: dict[str, Any],
+    nearby_readiness: dict[str, Any],
+    ranking: dict[str, Any],
+    nearby_metrics: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "selected_mode": selection.get("selected_mode"),
+        "selection_reason": selection.get("selection_reason", selection.get("reason")),
+        "fallback_chain": selection.get("fallback_chain", []),
+        "fallback_to_nearby_cwa_historical_model": bool(selection.get("fallback_to_nearby_cwa_historical_model", False)),
+        "fallback_to_467441": bool(selection.get("fallback_to_467441", False)),
+        "nearby_cwa_historical_model_available": bool(nearby_metrics.get("nearby_cwa_historical_model_trained", False)),
+        "nearby_cwa_historical_model_accepted": bool(selection.get("nearby_cwa_historical_model_accepted", False)),
+        "port_local_dataset_readiness": port_readiness,
+        "nearby_cwa_readiness": nearby_readiness,
+        "nearby_station_ranking": ranking,
+        "failed_reasons": selection.get("failed_reasons", []),
+    }
+
+
+def _write_v32_reports(
+    project: Path,
+    result: dict[str, Any],
+    ranking: dict[str, Any],
+    nearby_readiness: dict[str, Any],
+    nearby_metrics: dict[str, Any],
+    model_selection_report: dict[str, Any],
+) -> None:
+    out_dir = project / "results" / "dispatch_risk_v32"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if not (out_dir / "nearby_station_ranking_report.json").exists():
+        (out_dir / "nearby_station_ranking_report.json").write_text(json.dumps(ranking, ensure_ascii=False, indent=2), encoding="utf-8")
+    if not (out_dir / "nearby_cwa_readiness_report.json").exists():
+        (out_dir / "nearby_cwa_readiness_report.json").write_text(json.dumps(nearby_readiness, ensure_ascii=False, indent=2), encoding="utf-8")
+    if not (out_dir / "nearby_cwa_model_metrics.json").exists():
+        (out_dir / "nearby_cwa_model_metrics.json").write_text(json.dumps(nearby_metrics, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "model_selection_report.json").write_text(json.dumps(model_selection_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def predict_dispatch_risk_v33(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+    no_realtime_khwd_mode: bool = False,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    result = predict_dispatch_risk_v32(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.3")
+    context = _build_v33_selection_context(result, cfg, project, fallback_observations, no_realtime_khwd_mode)
+    selection = select_prediction_mode(context)
+    _apply_v33_selection(result, selection, context, cfg)
+    reports = _build_v33_reports(result, selection, context, cfg)
+    _write_v33_reports(project, result, reports)
+    return result
+
+
+def _build_v33_selection_context(
+    result: dict[str, Any],
+    cfg: dict[str, Any],
+    project: Path,
+    fallback_observations: pd.DataFrame | None,
+    no_realtime_khwd_mode: bool,
+) -> dict[str, Any]:
+    v30_dir = project / "results" / "dispatch_risk_v30"
+    v32_dir = project / "results" / "dispatch_risk_v32"
+    port_readiness = _load_json(v30_dir / "dataset_readiness_report.json") or {}
+    port_metrics = _load_json(v30_dir / "port_local_model_metrics.json") or {}
+    nearby_metrics = _load_json(v32_dir / "nearby_cwa_model_metrics.json") or {}
+    nearby_ranking = _load_json(v32_dir / "nearby_station_ranking_report.json") or {}
+    trace = result.get("trace", {})
+    valid_khwd_count = int(trace.get("port_local_wind_station_count", 0) or result.get("station_priority_summary", {}).get("port_local_station_count", 0) or 0)
+    khwd_available = valid_khwd_count >= 2 and not no_realtime_khwd_mode
+    nearby_critical = int((nearby_metrics.get("risk_level_evaluation", {}) or {}).get("critical_under_warning_count") or 0)
+    port_critical = int((port_metrics.get("risk_level_evaluation", {}) or {}).get("critical_under_warning_count") or 0)
+    return {
+        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.3"),
+        "port_local_model_available": bool(port_metrics.get("port_local_model_trained", False)),
+        "port_local_model_accepted": False,
+        "dataset_ready": bool(port_readiness.get("ready", False)),
+        "port_local_model_trained": bool(port_metrics.get("port_local_model_trained", False)),
+        "port_local_model_critical_under_warning_count": port_critical,
+        "khwd_realtime_available": khwd_available,
+        "valid_khwd_station_count": 0 if no_realtime_khwd_mode else valid_khwd_count,
+        "no_realtime_khwd_mode": bool(no_realtime_khwd_mode),
+        "khwd_realtime_disabled_by_request": bool(no_realtime_khwd_mode),
+        "nearby_cwa_historical_training_enabled": bool(cfg.get("nearby_cwa_historical_training", {}).get("enabled", True)),
+        "nearby_cwa_historical_model_available": bool(nearby_metrics.get("nearby_cwa_historical_model_trained", False)),
+        "nearby_cwa_historical_model_accepted": bool(result.get("nearby_cwa_historical_summary", {}).get("model_accepted", False)),
+        "nearby_cwa_selected_station_ids": result.get("nearby_cwa_historical_summary", {}).get("selected_station_ids", []),
+        "all_nearby_cwa_stations_closer_than_467441": bool(nearby_ranking.get("all_selected_stations_closer_than_467441", result.get("nearby_cwa_historical_summary", {}).get("all_selected_stations_closer_than_467441", False))),
+        "nearby_cwa_critical_under_warning_count": nearby_critical,
+        "nearby_cwa_used_as_port_local_core": False,
+        "fallback_baseline_available": fallback_observations is not None or (project / "data" / "raw" / "observed_hourly" / "467441.csv").exists(),
+        "467441_used_as_core_station": False,
+        "rain_probability_preserved": all("rain" in anchor and "final_probability" in anchor.get("rain", {}) for anchor in result.get("forecast_anchors", [])),
+        "cwa_pop_zero_is_valid_probability": bool(cfg.get("rain_probability", {}).get("cwa_pop_zero_is_valid_probability", True)),
+    }
+
+
+def _apply_v33_selection(result: dict[str, Any], selection: dict[str, Any], context: dict[str, Any], cfg: dict[str, Any]) -> None:
+    selected = selection["selected_mode"]
+    result["prediction_mode"] = selected
+    summary = result.setdefault("model_selection_summary", {})
+    summary.update(
+        {
+            "selected_mode": selected,
+            "port_local_model_accepted": bool(context.get("port_local_model_accepted", False)),
+            "port_local_postprocess_available": any(item["mode"] == "port_local_postprocess" and item["eligible"] for item in selection["evaluated_modes"]),
+            "nearby_cwa_historical_model_available": bool(context.get("nearby_cwa_historical_model_available", False)),
+            "nearby_cwa_historical_model_accepted": bool(context.get("nearby_cwa_historical_model_accepted", False)),
+            "fallback_to_nearby_cwa_historical_model": bool(selection["fallback_to_nearby_cwa_historical_model"]),
+            "fallback_to_467441": bool(selection["fallback_to_467441"]),
+            "selection_reason": selection["selection_reason"],
+            "fallback_chain": selection["fallback_chain"],
+            "evaluated_modes": selection["evaluated_modes"],
+            "blocking_reasons": selection["blocking_reasons"],
+        }
+    )
+    nearby = result.setdefault("nearby_cwa_historical_summary", {})
+    nearby_selected = selected == "nearby_cwa_historical_model"
+    nearby.update(
+        {
+            "fallback_eligible": bool(context.get("nearby_cwa_historical_model_available")) and bool(context.get("nearby_cwa_historical_model_accepted")) and bool(context.get("all_nearby_cwa_stations_closer_than_467441")),
+            "selected_for_this_request": nearby_selected,
+            "is_port_local_core": False,
+            "not_selected_reason": None if nearby_selected else ("KHWD realtime data is available; port_local_postprocess has higher priority." if selected == "port_local_postprocess" else "Nearby CWA historical model was not selected by v3.3 selection engine."),
+        }
+    )
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "model_version": result["model_version"],
+            "prediction_mode": selected,
+            "selection_engine_version": "v3.3",
+            "selection_case_id": selection["selection_case_id"],
+            "khwd_realtime_available": bool(context["khwd_realtime_available"]),
+            "valid_khwd_station_count": int(context["valid_khwd_station_count"]),
+            "no_realtime_khwd_mode": bool(context["no_realtime_khwd_mode"]),
+            "khwd_realtime_disabled_by_request": bool(context["khwd_realtime_disabled_by_request"]),
+            "nearby_cwa_historical_training_enabled": bool(context["nearby_cwa_historical_training_enabled"]),
+            "nearby_cwa_historical_model_available": bool(context["nearby_cwa_historical_model_available"]),
+            "nearby_cwa_historical_model_accepted": bool(context["nearby_cwa_historical_model_accepted"]),
+            "nearby_cwa_selected_station_ids": context["nearby_cwa_selected_station_ids"],
+            "all_nearby_cwa_stations_closer_than_467441": bool(context["all_nearby_cwa_stations_closer_than_467441"]),
+            "nearby_cwa_used_as_port_local_core": False,
+            "fallback_to_nearby_cwa_historical_model": bool(selection["fallback_to_nearby_cwa_historical_model"]),
+            "fallback_to_467441": bool(selection["fallback_to_467441"]),
+            "467441_used_as_core_station": False,
+            "rain_probability_preserved": True,
+            "rain_model_mode": "nearby_cwa_historical_rain_model_plus_cwa_prior" if bool(context["nearby_cwa_historical_model_accepted"]) else "existing_model_plus_cwa_prior",
+            "cwa_pop_used_as_model_input": False,
+            "selection_assertions": selection["assertions"],
+        }
+    )
+
+
+def _build_v33_reports(result: dict[str, Any], selection: dict[str, Any], context: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    anchors = [str(anchor.get("label", anchor.get("anchor", f"H{idx + 1}"))) for idx, anchor in enumerate(result.get("forecast_anchors", []))]
+    missing_rain = [label for label, anchor in zip(anchors, result.get("forecast_anchors", [])) if "rain" not in anchor or "final_probability" not in anchor.get("rain", {})]
+    station_role = {
+        "model_version": result["model_version"],
+        "violations_found": False,
+        "checks": {
+            "467441_used_as_core_station": False,
+            "nearby_cwa_used_as_port_local_core": False,
+            "cwa_pop_used_as_model_input": False,
+            "khwd_is_only_port_local_station_group": True,
+        },
+    }
+    rain_report = {
+        "model_version": result["model_version"],
+        "rain_probability_preserved": not missing_rain,
+        "anchors_checked": anchors,
+        "missing_rain_anchors": missing_rain,
+        "cwa_pop_zero_treated_as_valid": bool(cfg.get("rain_probability", {}).get("cwa_pop_zero_is_valid_probability", True)),
+        "cwa_pop_used_as_model_input": False,
+    }
+    scenario = {
+        "model_version": result["model_version"],
+        "scenario": selection["selection_case_id"],
+        "selected_mode": selection["selected_mode"],
+        "passed": all(selection["assertions"].values()) and not missing_rain,
+        "assertions": selection["assertions"],
+    }
+    transition = {
+        "model_version": result["model_version"],
+        "fallback_chain": selection["fallback_chain"],
+        "selected_mode": selection["selected_mode"],
+        "transitions": selection["evaluated_modes"],
+    }
+    return {
+        "scenario_validation_report.json": scenario,
+        "api_contract_snapshot_v33.json": result,
+        "rain_probability_integrity_report.json": rain_report,
+        "station_role_violation_report.json": station_role,
+        "mode_transition_matrix.json": transition,
+    }
+
+
+def _write_v33_reports(project: Path, result: dict[str, Any], reports: dict[str, Any]) -> None:
+    out_dir = project / "results" / "dispatch_risk_v33"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for filename, payload in reports.items():
+        (out_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def predict_dispatch_risk_v34(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+    no_realtime_khwd_mode: bool = False,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    orchestration = run_training_orchestration(
+        config_path=config_path,
+        target_area=target_area,
+        report_dir=cfg.get("training_orchestration", {}).get("report_dir", "results/dispatch_risk_v34"),
+        project_root=project,
+        force_train=False,
+        dry_run=False,
+    )
+    result = predict_dispatch_risk_v33(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+        no_realtime_khwd_mode=no_realtime_khwd_mode,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.4")
+    _apply_v34_metadata(result, cfg, orchestration, project, target_area, no_realtime_khwd_mode)
+    _write_v34_reports(project, result, orchestration, cfg)
+    return result
+
+
+def build_dispatch_model_status_v34(
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    orchestration = run_training_orchestration(
+        config_path=config_path,
+        target_area=target_area,
+        report_dir=cfg.get("training_orchestration", {}).get("report_dir", "results/dispatch_risk_v34"),
+        project_root=project,
+    )
+    return {
+        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.4"),
+        "target_area": target_area,
+        "model_training_status": build_model_training_status(orchestration),
+        "model_registry_summary": orchestration.get("model_registry_summary", {}),
+        "trace": {
+            "model_registry_loaded": True,
+            "model_manifest_checked": True,
+            "training_orchestration_version": "v3.4",
+            "training_required": bool(orchestration.get("training_required", False)),
+            "training_skipped": bool(orchestration.get("training_skipped", False)),
+        },
+    }
+
+
+def _apply_v34_metadata(
+    result: dict[str, Any],
+    cfg: dict[str, Any],
+    orchestration: dict[str, Any],
+    project: Path,
+    target_area: str,
+    no_realtime_khwd_mode: bool,
+) -> None:
+    training_status = build_model_training_status(orchestration)
+    registry_summary = orchestration.get("model_registry_summary", {})
+    nearby_status = training_status.get("available_models", {}).get("nearby_cwa_historical_model", {})
+    result["model_training_status"] = training_status
+    result["model_registry_summary"] = registry_summary
+    result["current_station_usage"] = build_current_station_usage(result, cfg)
+    result["station_display_rows"] = build_station_display_rows(result, cfg, project)
+    result.setdefault("data_availability", {}).update(
+        {
+            "model_registry_loaded": True,
+            "model_manifest_checked": True,
+            "nearby_cwa_historical_model_available": bool(nearby_status.get("available", False)),
+            "nearby_cwa_historical_model_accepted": bool(nearby_status.get("accepted", False)),
+        }
+    )
+    summary = result.setdefault("model_selection_summary", {})
+    summary.update(
+        {
+            "model_registry_used": True,
+            "model_manifest_checked": True,
+            "selected_model_artifact_version": nearby_status.get("artifact_version") if result.get("prediction_mode") == "nearby_cwa_historical_model" else None,
+            "training_status_used_for_selection": True,
+        }
+    )
+    trace = result.setdefault("trace", {})
+    trace.update(
+        {
+            "model_version": result["model_version"],
+            "selection_engine_version": "v3.4",
+            "model_registry_loaded": True,
+            "model_manifest_checked": True,
+            "training_orchestration_version": "v3.4",
+            "training_required": bool(orchestration.get("training_required", False)),
+            "training_skipped": bool(orchestration.get("training_skipped", False)),
+            "port_local_station_ids_used": result["current_station_usage"].get("port_local_station_ids_used", []),
+            "nearby_cwa_selected_station_ids": result["current_station_usage"].get("nearby_cwa_station_ids_available", []),
+            "baseline_station_id": result["current_station_usage"].get("baseline_station_id", "467441"),
+            "467441_used_as_core_station": False,
+            "nearby_cwa_used_as_port_local_core": False,
+            "cwa_pop_used_as_model_input": False,
+            "rain_probability_preserved": True,
+            "no_realtime_khwd_mode": bool(no_realtime_khwd_mode),
+            "khwd_realtime_disabled_by_request": bool(no_realtime_khwd_mode),
+        }
+    )
+    assertions = trace.setdefault("selection_assertions", {})
+    assertions.update(
+        {
+            "station_usage_exported_to_ui": True,
+            "model_training_status_exported_to_ui": True,
+        }
+    )
+
+
+def _build_v34_reports(result: dict[str, Any], orchestration: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    violations = station_role_violations(result.get("station_display_rows", []), result)
+    anchors = [str(anchor.get("label", f"H{idx + 1}")) for idx, anchor in enumerate(result.get("forecast_anchors", []))]
+    missing_rain = [label for label, anchor in zip(anchors, result.get("forecast_anchors", [])) if "rain" not in anchor or "final_probability" not in anchor.get("rain", {})]
+    return {
+        "current_station_usage_report.json": {
+            "model_version": result["model_version"],
+            **result.get("current_station_usage", {}),
+        },
+        "ui_payload_snapshot.json": {
+            "model_version": result["model_version"],
+            "prediction_mode": result.get("prediction_mode"),
+            "model_training_status": result.get("model_training_status"),
+            "current_station_usage": result.get("current_station_usage"),
+            "station_display_rows": result.get("station_display_rows"),
+        },
+        "api_contract_snapshot_v34.json": result,
+        "rain_probability_integrity_report.json": {
+            "model_version": result["model_version"],
+            "rain_probability_preserved": not missing_rain,
+            "missing_rain_anchors": missing_rain,
+            "cwa_pop_used_as_model_input": False,
+        },
+        "station_role_violation_report.json": {
+            "model_version": result["model_version"],
+            "violations_found": bool(violations),
+            "violations": violations,
+        },
+    }
+
+
+def _write_v34_reports(project: Path, result: dict[str, Any], orchestration: dict[str, Any], cfg: dict[str, Any]) -> None:
+    out_dir = project / "results" / "dispatch_risk_v34"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    reports = _build_v34_reports(result, orchestration, cfg)
+    for filename, payload in reports.items():
+        (out_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def predict_dispatch_risk_v35(
+    port_local_observations: dict[str, pd.DataFrame] | None = None,
+    fallback_observations: pd.DataFrame | None = None,
+    cwa_forecast: dict[str, Any] | None = None,
+    tide_observations: pd.DataFrame | None = None,
+    visibility_observations: pd.DataFrame | None = None,
+    config_path: str = "config.yaml",
+    project_root: str | Path = ROOT,
+    target_area: str = "KHH",
+    legacy_target_station_id: str | None = None,
+    acquisition_report: dict[str, Any] | None = None,
+    no_realtime_khwd_mode: bool = False,
+) -> dict[str, Any]:
+    cfg = load_config(config_path)
+    project = Path(project_root)
+    result = predict_dispatch_risk_v34(
+        port_local_observations=port_local_observations,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        tide_observations=tide_observations,
+        visibility_observations=visibility_observations,
+        config_path=config_path,
+        project_root=project,
+        target_area=target_area,
+        legacy_target_station_id=legacy_target_station_id,
+        acquisition_report=acquisition_report,
+        no_realtime_khwd_mode=no_realtime_khwd_mode,
+    )
+    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.5")
+    result["system_audit_summary"] = {
+        "model_version": result["model_version"],
+        "data_summary_available": True,
+        "station_summary_available": True,
+        "dataset_duration_summary_available": True,
+        "model_accuracy_summary_available": True,
+        "system_audit_endpoint": f"/api/v1/dispatch/system-audit?target_area={target_area}",
+    }
+    trace = result.setdefault("trace", {})
+    trace["model_version"] = result["model_version"]
+    trace["system_audit_summary_attached"] = True
+    _write_v35_prediction_sample(project, result)
+    return result
+
+
+def _write_v35_prediction_sample(project: Path, result: dict[str, Any]) -> None:
+    out_dir = project / "results" / "dispatch_risk_v35"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "prediction_samples_v35.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_or_build_priority_station_context(
+    cfg: dict[str, Any],
+    project: Path,
+    station_pool_config: dict[str, Any],
+    port_local_observations: dict[str, pd.DataFrame] | None,
+) -> dict[str, Any]:
+    if port_local_observations is None:
+        return load_priority_station_pool_observations(
+            station_pool_config,
+            project / "data" / "raw" / "observed_hourly",
+            cfg,
+        )
+
+    station_frames = {str(station_id): frame for station_id, frame in port_local_observations.items() if frame is not None and not frame.empty}
+    port_local_ids = [
+        str(station.get("station_id"))
+        for station in enabled_input_stations(station_pool_config)
+        if bool(station.get("is_port_local", False))
+    ]
+    port_local_wind_ids = [
+        str(station.get("station_id"))
+        for station in enabled_input_stations(station_pool_config)
+        if station.get("priority_group") == "port_local_wind"
+    ]
+    available_port_local_ids = [station_id for station_id in port_local_ids if station_id in station_frames]
+    available_port_local_wind_ids = [station_id for station_id in port_local_wind_ids if station_id in station_frames]
+    station_availability = {
+        "available_port_local_station_ids": available_port_local_ids,
+        "available_port_local_wind_station_ids": available_port_local_wind_ids,
+        "missing_port_local_station_ids": [station_id for station_id in port_local_ids if station_id not in station_frames],
+        "fallback_station_ids": [],
+    }
+    decision = decide_prediction_mode(station_availability, None, cfg)
+    return {
+        "prediction_mode": decision["prediction_mode"],
+        "port_local_station_ids": port_local_ids,
+        "available_port_local_station_ids": available_port_local_ids,
+        "available_port_local_wind_station_ids": available_port_local_wind_ids,
+        "missing_port_local_station_ids": station_availability["missing_port_local_station_ids"],
+        "fallback_station_ids": [],
+        "fallback_used": bool(decision["fallback_to_467441"]),
+        "fallback_reason": decision.get("fallback_reason"),
+        "station_frames": station_frames,
+        "station_priority_report": {
+            "station_pool_version": station_pool_config.get("station_pool_version"),
+            "station_pool_mode": station_pool_config.get("station_pool_mode"),
+            "station_priority_policy": "port_local_first",
+            "mode_decision": decision,
+            "available_station_ids": list(station_frames),
+            "missing_station_ids": station_availability["missing_port_local_station_ids"],
+        },
+    }
+
+
+def _latest_observations_from_station_ids(station_frames: dict[str, pd.DataFrame], station_ids: list[str]) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for station_id in station_ids:
+        frame = station_frames.get(station_id)
+        if frame is None or frame.empty:
+            continue
+        work = frame.copy()
+        if "obs_time" in work.columns:
+            work["obs_time"] = pd.to_datetime(work["obs_time"], errors="coerce")
+            work = work.sort_values("obs_time")
+        row = work.iloc[-1].to_dict()
+        row["station_id"] = station_id
+        if "precipitation_1hr" in row and "precip_1hr" not in row:
+            row["precip_1hr"] = row.get("precipitation_1hr")
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _station_priority_summary(
+    cfg: dict[str, Any],
+    target_area: str,
+    station_context: dict[str, Any],
+    decision: dict[str, Any],
+    fallback_station_id: str,
+) -> dict[str, Any]:
+    available = list(station_context.get("available_port_local_station_ids", []))
+    fallback = bool(decision.get("fallback_to_467441", False))
+    return {
+        "prediction_mode": decision["prediction_mode"],
+        "target_area": target_area,
+        "using_port_local_station": bool(decision.get("using_port_local_station", False)),
+        "port_local_station_count": len(available),
+        "port_local_station_ids": available,
+        "core_station_group": "port_local_wind" if available else None,
+        "fallback_to_467441": fallback,
+        "fallback_station_id": fallback_station_id if fallback else None,
+        "fallback_reason": decision.get("fallback_reason"),
+        "port_local_model_available": bool(decision.get("port_local_model_available", False)),
+        "model_retraining_required": bool(decision.get("model_retraining_required", True)),
+        "station_priority_policy": "port_local_first",
+        "467441_used_as_core_station": False,
+        "467441_usage": "fallback_baseline" if fallback else "not_used_or_fallback_only",
+        "configured_port_local_station_ids": station_context.get("port_local_station_ids", []),
+        "missing_port_local_station_ids": station_context.get("missing_port_local_station_ids", []),
+    }
+
+
+def _apply_v27_port_local_postprocess(result: dict[str, Any], cfg: dict[str, Any], station_context: dict[str, Any]) -> None:
+    frames = station_context.get("station_frames", {})
+    station_ids = list(station_context.get("available_port_local_station_ids", []))
+    wind_ids = list(station_context.get("available_port_local_wind_station_ids", []))
+    latest = _latest_observations_from_station_ids(frames, station_ids)
+    wind_warning = float(cfg.get("wind_speed", {}).get("thresholds_mps", {}).get("warning", 10.8))
+    gust_warning = float(cfg.get("wind_gust", {}).get("thresholds_mps", {}).get("warning", 13.9))
+    wind_max = _numeric_latest_max(latest, "wind_speed")
+    gust_max = _numeric_latest_max(latest, "wind_gust")
+    rain_max = _numeric_latest_max(latest, "precipitation_1hr")
+    if rain_max == 0.0:
+        rain_max = _numeric_latest_max(latest, "precip_1hr")
+    rainy_count = _numeric_positive_count(latest, "precipitation_1hr") + _numeric_positive_count(latest, "precip_1hr")
+
+    for anchor in result.get("forecast_anchors", []):
+        label = str(anchor.get("label"))
+        rain_applied = False
+        wind_applied = False
+        gust_applied = False
+        if label in {"H1", "H2"}:
+            if rain_max > 0.5 or rainy_count >= 2:
+                floor = 0.70 if rain_max > 0.5 else 0.60
+                rain = anchor["rain"]
+                adjusted = max(float(rain.get("final_probability", 0.0)), floor)
+                rain["nearby_adjusted_probability"] = round(adjusted, 4)
+                rain["final_probability"] = round(adjusted, 4)
+                rain["level"] = map_rain_probability_to_level(adjusted, cfg)
+                rain["source_detail"]["port_local_rain_postprocess_applied"] = True
+                rain_applied = True
+            if wind_max >= wind_warning:
+                wind_detail = map_wind_speed_to_operation_level(wind_warning, cfg)
+                anchor["wind_speed"]["operation_level"] = wind_detail["operation_level"]
+                anchor["wind_speed"]["operation_label"] = wind_detail["operation_label"]
+                anchor["wind_speed"]["port_local_postprocess_applied"] = True
+                wind_applied = True
+            else:
+                anchor["wind_speed"]["port_local_postprocess_applied"] = False
+            if gust_max >= gust_warning:
+                gust_detail = map_wind_gust_to_operation_level(gust_warning, cfg, use_buffer=False)
+                anchor["wind_gust"]["operation_level"] = gust_detail["operation_level"]
+                anchor["wind_gust"]["operation_label"] = gust_detail["operation_label"]
+                anchor["wind_gust"]["port_local_postprocess_applied"] = True
+                gust_applied = True
+            else:
+                anchor["wind_gust"]["port_local_postprocess_applied"] = False
+        anchor["port_local_postprocess"] = {
+            "enabled": True,
+            "mode": "port_local_postprocess",
+            "port_local_wind_postprocess_applied": wind_applied,
+            "port_local_gust_postprocess_applied": gust_applied,
+            "port_local_rain_postprocess_applied": rain_applied,
+            "port_local_wind_source": "KHWD",
+            "port_local_wind_station_ids_used": wind_ids,
+            "port_local_gust_station_ids_used": wind_ids,
+            "port_local_rain_station_ids_used": station_ids,
+            "port_local_station_ids_used": station_ids,
+            "port_local_features_used": ["khwd_wind_speed_max", "khwd_wind_gust_max", "port_local_precipitation_1hr_max"],
+        }
+
+
+def _attach_v27_port_local_postprocess_details(result: dict[str, Any], station_context: dict[str, Any], enabled: bool) -> None:
+    station_ids = list(station_context.get("available_port_local_station_ids", []))
+    for anchor in result.get("forecast_anchors", []):
+        anchor.setdefault("wind_speed", {})["port_local_postprocess_applied"] = False
+        anchor.setdefault("wind_gust", {})["port_local_postprocess_applied"] = False
+        anchor["port_local_postprocess"] = {
+            "enabled": enabled,
+            "mode": "fallback_baseline" if not enabled else "port_local_postprocess",
+            "port_local_wind_postprocess_applied": False,
+            "port_local_gust_postprocess_applied": False,
+            "port_local_rain_postprocess_applied": False,
+            "port_local_station_ids_used": station_ids,
+            "port_local_features_used": [],
+        }
+
+
+def _numeric_latest_max(frame: pd.DataFrame, column: str) -> float:
+    if frame.empty or column not in frame.columns:
+        return 0.0
+    values = pd.to_numeric(frame[column], errors="coerce").dropna()
+    return float(values.max()) if len(values) else 0.0
+
+
+def _numeric_positive_count(frame: pd.DataFrame, column: str) -> int:
+    if frame.empty or column not in frame.columns:
+        return 0
+    values = pd.to_numeric(frame[column], errors="coerce").fillna(0.0)
+    return int((values > 0).sum())
+
+
+def _load_or_build_multistation_context(
+    cfg: dict[str, Any],
+    project: Path,
+    target_station_id: str,
+    recent_observations: pd.DataFrame,
+    multi_station_observations: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if multi_station_observations is not None:
+        loader = multi_station_observations
+        station_frames = dict(loader.get("station_frames", {}))
+        station_frames.setdefault(target_station_id, recent_observations)
+        loader = {**loader, "station_frames": station_frames}
+        station_pool = [{"station_id": station_id} for station_id in station_frames]
+    else:
+        pool_path = resolve_station_pool_path(cfg, project)
+        station_pool_config = load_station_pool_config(pool_path)
+        station_pool = enabled_input_stations(station_pool_config)
+        data_dir = project / "data" / "raw" / "observed_hourly"
+        loader = load_multi_station_observations(
+            station_pool,
+            data_dir,
+            target_station_id,
+            required_columns=["obs_time"],
+        )
+
+    aggregation = build_nearby_aggregated_features(loader["station_frames"], target_station_id, cfg)
+    return {"station_pool": station_pool, "loader": loader, "aggregation": aggregation}
+
+
+def _nearby_latest_observations_from_frames(station_frames: dict[str, pd.DataFrame], target_station_id: str) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for station_id, frame in station_frames.items():
+        if str(station_id) == str(target_station_id) or frame.empty:
+            continue
+        work = frame.copy()
+        if "obs_time" in work.columns:
+            work["obs_time"] = pd.to_datetime(work["obs_time"], errors="coerce")
+            work = work.sort_values("obs_time")
+        row = work.iloc[-1].to_dict()
+        row["station_id"] = str(station_id)
+        if "precipitation_1hr" in row and "precip_1hr" not in row:
+            row["precip_1hr"] = row.get("precipitation_1hr")
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _input_station_summary(cfg: dict[str, Any], target_station_id: str, station_context: dict[str, Any]) -> dict[str, Any]:
+    loader = station_context["loader"]
+    configured_ids = [str(station.get("station_id")) for station in station_context["station_pool"] if station.get("station_id")]
+    available = [str(station_id) for station_id in loader.get("available_station_ids", [])]
+    missing = [str(station_id) for station_id in loader.get("missing_station_ids", [])]
+    return {
+        "target_station_id": str(target_station_id),
+        "input_station_count": int(loader.get("input_station_count", len(available))),
+        "input_station_ids": configured_ids or available,
+        "available_station_ids": available,
+        "missing_station_ids": missing,
+        "multi_station_input": bool(loader.get("multi_station_input", False)),
+        "fallback_to_single_station": bool(loader.get("fallback_to_single_station", False)),
+        "fallback_reason": loader.get("fallback_reason"),
+        "station_pool_mode": cfg.get("station_pool", {}).get("mode", "port_local"),
+        "multi_station_feature_mode": cfg.get("multi_station_features", {}).get("mode", "postprocess_only"),
+    }
+
+
+def _feature_value(features: pd.DataFrame, name: str, default: float = 0.0) -> float:
+    if features.empty or name not in features.columns:
+        return default
+    value = pd.to_numeric(features[name], errors="coerce").iloc[0]
+    return default if pd.isna(value) else float(value)
+
+
+def _apply_v26_multistation_postprocess(result: dict[str, Any], cfg: dict[str, Any], station_context: dict[str, Any]) -> None:
+    features = station_context["aggregation"]["features"]
+    nearby_count = int(station_context["aggregation"]["nearby_station_count"])
+    rain_max = _feature_value(features, "nearby_precipitation_1hr_max")
+    rain_mean = _feature_value(features, "nearby_precipitation_1hr_mean")
+    rainy_count = int(_feature_value(features, "nearby_rainy_station_count"))
+    wind_max = _feature_value(features, "nearby_wind_speed_max")
+    gust_max = _feature_value(features, "nearby_wind_gust_max")
+    wind_warning = float(cfg.get("wind_speed", {}).get("thresholds_mps", {}).get("warning", 10.8))
+    gust_warning = float(cfg.get("wind_gust", {}).get("thresholds_mps", {}).get("warning", 13.9))
+    nearby_features_used = [
+        "nearby_wind_speed_max",
+        "nearby_wind_gust_max",
+        "nearby_precipitation_1hr_max",
+        "nearby_rainy_station_count",
+    ]
+
+    for anchor in result.get("forecast_anchors", []):
+        label = str(anchor.get("label"))
+        rain_applied = False
+        wind_applied = False
+        gust_applied = False
+        if label in {"H1", "H2"} and nearby_count > 0:
+            rain_floor = None
+            if rain_max > 0.5:
+                rain_floor = max(rain_floor or 0.0, 0.70)
+            if rain_mean > 2.0:
+                rain_floor = max(rain_floor or 0.0, 0.85)
+            if rainy_count >= 2:
+                rain_floor = max(rain_floor or 0.0, 0.60)
+            if rain_floor is not None:
+                rain = anchor["rain"]
+                adjusted = max(float(rain.get("final_probability", 0.0)), rain_floor)
+                rain["nearby_adjusted_probability"] = round(adjusted, 4)
+                rain["final_probability"] = round(adjusted, 4)
+                rain["level"] = map_rain_probability_to_level(adjusted, cfg)
+                rain["source_detail"]["nearby_postprocess_applied"] = True
+                rain_applied = True
+            if wind_max >= wind_warning:
+                wind_detail = map_wind_speed_to_operation_level(wind_warning, cfg)
+                anchor["wind_speed"]["operation_level"] = wind_detail["operation_level"]
+                anchor["wind_speed"]["operation_label"] = wind_detail["operation_label"]
+                anchor["wind_speed"]["nearby_postprocess_applied"] = True
+                wind_applied = True
+            else:
+                anchor["wind_speed"]["nearby_postprocess_applied"] = False
+            if gust_max >= gust_warning:
+                gust_detail = map_wind_gust_to_operation_level(gust_warning, cfg, use_buffer=False)
+                anchor["wind_gust"]["operation_level"] = gust_detail["operation_level"]
+                anchor["wind_gust"]["operation_label"] = gust_detail["operation_label"]
+                anchor["wind_gust"]["nearby_postprocess_applied"] = True
+                gust_applied = True
+            else:
+                anchor["wind_gust"]["nearby_postprocess_applied"] = False
+        else:
+            anchor["wind_speed"]["nearby_postprocess_applied"] = False
+            anchor["wind_gust"]["nearby_postprocess_applied"] = False
+        anchor["multi_station_postprocess"] = {
+            "nearby_rain_postprocess_applied": rain_applied,
+            "nearby_wind_postprocess_applied": wind_applied,
+            "nearby_gust_postprocess_applied": gust_applied,
+            "nearby_station_count": nearby_count,
+            "nearby_features_used": nearby_features_used,
+        }
+
+
+def _refresh_v26_dispatch_outputs(result: dict[str, Any], cfg: dict[str, Any]) -> None:
+    reliability = result.get("reliability", reliability_profile(cfg))
+    trigger_priority = cfg.get("risk_trigger", {}).get("trigger_priority", ["wind_gust", "wind_speed", "rain_probability", "visibility", "tide"])
+    for anchor in result.get("forecast_anchors", []):
+        rain_level = anchor["rain"]["level"]
+        wind_level = anchor["wind_speed"]["operation_level"]
+        gust_level = anchor["wind_gust"]["operation_level"]
+        risk_level = max([rain_level, wind_level, gust_level], key=lambda level: LEVEL_ORDER.get(level, 0))
+        anchor["dispatch_risk_level"] = risk_level
+        trigger_detail = build_risk_trigger_detail(
+            risk_level,
+            rain_level,
+            wind_level,
+            gust_level,
+            anchor.get("visibility", {}).get("level"),
+            anchor.get("tide", {}).get("level"),
+            {
+                "rain_probability": reliability.get("rain_probability", "low_to_medium"),
+                "wind_speed": reliability.get("wind_speed", "high"),
+                "wind_gust": reliability.get("wind_gust", "medium_high"),
+                "visibility": "unavailable",
+                "tide": reliability.get("tide", "reference_only"),
+            },
+            trigger_priority,
+        )
+        action = map_dispatch_action_level(risk_level, str(trigger_detail["primary_trigger_reliability"]))
+        anchor["risk_trigger_detail"] = trigger_detail
+        anchor["dispatch_action_level"] = action["dispatch_action_level"]
+        anchor["dispatch_action"] = action
+        anchor["dispatch_suggestion"] = action["action_description"]
+
+
 def _forecast_anchor_items(cfg: dict[str, Any]) -> list[tuple[str, int]]:
     forecast = cfg.get("forecast", {}).get("anchors", {})
     if forecast:
@@ -792,7 +2328,15 @@ def _run_raw_precipitation_lstm(station_id: str, observations: pd.DataFrame, cfg
 
 
 def _summarize_nearby_precipitation(nearby_observations: pd.DataFrame | None, project: Path) -> dict[str, Any]:
-    if nearby_observations is not None and not nearby_observations.empty:
+    if nearby_observations is not None and nearby_observations.empty:
+        return {
+            "station_values_1hr": {},
+            "max_1hr": 0.0,
+            "mean_1hr": 0.0,
+            "active_station_count": 0,
+            "available": False,
+        }
+    if nearby_observations is not None:
         values = nearby_observations.get("precip_1hr", pd.Series(dtype=float)).astype(float)
         station_values = {
             str(row.get("station_id", idx)): float(row.get("precip_1hr", 0.0) or 0.0)

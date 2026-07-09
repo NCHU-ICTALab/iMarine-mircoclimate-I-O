@@ -1,0 +1,16 @@
+{
+  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "scenario": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED",
+  "selected_mode": "nearby_cwa_historical_model",
+  "passed": true,
+  "assertions": {
+    "khwd_realtime_overrides_nearby_cwa_historical": true,
+    "nearby_cwa_only_used_when_khwd_unavailable": true,
+    "no_core_station_role_violation": true,
+    "rain_probability_preserved_in_all_anchors": true,
+    "cwa_pop_zero_is_valid_probability": true,
+    "critical_under_warning_blocks_model_activation": true,
+    "station_usage_exported_to_ui": true,
+    "model_training_status_exported_to_ui": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ready": true,
+  "selected_station_ids": [
+    "C0V890",
+    "C0V490",
+    "C0V840",
+    "C0V810",
+    "C0V450",
+    "C0V900"
+  ],
+  "station_count": 6,
+  "sample_count": 184614,
+  "training_days": 1282,
+  "valid_wind_samples": 184385,
+  "valid_gust_samples": 183821,
+  "valid_rain_samples": 184614,
+  "failed_reasons": [],
+  "warnings": []
+}

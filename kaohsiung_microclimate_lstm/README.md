@@ -1,107 +1,169 @@
-# 高雄港微氣候 LSTM Baseline
+# 高雄港微氣候 LSTM 與派工風險後端
 
-這個子專案依照 `高雄港微氣候_LSTM_Baseline規格書.md` 實作一套可訓練、可評估、可推論的 PyTorch LSTM baseline。它和既有 FastAPI 資料擷取服務分開放置，避免影響目前 API。
+此資料夾包含微氣候模型、資料前處理、港區測站整合、派工風險推論、model registry 與 training orchestration。
 
-## 功能範圍
+## 目前版本
 
-- 支援 CSV / Parquet 歷史觀測資料。
-- 以單測站獨立建模，針對不同目標群組訓練模型。
-- 預測 H1-H4 四個錨點：+30、+60、+90、+120 分鐘。
-- 內建資料前處理、缺值策略、循環特徵、MinMaxScaler、滑動窗口切割。
-- 提供三種模型：
-  - `lstm`：潮位、能見度等單目標回歸。
-  - `multitask_lstm`：風速與陣風共用 encoder，多任務輸出。
-  - `twostage_lstm`：降雨分類頭加雨量回歸頭。
-- 評估會輸出 MAE、RMSE、MAPE、R2、Bias、降雨 CSI/FAR、Persistence baseline 比較與 `accuracy_grade`。
-- 推論介面會輸出可供排程或前端使用的 H1-H4 anchors JSON。
+- API model version：`kaohsiung_port_dispatch_risk_v3.5`
+- API endpoint：`GET /api/v1/dispatch/risk?target_area=KHH`
+- 主要預測入口：`kaohsiung_microclimate_lstm.src.predict.predict_dispatch_risk_v34`
+- 選模引擎：`kaohsiung_microclimate_lstm.src.selection.model_selection_engine.select_prediction_mode`
+- Training orchestration：`kaohsiung_microclimate_lstm.src.training_orchestration.run_training_orchestration`
 
-## 安裝
+## v3.5 System Audit
 
-```powershell
-cd kaohsiung_microclimate_lstm
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+v3.5 新增系統盤點，用於前端 dashboard 顯示目前資料來源、測站角色、資料期間、模型指標與選模狀態。
+
+```text
+GET /api/v1/dispatch/system-audit?target_area=KHH
 ```
 
-## 輸入資料格式
-
-輸入檔案需為 CSV 或 Parquet，至少包含：
-
-- `station_id`
-- `obs_time`
-- `wind_speed`
-- `wind_gust`
-- `wind_direction`
-- `precipitation_1hr`
-- `tide_level`
-- `visibility`，可選
-
-也支援既有 API 欄位別名：
-
-- `wind_speed_mps` -> `wind_speed`
-- `wind_gust_mps` -> `wind_gust`
-- `wind_direction_deg` -> `wind_direction`
-- `precipitation_1hr_mm` -> `precipitation_1hr`
-- `visibility_m` -> `visibility`
-
-## 訓練單一模型
+CLI：
 
 ```powershell
-python src/train.py --station_id 高雄港 --target tide_level --config config.yaml --data_path data/raw/高雄港.csv
+python kaohsiung_microclimate_lstm/src/tools/build_v35_system_audit_report.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --target-area KHH `
+  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v35
 ```
 
-`--target` 對應 `config.yaml` 的 target key：
+## v3.4/v3.5 選模流程
 
-- `wind_speed_gust`
-- `precipitation`
-- `tide_level`
-- `visibility`
-
-訓練完成後會自動執行評估，並輸出：
-
-- `data/processed/{station_id}_{target}.npz`
-- `data/processed/data_quality_report.json`
-- `scalers/{station_id}_{target}_scaler.pkl`
-- `models/checkpoints/{station_id}_{target}_best.pt`
-- `logs/training/{station_id}_{target}.json`
-- `results/evaluation/{station_id}_{target}_metrics.json`
-- `results/evaluation/summary_report.csv`
-
-## 批次訓練
-
-```powershell
-python run_all.py --data_dir data/raw --config config.yaml
+```text
+port_local_model
+  -> port_local_postprocess
+  -> nearby_cwa_historical_model
+  -> fallback_baseline
 ```
 
-此指令會掃描 `data/raw` 內的 CSV / Parquet，依測站與 `config.yaml` 內所有 target 逐一訓練。單一模型失敗時會列印 skip 訊息並繼續處理其他組合。
+正常情境下，若 KHWD 港區即時風力資料可用，API 選擇 `port_local_postprocess`。當 request 帶入 `no_realtime_khwd_mode=true` 時，只在本次 selection engine 內模擬 KHWD 不可用；若 nearby CWA historical model 已訓練且驗收通過，會選擇 `nearby_cwa_historical_model`。
 
-## 推論介面
+## v3.4 新增輸出
+
+API response 會包含：
+
+```text
+model_training_status
+model_registry_summary
+current_station_usage
+station_display_rows
+```
+
+這些欄位可供前端顯示目前 prediction mode、模型訓練狀態、目前使用測站、測站角色與 fallback 狀態。
+
+## 不變條件
+
+```json
+{
+  "467441_used_as_core_station": false,
+  "nearby_cwa_used_as_port_local_core": false,
+  "cwa_pop_used_as_model_input": false,
+  "rain_probability_preserved": true
+}
+```
+
+## Python 使用範例
 
 ```python
-from src.predict import predict
-from src.preprocess import load_observations
+from pathlib import Path
 
-df = load_observations("data/raw/高雄港.csv")
-result = predict("高雄港", "wind_speed_gust", df, return_uncertainty=True)
+from kaohsiung_microclimate_lstm.src.preprocess import load_observations
+from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_v34
+
+project = Path("kaohsiung_microclimate_lstm")
+df = load_observations(project / "data/raw/observed_hourly/467441.csv")
+
+result = predict_dispatch_risk_v34(
+    fallback_observations=df,
+    config_path=str(project / "config.yaml"),
+    project_root=project,
+    target_area="KHH",
+    no_realtime_khwd_mode=False,
+)
 ```
 
-回傳內容包含：
+## Training Orchestration
 
-- `station_id`
-- `target_group`
-- `anchors`：H1-H4，每個錨點包含 offset、timestamp 與預測值。
-- `accuracy_grade`：從最新評估報告讀取，供呼叫端判斷可信度。
-- `model_version`
-- `generated_at`
+```powershell
+python kaohsiung_microclimate_lstm/src/tools/run_v34_training_orchestration.py `
+  --config kaohsiung_microclimate_lstm/config.yaml `
+  --target-area KHH `
+  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v34
+```
 
-## 與前端整合
+目前狀態：
 
-目前輸出的 anchors 可以轉成前端微氣候派工頁需要的欄位，例如：
+```text
+training_checked: true
+training_required: false
+training_skipped: true
+nearby_cwa_historical_model: trained / available / accepted
+port_local_model: not trained / not accepted
+```
 
-- `wind_speed_gust` 對應平均風速與陣風。
-- `precipitation` 對應雨量或雨量分級。
-- `tide_level` 可作為港區作業輔助資訊。
-- `accuracy_grade` 可對應前端顯示的模型可信度或風險提示。
+## Nearby CWA Historical 訓練成果
 
-前端目前仍使用 mock dispatch scenario。若要接入本模型，需要再做一層 API 或資料轉換，把 H1-H4 預測結果整理成前端的 `nowcast`、`cwa`、`ops`、`cards` 等結構。
+使用測站：
+
+```text
+C0V890, C0V490, C0V840, C0V810, C0V450, C0V900
+```
+
+主要結果：
+
+```text
+training_days: 1282
+station_samples: 184614
+wind_speed H1 MAE: 0.5919 m/s
+wind_gust H1 MAE: 0.6835 m/s
+rain H1 Brier Score: 0.0183
+rain H1 AUC: 0.9638
+critical_under_warning_count: 0
+```
+
+## v3.5 報表
+
+```text
+results/dispatch_risk_v35/system_audit_report.json
+results/dispatch_risk_v35/data_source_inventory_report.json
+results/dispatch_risk_v35/station_inventory_report.json
+results/dispatch_risk_v35/dataset_duration_report.json
+results/dispatch_risk_v35/model_accuracy_summary_report.json
+results/dispatch_risk_v35/model_selection_summary_report.json
+results/dispatch_risk_v35/ui_dashboard_payload_v35.json
+results/dispatch_risk_v35/api_contract_snapshot_v35.json
+results/dispatch_risk_v35/prediction_samples_v35.json
+```
+
+## v3.4 報表
+
+```text
+results/dispatch_risk_v34/training_orchestration_report.json
+results/dispatch_risk_v34/model_registry_report.json
+results/dispatch_risk_v34/model_manifest_validation_report.json
+results/dispatch_risk_v34/current_station_usage_report.json
+results/dispatch_risk_v34/ui_payload_snapshot.json
+results/dispatch_risk_v34/api_contract_snapshot_v34.json
+results/dispatch_risk_v34/model_selection_regression_report.json
+results/dispatch_risk_v34/rain_probability_integrity_report.json
+results/dispatch_risk_v34/station_role_violation_report.json
+results/dispatch_risk_v34/prediction_samples.json
+```
+
+## 測試
+
+```powershell
+python -m pytest
+```
+
+v3.5 指定測試：
+
+```powershell
+python -m pytest tests/test_dispatch_risk_v35_system_audit.py tests/test_dispatch_risk_v35_dataset_duration.py tests/test_dispatch_risk_v35_model_accuracy_summary.py tests/test_dispatch_risk_v35_station_inventory.py tests/test_dispatch_risk_v35_ui_dashboard_payload.py --basetemp .tmp_pytest_v35
+```
+
+v3.4 指定測試：
+
+```powershell
+python -m pytest tests/test_dispatch_risk_v34_training_orchestration.py tests/test_dispatch_risk_v34_model_registry.py tests/test_dispatch_risk_v34_station_usage.py tests/test_dispatch_risk_v34_ui_payload.py tests/test_dispatch_risk_v34_api_contract.py --basetemp .tmp_pytest_v34
+```
