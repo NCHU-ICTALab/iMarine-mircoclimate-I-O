@@ -93,7 +93,7 @@ def run_fetch_port_local_stations(
 
         if bool(result.get("available")) and not frame.empty and quality["valid"]:
             csv_path = out_dir / f"{station_id}.csv"
-            frame.to_csv(csv_path, index=False, encoding="utf-8")
+            frame = append_station_frame(csv_path, frame)
             created_files.append(csv_path.name)
             available.append(station_id)
         else:
@@ -168,6 +168,31 @@ def _station_kind(station: dict[str, Any]) -> str:
     if station_type == "tide":
         return "tide"
     return "wave_current"
+
+
+def append_station_frame(csv_path: Path, frame: pd.DataFrame) -> pd.DataFrame:
+    """Append station observations and de-duplicate by station_id/obs_time."""
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    incoming = frame.copy()
+    if csv_path.exists():
+        existing = pd.read_csv(csv_path)
+        combined = pd.concat([existing, incoming], ignore_index=True, sort=False)
+    else:
+        combined = incoming
+
+    if {"station_id", "obs_time"}.issubset(combined.columns):
+        combined["_obs_sort"] = pd.to_datetime(combined["obs_time"], errors="coerce")
+        combined = combined.sort_values(["station_id", "_obs_sort"], kind="stable")
+        combined = combined.drop_duplicates(["station_id", "obs_time"], keep="last")
+        combined = combined.drop(columns=["_obs_sort"])
+    elif "obs_time" in combined.columns:
+        combined["_obs_sort"] = pd.to_datetime(combined["obs_time"], errors="coerce")
+        combined = combined.sort_values("_obs_sort", kind="stable")
+        combined = combined.drop_duplicates(["obs_time"], keep="last")
+        combined = combined.drop(columns=["_obs_sort"])
+
+    combined.to_csv(csv_path, index=False, encoding="utf-8")
+    return combined
 
 
 def _resolve_path(path: str | Path, project: Path) -> Path:

@@ -197,8 +197,9 @@ def _group_v32_artifacts(project: Path, models: dict[str, Any]) -> dict[str, Any
         "wind_speed": {"accepted": True, "artifacts": {}, "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json"},
         "wind_gust": {"accepted": True, "artifacts": {}, "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json"},
         "rain_probability": {"accepted": True, "artifacts": {}, "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json"},
+        "precipitation_amount": {"accepted": True, "artifacts": {}, "metrics_path": "kaohsiung_microclimate_lstm/results/dispatch_risk_v32/nearby_cwa_model_metrics.json"},
     }
-    for key, raw_path in models.items():
+    for key, raw_info in models.items():
         group = None
         if key.startswith("wind_speed"):
             group = "wind_speed"
@@ -206,15 +207,25 @@ def _group_v32_artifacts(project: Path, models: dict[str, Any]) -> dict[str, Any
             group = "wind_gust"
         elif key.startswith("rain_probability"):
             group = "rain_probability"
+        elif key.startswith("precipitation_amount"):
+            group = "precipitation_amount"
         if group is None:
             continue
-        artifact = _normalize_artifact_path(project, raw_path, key)
-        grouped[group]["artifacts"][key] = artifact
+        artifact = _normalize_artifact_path(project, raw_info, key)
+        artifact_info = {"artifact_path": artifact}
+        if isinstance(raw_info, dict):
+            if raw_info.get("algorithm"):
+                artifact_info["algorithm"] = raw_info.get("algorithm")
+            if raw_info.get("actual_estimator"):
+                artifact_info["actual_estimator"] = raw_info.get("actual_estimator")
+        grouped[group]["artifacts"][key] = artifact_info
         grouped[group].setdefault("artifact_path", artifact)
     return grouped
 
 
 def _normalize_artifact_path(project: Path, raw_path: Any, key: str) -> str:
+    if isinstance(raw_path, dict):
+        raw_path = raw_path.get("artifact_path") or raw_path.get("model_path") or ""
     candidate = Path(str(raw_path))
     if candidate.exists():
         return str(candidate)

@@ -21,7 +21,23 @@ from app.collectors.cwa_historyapi import (
 from app.collectors.cwa_marine_history import collect_marine_history, inspect_marine_history
 from app.collectors.twport import collect
 from app.config import settings
-from app.contracts import current_response, forecast_response, history_response, schema_response
+from app.contracts import (
+    appendix_spec_response,
+    api_spec_response,
+    current_response,
+    forecast_response,
+    data_spec_response,
+    deployment_spec_response,
+    evaluation_spec_response,
+    feature_spec_response,
+    history_response,
+    model_spec_response,
+    schedule_spec_response,
+    schema_response,
+    system_info_response,
+    system_requirements_response,
+    testing_spec_response,
+)
 from app.forecast_engine import build_wind_forecast
 from app.storage import ObservationStore
 
@@ -60,6 +76,61 @@ def health() -> dict:
 @app.get("/api/v1/schema")
 def api_v1_schema() -> dict:
     return schema_response()
+
+
+@app.get("/api/v1/system/info")
+def api_v1_system_info() -> dict:
+    return system_info_response()
+
+
+@app.get("/api/v1/system/requirements")
+def api_v1_system_requirements() -> dict:
+    return system_requirements_response()
+
+
+@app.get("/api/v1/system/data-spec")
+def api_v1_system_data_spec() -> dict:
+    return data_spec_response()
+
+
+@app.get("/api/v1/system/feature-spec")
+def api_v1_system_feature_spec() -> dict:
+    return feature_spec_response()
+
+
+@app.get("/api/v1/system/model-spec")
+def api_v1_system_model_spec() -> dict:
+    return model_spec_response()
+
+
+@app.get("/api/v1/system/evaluation-spec")
+def api_v1_system_evaluation_spec() -> dict:
+    return evaluation_spec_response()
+
+
+@app.get("/api/v1/system/api-spec")
+def api_v1_system_api_spec() -> dict:
+    return api_spec_response()
+
+
+@app.get("/api/v1/system/deployment-spec")
+def api_v1_system_deployment_spec() -> dict:
+    return deployment_spec_response()
+
+
+@app.get("/api/v1/system/testing-spec")
+def api_v1_system_testing_spec() -> dict:
+    return testing_spec_response()
+
+
+@app.get("/api/v1/system/schedule-spec")
+def api_v1_system_schedule_spec() -> dict:
+    return schedule_spec_response()
+
+
+@app.get("/api/v1/system/appendix-spec")
+def api_v1_system_appendix_spec() -> dict:
+    return appendix_spec_response()
 
 
 @app.get("/api/v1/dispatch/risk")

@@ -23,17 +23,21 @@ except ImportError:  # pragma: no cover
 PORT_LAT = 22.62
 PORT_LON = 120.28
 SEARCH_RADIUS = 0.1
-DATAID_QPE = "O-A0002-001"
+DATAID_STATION_RAINFALL_QPE = "O-A0002-001"
+DATAID_QPE = DATAID_STATION_RAINFALL_QPE
 DATAID_QPF: str | None = None
+RADAR_ECHO_DATAIDS = {"O-A0059-001"}
 
 
 def fetch_qpe_current(
     api_key: str | None = None,
-    dataid: str = DATAID_QPE,
+    dataid: str = DATAID_STATION_RAINFALL_QPE,
     lat: float = PORT_LAT,
     lon: float = PORT_LON,
     radius: float = SEARCH_RADIUS,
 ) -> dict[str, Any]:
+    if dataid in RADAR_ECHO_DATAIDS:
+        raise NotImplementedError("QPESUMS radar-grid parsing is not implemented; keep qpesums.enabled=false until O-A0059-001 access and grid decoding are verified.")
     key = api_key or load_api_key()
     if not key:
         raise RuntimeError("CWA_API_KEY is not available")
@@ -42,7 +46,7 @@ def fetch_qpe_current(
     records = resp.json().get("records", {})
     nearest = _find_nearest(records, lat, lon, radius)
     if not nearest:
-        raise RuntimeError("No QPESUMS/QPE station found near target location")
+        raise RuntimeError("No station-rainfall QPE fallback station found near target location")
     return {
         "obs_time": nearest.get("ObsTime") or nearest.get("WeatherElement", {}).get("ObsTime"),
         "qpe_1hr_mm": _precip_value(nearest, "1hr"),
@@ -50,6 +54,8 @@ def fetch_qpe_current(
         "station_id": nearest.get("StationId") or nearest.get("StationID"),
         "station_name": nearest.get("StationName"),
         "data_source": dataid,
+        "source_kind": "station_rainfall_qpe_fallback",
+        "is_qpesums_radar_grid": False,
     }
 
 

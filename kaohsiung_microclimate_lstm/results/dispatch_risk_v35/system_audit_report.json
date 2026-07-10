@@ -1,7 +1,7 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
   "target_area": "KHH",
-  "generated_at": "2026-07-09T22:15:40+08:00",
+  "generated_at": "2026-07-10T23:01:36+08:00",
   "system_status_summary": {
     "overall_status": "ready_for_demo_and_operation",
     "normal_prediction_mode": "port_local_postprocess",
@@ -50,10 +50,10 @@
         "KHWD08"
       ],
       "time_start": "2026-07-08T23:27:00+08:00",
-      "time_end": "2026-07-08T23:29:00+08:00",
-      "duration_days": 0.001,
-      "total_rows": 12,
-      "valid_rows": 12,
+      "time_end": "2026-07-10T21:30:00+08:00",
+      "duration_days": 1.919,
+      "total_rows": 24,
+      "valid_rows": 24,
       "valid_ratio": 1.0,
       "used_for_training": false,
       "used_for_current_prediction": true,
@@ -447,10 +447,10 @@
           "KHWD08"
         ],
         "time_start": "2026-07-08T23:27:00+08:00",
-        "time_end": "2026-07-08T23:29:00+08:00",
-        "duration_days": 0.001,
-        "total_rows": 12,
-        "valid_rows": 12,
+        "time_end": "2026-07-10T21:30:00+08:00",
+        "duration_days": 1.919,
+        "total_rows": 24,
+        "valid_rows": 24,
         "valid_ratio": 1.0,
         "used_for_training": false,
         "used_for_current_prediction": true,

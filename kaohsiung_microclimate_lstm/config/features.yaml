@@ -1,0 +1,83 @@
+version: v1.3
+source_of_truth: config/features.yaml
+leakage_policy:
+  no_same_timestamp_cross_target_leakage_for_algorithm_benchmark: true
+  note: Do not benchmark wind_speed with same-timestamp wind_gust, or wind_gust with same-timestamp wind_speed.
+
+target_variables:
+  wind_speed:
+    unit: m/s
+    official_baseline: cwa_township_weather_wind_speed
+    primary_operational_source: port_local_postprocess
+    fallback_model: nearby_cwa_historical_model
+  wind_gust:
+    unit: m/s
+    official_baseline: persistence_only
+    primary_operational_source: port_local_postprocess
+    fallback_model: nearby_cwa_historical_model
+  precipitation_1hr:
+    unit: mm
+    official_baseline: cwa_pop_prior
+    modeling_design: two_stage_rain_event_then_amount
+  visibility:
+    unit: km
+    modeling_status: suspended_until_tier1_or_tier2_source_exists
+  tide_level:
+    unit: m
+    modeling_status: reference_only_until_surge_residual_model_exists
+
+nearby_cwa_historical_model:
+  feature_groups:
+    station_count:
+      - nearby_cwa_station_count
+    wind_speed_statistics:
+      - nearby_cwa_wind_speed_mean
+      - nearby_cwa_wind_speed_max
+      - nearby_cwa_wind_speed_min
+      - nearby_cwa_wind_speed_std
+      - nearby_cwa_valid_wind_station_count
+    wind_gust_statistics:
+      - nearby_cwa_wind_gust_mean
+      - nearby_cwa_wind_gust_max
+      - nearby_cwa_wind_gust_min
+      - nearby_cwa_wind_gust_std
+      - nearby_cwa_valid_gust_station_count
+    precipitation_statistics:
+      - nearby_cwa_precipitation_1hr_mean
+      - nearby_cwa_precipitation_1hr_max
+      - nearby_cwa_rainy_station_count
+      - nearby_cwa_rainy_station_ratio
+    direction_vectors:
+      - nearby_cwa_wind_direction_sin_mean
+      - nearby_cwa_wind_direction_cos_mean
+      - nearby_cwa_gust_direction_sin_mean
+      - nearby_cwa_gust_direction_cos_mean
+    lag_rolling:
+      - nearby_cwa_wind_speed_max_lag1
+      - nearby_cwa_wind_speed_max_roll3
+      - nearby_cwa_wind_gust_max_lag1
+      - nearby_cwa_wind_gust_max_roll3
+      - nearby_cwa_precipitation_1hr_max_lag1
+      - nearby_cwa_precipitation_1hr_max_roll3
+      - nearby_cwa_precipitation_roll3
+      - nearby_cwa_precipitation_roll6
+
+port_local_model:
+  feature_groups:
+    khwd_wind:
+      - khwd_wind_speed_mean
+      - khwd_wind_speed_max
+      - khwd_wind_gust_max
+      - khwd_wind_direction_sin_mean
+      - khwd_wind_direction_cos_mean
+    lag_rolling:
+      - khwd_wind_speed_max_lag1
+      - khwd_wind_speed_max_roll3
+      - khwd_wind_gust_max_lag1
+      - khwd_wind_gust_max_roll3
+
+benchmark_policy:
+  current_run_model_benchmark_scope: tabular_sanity_check_only
+  formal_algorithm_comparison_must_use: train_nearby_cwa_historical_model
+  wind_speed_current_algorithm: random_forest
+  wind_gust_current_algorithm: random_forest

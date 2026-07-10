@@ -1,6 +1,8 @@
 import json
 
-from kaohsiung_microclimate_lstm.src.tools.fetch_port_local_stations import run_fetch_port_local_stations
+import pandas as pd
+
+from kaohsiung_microclimate_lstm.src.tools.fetch_port_local_stations import append_station_frame, run_fetch_port_local_stations
 
 
 class FakeClient:
@@ -90,3 +92,32 @@ def test_fetch_tool_recommends_fallback_when_khwd_missing(tmp_path):
     availability = result["station_availability_report"]
     assert availability["recommended_prediction_mode"] == "fallback_baseline"
     assert availability["fallback_to_467441_required"] is True
+
+
+def test_append_station_frame_preserves_existing_rows_and_deduplicates(tmp_path):
+    csv_path = tmp_path / "KHWD01.csv"
+    pd.DataFrame(
+        [
+            {"station_id": "KHWD01", "obs_time": "2026-07-08T10:00:00+08:00", "wind_speed": 1.0},
+            {"station_id": "KHWD01", "obs_time": "2026-07-08T10:10:00+08:00", "wind_speed": 2.0},
+        ]
+    ).to_csv(csv_path, index=False)
+
+    combined = append_station_frame(
+        csv_path,
+        pd.DataFrame(
+            [
+                {"station_id": "KHWD01", "obs_time": "2026-07-08T10:10:00+08:00", "wind_speed": 3.0},
+                {"station_id": "KHWD01", "obs_time": "2026-07-08T10:20:00+08:00", "wind_speed": 4.0},
+            ]
+        ),
+    )
+
+    assert len(combined) == 3
+    saved = pd.read_csv(csv_path)
+    assert saved["obs_time"].tolist() == [
+        "2026-07-08T10:00:00+08:00",
+        "2026-07-08T10:10:00+08:00",
+        "2026-07-08T10:20:00+08:00",
+    ]
+    assert saved.loc[saved["obs_time"] == "2026-07-08T10:10:00+08:00", "wind_speed"].iloc[0] == 3.0

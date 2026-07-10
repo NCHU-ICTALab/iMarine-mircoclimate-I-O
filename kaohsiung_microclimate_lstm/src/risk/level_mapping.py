@@ -59,7 +59,7 @@ def map_wind_gust_to_level(wind_gust_mps: float, config: dict[str, Any], use_buf
     thresholds = _thresholds(config, "wind_gust_mps")
     buffer = float(config.get("wind_gust", {}).get("uncertainty_buffer_mps", 1.2)) if use_buffer else 0.0
     value = float(wind_gust_mps) + buffer
-    if value >= thresholds.get("stop", 20.8):
+    if value >= thresholds.get("stop", 30.0):
         return "stop"
     if value >= thresholds.get("high_risk", 17.2):
         return "high_risk"
@@ -68,6 +68,37 @@ def map_wind_gust_to_level(wind_gust_mps: float, config: dict[str, Any], use_buf
     if value >= thresholds.get("watch", 10.8):
         return "watch"
     return "normal"
+
+
+def map_rain_amount_to_level(amount_mm: float, window_hours: int | float, config: dict[str, Any]) -> str:
+    thresholds = config.get("rain_amount_thresholds_mm", {})
+    light = float(thresholds.get("light", 1.0))
+    heavy_1hr = float(thresholds.get("heavy_1hr", 40.0))
+    torrential_3hr = float(thresholds.get("torrential_3hr", 100.0))
+    severe_torrential_3hr = float(thresholds.get("severe_torrential_3hr", 200.0))
+    amount = max(0.0, float(amount_mm))
+    hours = float(window_hours)
+    if hours > 3:
+        return "not_applicable"
+    if hours >= 3:
+        if amount >= severe_torrential_3hr:
+            return "stop"
+        if amount >= torrential_3hr:
+            return "high_risk"
+    if amount >= heavy_1hr:
+        return "warning"
+    if amount >= light:
+        return "watch"
+    return "normal"
+
+
+def rain_amount_level_basis(window_hours: int | float) -> str:
+    hours = float(window_hours)
+    if hours > 3:
+        return "not_applicable_over_model_horizon"
+    if hours >= 3:
+        return "rain_amount_3hr_mm"
+    return "rain_amount_1hr_mm"
 
 
 OPERATION_LABELS = {

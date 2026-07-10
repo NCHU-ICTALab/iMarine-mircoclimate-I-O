@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-09T12:53:42+08:00",
+  "generated_at": "2026-07-10T21:10:36+08:00",
   "sample_count": 30769,
   "selected_station_ids": [
     "C0V890",
@@ -48,22 +48,30 @@
   "label_columns": [
     "target_nearby_wind_speed_H1",
     "target_nearby_wind_gust_H1",
+    "target_nearby_precipitation_1hr_H1",
+    "target_nearby_precipitation_amount_H1",
     "target_rain_event_H1",
     "target_heavy_rain_event_H1",
     "target_nearby_wind_speed_H2",
     "target_nearby_wind_gust_H2",
+    "target_nearby_precipitation_1hr_H2",
+    "target_nearby_precipitation_amount_H2",
     "target_rain_event_H2",
     "target_heavy_rain_event_H2",
     "target_nearby_wind_speed_H3",
     "target_nearby_wind_gust_H3",
+    "target_nearby_precipitation_1hr_H3",
+    "target_nearby_precipitation_amount_H3",
     "target_rain_event_H3",
     "target_heavy_rain_event_H3",
     "target_nearby_wind_speed_H4",
     "target_nearby_wind_gust_H4",
+    "target_nearby_precipitation_1hr_H4",
+    "target_nearby_precipitation_amount_H4",
     "target_rain_event_H4",
     "target_heavy_rain_event_H4"
   ],
-  "dataset_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_training_dataset_v32.parquet",
+  "dataset_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_training_dataset_v32.parquet",
   "dataset_storage_format": "parquet",
   "readiness": {
     "ready": true,

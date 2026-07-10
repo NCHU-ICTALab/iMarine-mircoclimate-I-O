@@ -8,7 +8,7 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, brier_score_loss, roc_auc_score
 
 
@@ -52,9 +52,11 @@ def train_nearby_cwa_historical_model(
         "wind_speed": {},
         "wind_gust": {},
         "rain_probability": {},
+        "precipitation_amount": {},
         "risk_level_evaluation": {"critical_under_warning_count": 0, "level_accuracy": None},
     }
     manifest = {"model_version": "nearby_cwa_v32", "feature_columns": features, "models": {}}
+    algorithm_config = config.get("nearby_cwa_historical_training", {}).get("model_algorithms", {})
     for horizon in ["H1", "H2", "H3", "H4"]:
         for group, label, persistence in [
             ("wind_speed", f"target_nearby_wind_speed_{horizon}", "nearby_cwa_wind_speed_max"),
@@ -62,15 +64,42 @@ def train_nearby_cwa_historical_model(
         ]:
             if label in dataset.columns:
                 model_path = output_path / f"{group}_{horizon}.joblib"
-                trained = _train_regressor(train, test, features, label, persistence, model_path)
+                algorithm = _algorithm_for_target(group, algorithm_config)
+                trained = _train_regressor(train, test, features, label, persistence, model_path, algorithm, algorithm_config)
                 metrics[group][horizon] = trained["metrics"]
-                manifest["models"][f"{group}_{horizon}"] = trained["model_path"]
+                manifest["models"][f"{group}_{horizon}"] = {
+                    "model_path": trained["model_path"],
+                    "algorithm": trained["algorithm"],
+                    "actual_estimator": trained["actual_estimator"],
+                }
         rain_label = f"target_rain_event_{horizon}"
         if rain_label in dataset.columns:
             model_path = output_path / f"rain_probability_{horizon}.joblib"
             trained = _train_classifier(train, test, features, rain_label, model_path)
             metrics["rain_probability"][horizon] = trained["metrics"]
             manifest["models"][f"rain_probability_{horizon}"] = trained["model_path"]
+        rain_amount_label = f"target_nearby_precipitation_amount_{horizon}"
+        if rain_amount_label in dataset.columns:
+            model_path = output_path / f"precipitation_amount_{horizon}.joblib"
+            rain_features = _rain_amount_feature_columns(features)
+            algorithm = _algorithm_for_target("precipitation_amount", algorithm_config)
+            trained = _train_regressor(
+                train,
+                test,
+                rain_features,
+                rain_amount_label,
+                "nearby_cwa_precipitation_1hr_max",
+                model_path,
+                algorithm,
+                algorithm_config,
+            )
+            metrics["precipitation_amount"][horizon] = trained["metrics"]
+            manifest["models"][f"precipitation_amount_{horizon}"] = {
+                "model_path": trained["model_path"],
+                "algorithm": trained["algorithm"],
+                "actual_estimator": trained["actual_estimator"],
+                "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+            }
     (output_path / "model_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     training_report = {
         "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
@@ -83,17 +112,33 @@ def train_nearby_cwa_historical_model(
     return {"metrics": metrics, "training_report": training_report}
 
 
-def _train_regressor(train, test, features, label, persistence, model_path: Path) -> dict[str, Any]:
+def _train_regressor(train, test, features, label, persistence, model_path: Path, algorithm: str, config: dict[str, Any]) -> dict[str, Any]:
     train_rows = train.dropna(subset=[label])
     test_rows = test.dropna(subset=[label])
     fill = train_rows[features].median(numeric_only=True)
     x_train = train_rows[features].apply(pd.to_numeric, errors="coerce").fillna(fill).fillna(0.0)
     y_train = pd.to_numeric(train_rows[label], errors="coerce")
-    model = RandomForestRegressor(n_estimators=80, random_state=42, min_samples_leaf=2)
+    model = _build_regressor(algorithm, config)
     model.fit(x_train, y_train)
-    joblib.dump({"model": model, "feature_columns": features, "fill_values": fill.to_dict(), "label_column": label}, model_path)
+    actual_estimator = model.__class__.__name__
+    joblib.dump(
+        {
+            "model": model,
+            "feature_columns": features,
+            "fill_values": fill.to_dict(),
+            "label_column": label,
+            "algorithm": algorithm,
+            "actual_estimator": actual_estimator,
+        },
+        model_path,
+    )
     if test_rows.empty:
-        return {"model_path": str(model_path), "metrics": {"MAE": None, "RMSE": None, "R2": None, "bias": None, "beats_persistence": False, "critical_under_warning_count": 0}}
+        return {
+            "model_path": str(model_path),
+            "algorithm": algorithm,
+            "actual_estimator": actual_estimator,
+            "metrics": {"MAE": None, "RMSE": None, "R2": None, "bias": None, "beats_persistence": False, "critical_under_warning_count": 0, "algorithm": algorithm, "actual_estimator": actual_estimator},
+        }
     x_test = test_rows[features].apply(pd.to_numeric, errors="coerce").fillna(fill).fillna(0.0)
     y_test = pd.to_numeric(test_rows[label], errors="coerce")
     pred = model.predict(x_test)
@@ -102,6 +147,8 @@ def _train_regressor(train, test, features, label, persistence, model_path: Path
     p_mae = mean_absolute_error(y_test, persistence_values)
     return {
         "model_path": str(model_path),
+        "algorithm": algorithm,
+        "actual_estimator": actual_estimator,
         "metrics": {
             "MAE": round(float(mae), 4),
             "RMSE": round(float(np.sqrt(mean_squared_error(y_test, pred))), 4),
@@ -110,6 +157,8 @@ def _train_regressor(train, test, features, label, persistence, model_path: Path
             "beats_persistence": bool(mae <= p_mae),
             "level_accuracy": None,
             "critical_under_warning_count": 0,
+            "algorithm": algorithm,
+            "actual_estimator": actual_estimator,
         },
     }
 
@@ -144,8 +193,50 @@ def _train_classifier(train, test, features, label, model_path: Path) -> dict[st
     return {"model_path": str(model_path), "metrics": metrics}
 
 
+def _rain_amount_feature_columns(features: list[str]) -> list[str]:
+    allowed_exact = {
+        "nearby_cwa_precipitation_1hr_mean",
+        "nearby_cwa_precipitation_1hr_max",
+        "nearby_cwa_precipitation_1hr_max_lag1",
+        "nearby_cwa_precipitation_1hr_max_roll3",
+        "nearby_cwa_precipitation_roll3",
+        "nearby_cwa_precipitation_roll6",
+        "nearby_cwa_rainy_station_count",
+        "nearby_cwa_rainy_station_ratio",
+        "distance_weighted_precipitation",
+        "hour_sin",
+        "hour_cos",
+        "doy_sin",
+        "doy_cos",
+    }
+    return [col for col in features if col in allowed_exact and "wind_speed" not in col and "wind_gust" not in col]
+
+
 def _ratio(num: int, den: int) -> float | None:
     return None if den == 0 else round(float(num / den), 4)
+
+
+def _algorithm_for_target(group: str, config: dict[str, Any]) -> str:
+    target_cfg = config.get(group, {}) if isinstance(config, dict) else {}
+    return str(target_cfg.get("primary_algorithm") or config.get("primary_algorithm") or "random_forest").lower()
+
+
+def _build_regressor(algorithm: str, config: dict[str, Any]):
+    if algorithm == "lightgbm":
+        try:
+            from lightgbm import LGBMRegressor
+
+            return LGBMRegressor(**config.get("lightgbm", {"random_state": 42, "verbose": -1}))
+        except Exception:
+            return GradientBoostingRegressor(**config.get("gradient_boosting", {"random_state": 42}))
+    if algorithm == "xgboost":
+        try:
+            from xgboost import XGBRegressor
+
+            return XGBRegressor(**config.get("xgboost", {"random_state": 42}))
+        except Exception:
+            return GradientBoostingRegressor(**config.get("gradient_boosting", {"random_state": 42}))
+    return RandomForestRegressor(**config.get("random_forest", {"n_estimators": 80, "random_state": 42, "min_samples_leaf": 2}))
 
 
 def _empty_metrics(readiness: dict[str, Any]) -> dict[str, Any]:
@@ -157,6 +248,7 @@ def _empty_metrics(readiness: dict[str, Any]) -> dict[str, Any]:
         "wind_speed": {},
         "wind_gust": {},
         "rain_probability": {},
+        "precipitation_amount": {},
         "risk_level_evaluation": {"critical_under_warning_count": None, "level_accuracy": None},
     }
 

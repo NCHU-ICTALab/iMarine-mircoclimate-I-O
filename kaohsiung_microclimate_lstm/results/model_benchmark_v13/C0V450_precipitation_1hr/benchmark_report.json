@@ -1,0 +1,80 @@
+{
+  "dataset_path": "kaohsiung_microclimate_lstm/data/processed/nearby_cwa_historical/C0V450.parquet",
+  "target_column": "precipitation_1hr",
+  "feature_columns": [
+    "wind_speed",
+    "wind_direction",
+    "wind_gust",
+    "wind_gust_direction",
+    "relative_humidity",
+    "temperature",
+    "station_pressure"
+  ],
+  "rows_total": 30667,
+  "rows_train": 24533,
+  "rows_test": 6134,
+  "requested_algorithms": [
+    "random_forest",
+    "lightgbm",
+    "xgboost"
+  ],
+  "results": {
+    "random_forest": {
+      "requested_algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "metrics": {
+        "rmse": 30.85788697040375,
+        "mae": 11.265231618845778,
+        "r2": -1.8851220380454845,
+        "mape": 10363677820384.525,
+        "medae": 0.05,
+        "bias": -10.49054560645582,
+        "quantile_errors": {
+          "q10": 0.0,
+          "q25": 0.0,
+          "q50": 0.05,
+          "q75": 9.996,
+          "q90": 29.988000000000003
+        }
+      }
+    },
+    "lightgbm": {
+      "requested_algorithm": "lightgbm",
+      "actual_estimator": "LGBMRegressor",
+      "metrics": {
+        "rmse": 24.128666670812706,
+        "mae": 9.545363578906962,
+        "r2": -0.7639995416884742,
+        "mape": 8732865881790.955,
+        "medae": 5.537490862065862,
+        "bias": -7.9177651568240695,
+        "quantile_errors": {
+          "q10": 1.2204850943814136,
+          "q25": 2.9491528717519544,
+          "q50": 5.537490862065862,
+          "q75": 9.832766378879391,
+          "q90": 20.60239181155021
+        }
+      }
+    },
+    "xgboost": {
+      "requested_algorithm": "xgboost",
+      "actual_estimator": "XGBRegressor",
+      "metrics": {
+        "rmse": 35.5543276133854,
+        "mae": 13.760153733202195,
+        "r2": -2.8301586207853062,
+        "mape": 12795590447232.203,
+        "medae": 6.636653184890747,
+        "bias": -7.658486362048864,
+        "quantile_errors": {
+          "q10": 1.1989187836647035,
+          "q25": 3.011138677597046,
+          "q50": 6.636653184890747,
+          "q75": 12.679966926574707,
+          "q90": 25.117760658264146
+        }
+      }
+    }
+  }
+}

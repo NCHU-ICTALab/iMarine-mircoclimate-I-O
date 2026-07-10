@@ -9,3 +9,5 @@ tensorboard>=2.13.0
 matplotlib>=3.7.0
 requests>=2.31.0
 utide>=0.3.0
+lightgbm>=4.0.0
+xgboost>=2.0.0

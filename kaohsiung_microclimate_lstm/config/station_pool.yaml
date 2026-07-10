@@ -15,6 +15,11 @@ priority_groups:
     stations:
       - station_id: KHWD01
         name: Kaohsiung Port Wind Station 01
+        location_description: Pier 10
+        lon: 120.2882
+        lat: 22.6144
+        height_m: 9.63
+        sensor_type: Sonic SA-20
         source: twport
         type: wind
         role: port_local_wind_station
@@ -23,6 +28,11 @@ priority_groups:
         enabled: true
       - station_id: KHWD04
         name: Kaohsiung Port Wind Station 04
+        location_description: Second harbor north breakwater green lighthouse
+        lon: 120.3008
+        lat: 22.5511
+        height_m: 16.73
+        sensor_type: Gill WindSonic
         source: twport
         type: wind
         role: port_local_wind_station
@@ -31,6 +41,11 @@ priority_groups:
         enabled: true
       - station_id: KHWD05
         name: Kaohsiung Port Wind Station 05
+        location_description: Sixth container terminal harbor police building rooftop
+        lon: 120.3266
+        lat: 22.5351
+        height_m: 25.07
+        sensor_type: Gill WindSonic
         source: twport
         type: wind
         role: port_local_wind_station
@@ -39,6 +54,11 @@ priority_groups:
         enabled: true
       - station_id: KHWD06
         name: Kaohsiung Port Wind Station 06
+        location_description: Pier 76/77 boundary rooftop structure
+        lon: 120.3269
+        lat: 22.5565
+        height_m: 24.45
+        sensor_type: Gill WindSonic
         source: twport
         type: wind
         role: port_local_wind_station
@@ -47,6 +67,11 @@ priority_groups:
         enabled: true
       - station_id: KHWD07
         name: Kaohsiung Port Wind Station 07
+        location_description: Pier 63/64 rooftop structure
+        lon: 120.3055
+        lat: 22.5779
+        height_m: 16.23
+        sensor_type: Gill WindSonic
         source: twport
         type: wind
         role: port_local_wind_station
@@ -55,6 +80,12 @@ priority_groups:
         enabled: true
       - station_id: KHWD08
         name: Kaohsiung Port Wind Station 08
+        location_description: metadata unavailable; not publicly released and no longer pursued
+        lon:
+        lat:
+        height_m:
+        sensor_type:
+        metadata_status: unavailable_not_pursued
         source: twport
         type: wind
         role: port_local_wind_station
@@ -155,36 +186,136 @@ priority_groups:
     stations:
       - station_id: C4Q01
         name: Xiaoliuqiu Tide Station
-        source: twport
+        source: cwa_marine
         type: tide
         role: reference_only
         is_port_local: false
         is_core_station: false
         enabled: true
+        lon: 120.3833
+        lat: 22.3533
+        selection_role: nearby_tide_south
       - station_id: C4Q02
         name: Donggang Tide Station
-        source: twport
+        source: cwa_marine
         type: tide
         role: reference_only
         is_port_local: false
         is_core_station: false
         enabled: true
+        lon: 120.4383
+        lat: 22.4651
+        selection_role: nearby_tide_south
       - station_id: C4P01
         name: Kaohsiung Tide Station
-        source: twport
+        source: cwa_marine
         type: tide
         role: reference_only
         is_port_local: false
         is_core_station: false
         enabled: true
+        lon: 120.2883
+        lat: 22.6144
+        selection_role: primary_tide
+      - station_id: "1786"
+        name: Yongan Tide Station
+        source: cwa_marine
+        type: tide
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.1975
+        lat: 22.8189
+        selection_role: nearby_tide_north
       - station_id: COMC08
         name: Mituo Data Buoy
-        source: marine
+        source: cwa_marine
         type: buoy
         role: reference_only
         is_port_local: false
         is_core_station: false
         enabled: true
+        lon: 120.1636
+        lat: 22.7636
+        selection_role: nearby_buoy_north
+      - station_id: 46714D
+        name: Xiaoliuqiu Data Buoy
+        source: cwa_marine
+        type: buoy
+        role: reference_only
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.3781
+        lat: 22.3172
+        selection_role: nearby_buoy_south
+
+  nearby_cwa_live:
+    priority: 7
+    role: nearby_cwa_live_reference
+    included_in_dispatch_risk: true
+    stations:
+      - station_id: C0V890
+        name: Qianzhen
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.3117
+        lat: 22.5718
+      - station_id: C0V490
+        name: Gushan
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.298803
+        lat: 22.627422
+      - station_id: C0V840
+        name: Xiaogang
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.3591
+        lat: 22.5083
+      - station_id: C0V810
+        name: Zuoying
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.28491
+        lat: 22.67491
+      - station_id: C0V450
+        name: Xiaogang Outer
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.392592
+        lat: 22.545064
+      - station_id: C0V900
+        name: Linyuan
+        source: cwa_current
+        type: weather
+        role: nearby_cwa_live_reference
+        is_port_local: false
+        is_core_station: false
+        enabled: true
+        lon: 120.4151
+        lat: 22.4782
 
 fallback_policy:
   allow_fallback_to_467441: true

@@ -1,0 +1,303 @@
+{
+  "generated_at": "2026-07-10T15:16:34+08:00",
+  "dataset_path": "kaohsiung_microclimate_lstm/data/processed/nearby_cwa_training_dataset_v32.parquet",
+  "benchmark_version": "precipitation_v13_no_leakage",
+  "leakage_policy": "uses rain/time/station-count features only; excludes same-timestamp wind_speed/wind_gust cross-target features",
+  "feature_columns": [
+    "nearby_cwa_station_count",
+    "nearby_cwa_valid_wind_station_count",
+    "nearby_cwa_valid_gust_station_count",
+    "nearby_cwa_precipitation_1hr_mean",
+    "nearby_cwa_precipitation_1hr_max",
+    "nearby_cwa_rainy_station_count",
+    "nearby_cwa_rainy_station_ratio",
+    "distance_weighted_precipitation",
+    "hour_sin",
+    "hour_cos",
+    "doy_sin",
+    "doy_cos",
+    "nearby_cwa_precipitation_1hr_max_lag1",
+    "nearby_cwa_precipitation_1hr_max_roll3",
+    "nearby_cwa_precipitation_roll3",
+    "nearby_cwa_precipitation_roll6"
+  ],
+  "algorithms": [
+    "random_forest",
+    "lightgbm",
+    "xgboost"
+  ],
+  "horizons": {
+    "H1": {
+      "rows_total": 30769,
+      "rows_train": 24615,
+      "rows_test": 6154,
+      "rain_event_rate_test": 0.045173870653233666,
+      "results": {
+        "random_forest": {
+          "requested_algorithm": "random_forest",
+          "actual_classifier": "RandomForestClassifier",
+          "actual_regressor": "RandomForestRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0198,
+            "AUC": 0.9605,
+            "CSI": 0.5346,
+            "FAR": 0.1905,
+            "POD": 0.6115,
+            "precision": 0.8095,
+            "recall": 0.6115
+          },
+          "amount_metrics": {
+            "MAE": 0.4926,
+            "RMSE": 12.9043,
+            "R2": 0.0188,
+            "bias": 0.1473
+          }
+        },
+        "lightgbm": {
+          "requested_algorithm": "lightgbm",
+          "actual_classifier": "LGBMClassifier",
+          "actual_regressor": "LGBMRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0192,
+            "AUC": 0.9595,
+            "CSI": 0.5304,
+            "FAR": 0.1741,
+            "POD": 0.5971,
+            "precision": 0.8259,
+            "recall": 0.5971
+          },
+          "amount_metrics": {
+            "MAE": 0.4767,
+            "RMSE": 12.9008,
+            "R2": 0.0194,
+            "bias": 0.1089
+          }
+        },
+        "xgboost": {
+          "requested_algorithm": "xgboost",
+          "actual_classifier": "XGBClassifier",
+          "actual_regressor": "XGBRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0195,
+            "AUC": 0.9613,
+            "CSI": 0.5275,
+            "FAR": 0.1598,
+            "POD": 0.5863,
+            "precision": 0.8402,
+            "recall": 0.5863
+          },
+          "amount_metrics": {
+            "MAE": 0.484,
+            "RMSE": 12.9105,
+            "R2": 0.0179,
+            "bias": 0.1039
+          }
+        }
+      }
+    },
+    "H2": {
+      "rows_total": 30768,
+      "rows_train": 24614,
+      "rows_test": 6154,
+      "rain_event_rate_test": 0.045173870653233666,
+      "results": {
+        "random_forest": {
+          "requested_algorithm": "random_forest",
+          "actual_classifier": "RandomForestClassifier",
+          "actual_regressor": "RandomForestRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0198,
+            "AUC": 0.9601,
+            "CSI": 0.5394,
+            "FAR": 0.1857,
+            "POD": 0.6151,
+            "precision": 0.8143,
+            "recall": 0.6151
+          },
+          "amount_metrics": {
+            "MAE": 0.4931,
+            "RMSE": 12.9046,
+            "R2": 0.0188,
+            "bias": 0.1477
+          }
+        },
+        "lightgbm": {
+          "requested_algorithm": "lightgbm",
+          "actual_classifier": "LGBMClassifier",
+          "actual_regressor": "LGBMRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0196,
+            "AUC": 0.9577,
+            "CSI": 0.524,
+            "FAR": 0.1759,
+            "POD": 0.5899,
+            "precision": 0.8241,
+            "recall": 0.5899
+          },
+          "amount_metrics": {
+            "MAE": 0.4747,
+            "RMSE": 12.8999,
+            "R2": 0.0195,
+            "bias": 0.1044
+          }
+        },
+        "xgboost": {
+          "requested_algorithm": "xgboost",
+          "actual_classifier": "XGBClassifier",
+          "actual_regressor": "XGBRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0195,
+            "AUC": 0.9607,
+            "CSI": 0.5292,
+            "FAR": 0.1554,
+            "POD": 0.5863,
+            "precision": 0.8446,
+            "recall": 0.5863
+          },
+          "amount_metrics": {
+            "MAE": 0.4861,
+            "RMSE": 12.9128,
+            "R2": 0.0175,
+            "bias": 0.1033
+          }
+        }
+      }
+    },
+    "H3": {
+      "rows_total": 30768,
+      "rows_train": 24614,
+      "rows_test": 6154,
+      "rain_event_rate_test": 0.045173870653233666,
+      "results": {
+        "random_forest": {
+          "requested_algorithm": "random_forest",
+          "actual_classifier": "RandomForestClassifier",
+          "actual_regressor": "RandomForestRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0279,
+            "AUC": 0.9213,
+            "CSI": 0.2883,
+            "FAR": 0.338,
+            "POD": 0.3381,
+            "precision": 0.662,
+            "recall": 0.3381
+          },
+          "amount_metrics": {
+            "MAE": 0.5695,
+            "RMSE": 12.9778,
+            "R2": 0.0076,
+            "bias": 0.0664
+          }
+        },
+        "lightgbm": {
+          "requested_algorithm": "lightgbm",
+          "actual_classifier": "LGBMClassifier",
+          "actual_regressor": "LGBMRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0278,
+            "AUC": 0.926,
+            "CSI": 0.2825,
+            "FAR": 0.2937,
+            "POD": 0.3201,
+            "precision": 0.7063,
+            "recall": 0.3201
+          },
+          "amount_metrics": {
+            "MAE": 0.5415,
+            "RMSE": 12.9669,
+            "R2": 0.0093,
+            "bias": 0.0268
+          }
+        },
+        "xgboost": {
+          "requested_algorithm": "xgboost",
+          "actual_classifier": "XGBClassifier",
+          "actual_regressor": "XGBRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0277,
+            "AUC": 0.9243,
+            "CSI": 0.2652,
+            "FAR": 0.2966,
+            "POD": 0.2986,
+            "precision": 0.7034,
+            "recall": 0.2986
+          },
+          "amount_metrics": {
+            "MAE": 0.5488,
+            "RMSE": 12.98,
+            "R2": 0.0073,
+            "bias": 0.0263
+          }
+        }
+      }
+    },
+    "H4": {
+      "rows_total": 30767,
+      "rows_train": 24613,
+      "rows_test": 6154,
+      "rain_event_rate_test": 0.045173870653233666,
+      "results": {
+        "random_forest": {
+          "requested_algorithm": "random_forest",
+          "actual_classifier": "RandomForestClassifier",
+          "actual_regressor": "RandomForestRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0278,
+            "AUC": 0.9217,
+            "CSI": 0.2941,
+            "FAR": 0.3214,
+            "POD": 0.3417,
+            "precision": 0.6786,
+            "recall": 0.3417
+          },
+          "amount_metrics": {
+            "MAE": 0.5648,
+            "RMSE": 12.9745,
+            "R2": 0.0081,
+            "bias": 0.0638
+          }
+        },
+        "lightgbm": {
+          "requested_algorithm": "lightgbm",
+          "actual_classifier": "LGBMClassifier",
+          "actual_regressor": "LGBMRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0278,
+            "AUC": 0.9259,
+            "CSI": 0.2898,
+            "FAR": 0.2835,
+            "POD": 0.3273,
+            "precision": 0.7165,
+            "recall": 0.3273
+          },
+          "amount_metrics": {
+            "MAE": 0.54,
+            "RMSE": 12.9663,
+            "R2": 0.0094,
+            "bias": 0.0299
+          }
+        },
+        "xgboost": {
+          "requested_algorithm": "xgboost",
+          "actual_classifier": "XGBClassifier",
+          "actual_regressor": "XGBRegressor",
+          "event_metrics": {
+            "Brier Score": 0.0277,
+            "AUC": 0.9248,
+            "CSI": 0.2628,
+            "FAR": 0.2931,
+            "POD": 0.295,
+            "precision": 0.7069,
+            "recall": 0.295
+          },
+          "amount_metrics": {
+            "MAE": 0.5378,
+            "RMSE": 12.9714,
+            "R2": 0.0086,
+            "bias": 0.0234
+          }
+        }
+      }
+    }
+  }
+}

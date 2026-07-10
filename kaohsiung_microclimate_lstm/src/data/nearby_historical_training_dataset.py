@@ -143,9 +143,13 @@ def _add_labels(frame: pd.DataFrame, horizons: dict[str, int]) -> tuple[pd.DataF
         rain = f"target_rain_event_{horizon}"
         heavy = f"target_heavy_rain_event_{horizon}"
         vals = _values(source, "nearby_cwa_precipitation_1hr_max", indexer)
+        amount = f"target_nearby_precipitation_1hr_{horizon}"
+        amount_alias = f"target_nearby_precipitation_amount_{horizon}"
+        out[amount] = vals
+        out[amount_alias] = vals
         out[rain] = [None if value is None else int(value > 0.5) for value in vals]
         out[heavy] = [None if value is None else int(value > 10.0) for value in vals]
-        labels.extend([rain, heavy])
+        labels.extend([amount, amount_alias, rain, heavy])
     return out, labels
 
 

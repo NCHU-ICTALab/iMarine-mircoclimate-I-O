@@ -1,0 +1,80 @@
+{
+  "dataset_path": "kaohsiung_microclimate_lstm/data/processed/nearby_cwa_historical/C0V890.parquet",
+  "target_column": "precipitation_1hr",
+  "feature_columns": [
+    "wind_speed",
+    "wind_direction",
+    "wind_gust",
+    "wind_gust_direction",
+    "relative_humidity",
+    "temperature",
+    "station_pressure"
+  ],
+  "rows_total": 29994,
+  "rows_train": 23995,
+  "rows_test": 5999,
+  "requested_algorithms": [
+    "random_forest",
+    "lightgbm",
+    "xgboost"
+  ],
+  "results": {
+    "random_forest": {
+      "requested_algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "metrics": {
+        "rmse": 14.834002916006366,
+        "mae": 0.9202277046174362,
+        "r2": -0.3051570534775301,
+        "mape": 620297382904.7289,
+        "medae": 0.0,
+        "bias": -0.2825030838473079,
+        "quantile_errors": {
+          "q10": 0.0,
+          "q25": 0.0,
+          "q50": 0.0,
+          "q75": 0.005,
+          "q90": 0.165
+        }
+      }
+    },
+    "lightgbm": {
+      "requested_algorithm": "lightgbm",
+      "actual_estimator": "LGBMRegressor",
+      "metrics": {
+        "rmse": 13.963088029089791,
+        "mae": 2.132227848929586,
+        "r2": -0.15640245951916532,
+        "mape": 1826215850585.8071,
+        "medae": 0.7825665024440757,
+        "bias": -0.2340764100798626,
+        "quantile_errors": {
+          "q10": 0.18520751709734865,
+          "q25": 0.3856417288346573,
+          "q50": 0.7825665024440757,
+          "q75": 1.6252287199063433,
+          "q90": 4.126061893764487
+        }
+      }
+    },
+    "xgboost": {
+      "requested_algorithm": "xgboost",
+      "actual_estimator": "XGBRegressor",
+      "metrics": {
+        "rmse": 18.21970966251756,
+        "mae": 1.7729497502808715,
+        "r2": -0.968924027211775,
+        "mape": 1432528050884.3823,
+        "medae": 0.3115541338920593,
+        "bias": -0.4714672404403479,
+        "quantile_errors": {
+          "q10": 0.047320090234279646,
+          "q25": 0.1271001696586609,
+          "q50": 0.3115541338920593,
+          "q75": 0.7365714013576508,
+          "q90": 1.7707144737243647
+        }
+      }
+    }
+  }
+}

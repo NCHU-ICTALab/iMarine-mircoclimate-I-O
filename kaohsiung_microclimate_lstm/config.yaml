@@ -234,6 +234,23 @@ nearby_cwa_historical_training:
     min_valid_wind_samples: 500
     min_valid_gust_samples: 500
     min_valid_rain_samples: 500
+  model_algorithms:
+    wind_speed:
+      primary_algorithm: random_forest
+    wind_gust:
+      primary_algorithm: random_forest
+    random_forest:
+      n_estimators: 80
+      random_state: 42
+      min_samples_leaf: 2
+    lightgbm:
+      n_estimators: 300
+      learning_rate: 0.05
+      num_leaves: 31
+      random_state: 42
+      verbose: -1
+    gradient_boosting:
+      random_state: 42
 
 nearby_cwa_historical_station_pool:
   priority_1_near_port:
@@ -448,6 +465,16 @@ model:
   dropout: 0.2
   station_embed_dim: 8
 
+model_benchmark:
+  enabled: true
+  primary_algorithm: random_forest
+  candidate_algorithms:
+    - random_forest
+    - lightgbm
+    - xgboost
+  fallback_when_optional_package_missing: gradient_boosting
+  report_dir: results/model_benchmark_v13
+
 training:
   batch_size: 64
   max_epochs: 150
@@ -482,9 +509,19 @@ qpesums:
   port_lat: 22.62
   port_lon: 120.28
   search_radius: 0.1
-  qpe_dataid: O-A0002-001
+  source_status: disabled_station_rainfall_qpe_fallback_only
+  radar_echo_dataid_candidates:
+    - O-A0059-001
+  station_rainfall_fallback_dataid: O-A0002-001
+  qpe_dataid:
   qpf_dataid:
   cache_ttl_seconds: 600
+
+station_rainfall_qpe_fallback:
+  enabled: false
+  dataid: O-A0002-001
+  source_kind: station_rainfall_qpe_fallback
+  note: Non-radar automatic rainfall station fallback; not QPESUMS radar echo.
 
 features:
   target_station:
@@ -593,7 +630,14 @@ wind_gust:
     watch: 10.8
     warning: 13.9
     high_risk: 17.2
-    stop: 20.8
+    stop: 30.0
+
+rain_amount_thresholds_mm:
+  source_note: iMarine-FrontEnd referenced rain intensity thresholds; 24h thresholds exceed H1-H4 model horizon and are not inferred.
+  light: 1.0
+  heavy_1hr: 40.0
+  torrential_3hr: 100.0
+  severe_torrential_3hr: 200.0
 
 wind_scale:
   enabled: true
@@ -702,7 +746,7 @@ dispatch_thresholds:
     watch: 10.8
     warning: 13.9
     high_risk: 17.2
-    stop: 20.8
+    stop: 30.0
   visibility_m:
     enabled: false
     watch: 5000
@@ -741,3 +785,19 @@ output:
   include_dispatch_risk: true
   include_trace: true
   include_data_availability: true
+
+seasonal_wind_context:
+  source_note: KHWD 2021-09 to 2022-08 port wind analysis; KHWD08 metadata pending.
+  seasons:
+    autumn:
+      prevalent_direction: WNW/NW
+      note: KHWD01 reported NW in autumn.
+    winter:
+      prevalent_direction: NNE/NE with inner-harbor NW/ENE components
+      note: Northeast monsoon signal is stronger at outer/north-side stations.
+    spring:
+      prevalent_direction: WNW/W
+      note: KHWD01 and KHWD04 reported WNW.
+    summer:
+      prevalent_direction: W
+      note: KHWD01, KHWD04, and KHWD07 reported W.

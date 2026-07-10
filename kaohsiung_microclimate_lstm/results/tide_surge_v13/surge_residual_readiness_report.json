@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-07-10T20:21:38+08:00",
+  "ready_for_surge_residual_training": true,
+  "min_required_days": 21,
+  "min_required_tide_rows": 336,
+  "blockers": [],
+  "tide_stations": [
+    {
+      "station_id": "C4P01",
+      "exists": true,
+      "rows": 735,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "tide_level_non_null": 727,
+      "air_pressure_non_null": 0,
+      "wind_speed_non_null": 0,
+      "wind_direction_non_null": 0,
+      "usable_for_surge_training": true
+    },
+    {
+      "station_id": "1786",
+      "exists": true,
+      "rows": 818,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "tide_level_non_null": 814,
+      "air_pressure_non_null": 0,
+      "wind_speed_non_null": 0,
+      "wind_direction_non_null": 0,
+      "usable_for_surge_training": true
+    },
+    {
+      "station_id": "C4Q01",
+      "exists": true,
+      "rows": 735,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "tide_level_non_null": 727,
+      "air_pressure_non_null": 727,
+      "wind_speed_non_null": 726,
+      "wind_direction_non_null": 727,
+      "usable_for_surge_training": true
+    },
+    {
+      "station_id": "C4Q02",
+      "exists": true,
+      "rows": 735,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "tide_level_non_null": 729,
+      "air_pressure_non_null": 729,
+      "wind_speed_non_null": 725,
+      "wind_direction_non_null": 728,
+      "usable_for_surge_training": true
+    }
+  ],
+  "buoy_stations": [
+    {
+      "station_id": "COMC08",
+      "exists": true,
+      "rows": 735,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "wave_height_non_null": 605,
+      "wave_period_non_null": 605,
+      "wind_speed_non_null": 569,
+      "wind_gust_non_null": 569,
+      "air_pressure_non_null": 606,
+      "usable_for_surge_training": false
+    },
+    {
+      "station_id": "46714D",
+      "exists": true,
+      "rows": 735,
+      "start_time": "2026-06-09T23:00:00+08:00",
+      "end_time": "2026-07-10T13:00:00+08:00",
+      "coverage_days": 30.583,
+      "missing_columns": [],
+      "wave_height_non_null": 162,
+      "wave_period_non_null": 162,
+      "wind_speed_non_null": 224,
+      "wind_gust_non_null": 241,
+      "air_pressure_non_null": 732,
+      "usable_for_surge_training": false
+    }
+  ],
+  "next_action": "train surge residual ML model"
+}

@@ -23,5 +23,7 @@ def test_nearby_historical_training_dataset_builds_features_and_labels():
     assert "nearby_cwa_wind_speed_max" in result["feature_columns"]
     assert "distance_weighted_precipitation" in result["feature_columns"]
     assert "target_nearby_wind_speed_H1" in result["label_columns"]
+    assert "target_nearby_precipitation_1hr_H1" in result["label_columns"]
+    assert "target_nearby_precipitation_amount_H1" in result["label_columns"]
     assert "target_rain_event_H4" in result["label_columns"]
     assert result["dataset"]["target_nearby_wind_gust_H1"].notna().sum() > 0

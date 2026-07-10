@@ -37,17 +37,73 @@
     "nearby_cwa_precipitation_roll6"
   ],
   "models": {
-    "wind_speed_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H1.joblib",
-    "wind_gust_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H1.joblib",
-    "rain_probability_H1": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H1.joblib",
-    "wind_speed_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H2.joblib",
-    "wind_gust_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H2.joblib",
-    "rain_probability_H2": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H2.joblib",
-    "wind_speed_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H3.joblib",
-    "wind_gust_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H3.joblib",
-    "rain_probability_H3": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H3.joblib",
-    "wind_speed_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H4.joblib",
-    "wind_gust_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H4.joblib",
-    "rain_probability_H4": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H4.joblib"
+    "wind_speed_H1": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H1.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "wind_gust_H1": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H1.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "rain_probability_H1": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H1.joblib",
+    "precipitation_amount_H1": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H1.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+    },
+    "wind_speed_H2": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H2.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "wind_gust_H2": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H2.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "rain_probability_H2": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H2.joblib",
+    "precipitation_amount_H2": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H2.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+    },
+    "wind_speed_H3": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H3.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "wind_gust_H3": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H3.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "rain_probability_H3": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H3.joblib",
+    "precipitation_amount_H3": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H3.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+    },
+    "wind_speed_H4": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H4.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "wind_gust_H4": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_gust_H4.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "rain_probability_H4": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\rain_probability_H4.joblib",
+    "precipitation_amount_H4": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H4.joblib",
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+    }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-07-10T19:58:35+08:00",
+  "data_id": "F-D0047-091",
+  "ready": false,
+  "min_required_days": 14,
+  "snapshot_count": 0,
+  "forecast_history_coverage_days": 0.0,
+  "observation_coverage_days": 184.747,
+  "blockers": [
+    "forecast history coverage shorter than 14 days"
+  ],
+  "comparison_report_allowed": false
+}

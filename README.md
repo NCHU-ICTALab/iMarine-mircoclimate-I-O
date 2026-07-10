@@ -1,63 +1,72 @@
-# 高雄港微氣候派工風險 API
+﻿# Kaohsiung Port Microclimate Prediction System
 
-本專案提供高雄港周邊微氣候資料擷取、模型預測與派工風險 API。最新後端版本為 `kaohsiung_port_dispatch_risk_v3.5`。
+This repository implements the Kaohsiung Port microclimate and dispatch-risk workflow. The current implementation priority is `高雄港微氣候預測_專案規格書_v1.3.md`; the earlier v2.0 chapter audit is retained as implementation history.
 
-## v3.5 重點
+## System Goals
 
-- 保留 v3.3 deterministic model selection：`port_local_model -> port_local_postprocess -> nearby_cwa_historical_model -> fallback_baseline`。
-- 保留 v3.4 training orchestration、model registry、model manifest、station usage payload。
-- 新增 System Audit：盤點資料來源、測站角色、資料期間、模型誤差指標與選模摘要。
-- API 回傳 `system_audit_summary`，完整內容由 `/api/v1/dispatch/system-audit` 查詢。
-- demo 頁面會顯示 System Audit cards、資料來源表、資料期間表、模型指標表與測站角色表。
-- debug/admin 端點：
-  - `GET /api/v1/dispatch/model-status?target_area=KHH`
-  - `GET /api/v1/dispatch/station-usage?target_area=KHH`
-  - `GET /api/v1/dispatch/system-audit?target_area=KHH`
+- Predict short-term microclimate anchors at 30, 60, 90, and 120 minutes.
+- Support dispatch-risk decisions from wind speed, gusts, precipitation, tide level, and visibility.
+- Prefer port-local observations when available, and make fallback behavior explicit.
+- Keep data quality, model selection, station usage, and system audit outputs inspectable.
 
-目前正常 KHWD 可用時：
+## Architecture
 
-```json
-{
-  "prediction_mode": "port_local_postprocess",
-  "active_wind_source": "KHWD",
-  "active_gust_source": "KHWD",
-  "training_required": false,
-  "training_skipped": true
-}
+The implementation follows the v1.3/v2.0 layered architecture:
+
+1. Data collection: TWPort, CWA Open Data, CWA marine observations, CODiS historical rainfall, tide/wave observations.
+2. Data preprocessing and quality control: station normalization, stale-data checks, historical dataset readiness, missing-value handling.
+3. Feature engineering: time-series windows, station-priority features, port-local wind aggregation, nearby CWA aggregation, rain probability priors.
+4. Model training and evaluation: LSTM baselines, tree-based port-local models, nearby CWA historical models, model registry, evaluation metrics.
+5. Prediction and dispatch risk: deterministic model selection, post-processing, risk-level mapping, action-level mapping.
+6. API and reporting: FastAPI endpoints, dashboard payloads, system audit reports, CLI utilities.
+
+## Main API Endpoints
+
+Run the API:
+
+```powershell
+uvicorn app.api:app --reload
 ```
 
-模擬 `no_realtime_khwd_mode=true` 時：
-
-```json
-{
-  "prediction_mode": "nearby_cwa_historical_model",
-  "active_wind_source": "nearby_cwa_historical_model",
-  "active_gust_source": "nearby_cwa_historical_model",
-  "baseline_station_used_for_current_prediction": false
-}
-```
-
-## 不變條件
-
-```json
-{
-  "467441_used_as_core_station": false,
-  "nearby_cwa_used_as_port_local_core": false,
-  "cwa_pop_used_as_model_input": false,
-  "rain_probability_preserved": true
-}
-```
-
-角色定義：
+Stable endpoints:
 
 ```text
-KHWD = 港區即時核心測站
-nearby CWA stations = historical fallback training reference
-467441 = fallback baseline only
-CWA PoP = rain prior only
+GET /
+GET /dispatch-risk-demo
+GET /health
+GET /docs
+GET /api/v1/schema
+GET /api/v1/system/info
+GET /api/v1/system/requirements
+GET /api/v1/system/data-spec
+GET /api/v1/system/feature-spec
+GET /api/v1/system/model-spec
+GET /api/v1/system/evaluation-spec
+GET /api/v1/system/api-spec
+GET /api/v1/system/deployment-spec
+GET /api/v1/system/testing-spec
+GET /api/v1/system/schedule-spec
+GET /api/v1/system/appendix-spec
+GET /api/v1/microclimate/current
+GET /api/v1/microclimate/forecast?minutes=90
+GET /api/v1/dispatch/risk?target_area=KHH
+GET /api/v1/dispatch/model-status?target_area=KHH
+GET /api/v1/dispatch/station-usage?target_area=KHH
+GET /api/v1/dispatch/system-audit?target_area=KHH
 ```
 
-## 安裝
+## Project Layout
+
+```text
+app/                            FastAPI app, collectors, storage, API contracts
+microclimate/                   Legacy microclimate service modules
+kaohsiung_microclimate_lstm/    Modeling, training, prediction, risk, and audit pipeline
+tests/                          Main project tests
+docs/                           Contracts, operations notes, and implementation audit files
+cwa_rain_fetcher/               Separate CWA rainfall fetcher subproject
+```
+
+## Setup
 
 ```powershell
 python -m venv .venv
@@ -66,159 +75,61 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-`.env` 內可放 CWA Open Data API key，例如：
+Optional CWA API access:
 
 ```text
 CWA_API_KEY=your-cwa-open-data-key
 ```
 
-請勿將真實 API key commit 到 Git。
+Do not commit real API keys.
 
-## 啟動 API
+## CLI
 
-```powershell
-uvicorn app.api:app --reload
-```
-
-常用端點：
-
-```text
-GET /
-GET /dispatch-risk-demo
-GET /health
-GET /docs
-GET /api/v1/schema
-GET /api/v1/dispatch/risk?target_area=KHH
-GET /api/v1/dispatch/risk?target_area=KHH&refresh_port_local=true
-GET /api/v1/dispatch/risk?target_area=KHH&no_realtime_khwd_mode=true
-GET /api/v1/dispatch/model-status?target_area=KHH
-GET /api/v1/dispatch/station-usage?target_area=KHH
-GET /api/v1/dispatch/system-audit?target_area=KHH
-GET /api/v1/microclimate/current
-GET /api/v1/microclimate/forecast?minutes=90
-```
-
-## Port-local 資料抓取
+The v2.0 CLI wrapper is available as:
 
 ```powershell
-python kaohsiung_microclimate_lstm/src/tools/fetch_port_local_stations.py `
-  --config kaohsiung_microclimate_lstm/config.yaml `
-  --station-pool kaohsiung_microclimate_lstm/config/station_pool.yaml `
-  --output-dir kaohsiung_microclimate_lstm/data/raw/observed_hourly `
-  --report-dir kaohsiung_microclimate_lstm/results/port_local_data_v28
+python -m kaohsiung_microclimate_lstm.src.cli --help
 ```
 
-目前港區風力測站：
-
-```text
-KHWD01, KHWD04, KHWD05, KHWD06, KHWD07, KHWD08
-```
-
-## Nearby CWA Historical 訓練成果
-
-已完成 nearby CWA/CODIS historical fallback model 訓練，使用比 `467441` 更接近高雄港的測站：
-
-```text
-C0V890, C0V490, C0V840, C0V810, C0V450, C0V900
-```
-
-主要成效：
-
-```text
-training_days: 1282
-station_samples: 184614
-wind_speed H1 MAE: 0.5919 m/s
-wind_gust H1 MAE: 0.6835 m/s
-rain H1 Brier Score: 0.0183
-rain H1 AUC: 0.9638
-critical_under_warning_count: 0
-```
-
-## v3.5 CLI
-
-System audit：
+Examples:
 
 ```powershell
-python kaohsiung_microclimate_lstm/src/tools/build_v35_system_audit_report.py `
-  --config kaohsiung_microclimate_lstm/config.yaml `
-  --target-area KHH `
-  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v35
+python -m kaohsiung_microclimate_lstm.src.cli evaluate --station-id 467441 --target wind_speed_gust --config kaohsiung_microclimate_lstm/config.yaml
+
+python -m kaohsiung_microclimate_lstm.src.cli system-audit --target-area KHH --config kaohsiung_microclimate_lstm/config.yaml
 ```
 
-## v3.4 CLI
-
-Training orchestration：
+v1.3 data and benchmark utilities:
 
 ```powershell
-python kaohsiung_microclimate_lstm/src/tools/run_v34_training_orchestration.py `
-  --config kaohsiung_microclimate_lstm/config.yaml `
-  --target-area KHH `
-  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v34
+python -m kaohsiung_microclimate_lstm.src.data.fetch_marine_history --output-dir kaohsiung_microclimate_lstm/data/raw/observed_hourly
+
+python -m kaohsiung_microclimate_lstm.src.tools.run_model_benchmark --dataset path/to/training.csv --target wind_speed --output-dir kaohsiung_microclimate_lstm/results/model_benchmark_v13
 ```
 
-Model selection regression：
+## Verification
 
-```powershell
-python kaohsiung_microclimate_lstm/src/tools/run_model_selection_regression.py `
-  --config kaohsiung_microclimate_lstm/config.yaml `
-  --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v34
-```
-
-## v3.5 報表
-
-```text
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/system_audit_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/data_source_inventory_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/station_inventory_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/dataset_duration_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/model_accuracy_summary_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/model_selection_summary_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/ui_dashboard_payload_v35.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/api_contract_snapshot_v35.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v35/prediction_samples_v35.json
-```
-
-## v3.4 報表
-
-```text
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/training_orchestration_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_registry_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_manifest_validation_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/current_station_usage_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/ui_payload_snapshot.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/api_contract_snapshot_v34.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/model_selection_regression_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/rain_probability_integrity_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/station_role_violation_report.json
-kaohsiung_microclimate_lstm/results/dispatch_risk_v34/prediction_samples.json
-```
-
-## 測試
+Run the main project test suite:
 
 ```powershell
 python -m pytest
 ```
 
-v3.5 指定測試：
+The root `pytest.ini` intentionally scopes default tests to `tests/`. The `cwa_rain_fetcher/` folder is a separate subproject with its own `app` package name and should be tested from that folder when needed.
 
-```powershell
-python -m pytest tests/test_dispatch_risk_v35_system_audit.py tests/test_dispatch_risk_v35_dataset_duration.py tests/test_dispatch_risk_v35_model_accuracy_summary.py tests/test_dispatch_risk_v35_station_inventory.py tests/test_dispatch_risk_v35_ui_dashboard_payload.py --basetemp .tmp_pytest_v35
+## Specification Files
+
+The active v1.3 specification and earlier v2.0 specification files are stored at the repository root:
+
+```text
+高雄港微氣候預測_專案規格書_v1.3.md
+高雄港微氣候預測系統_v2.0_規格書_前半部.md
+高雄港微氣候預測系統_v2.0_規格書_後半部.md
 ```
 
-v3.4 指定測試：
+Implementation progress is tracked in:
 
-```powershell
-python -m pytest tests/test_dispatch_risk_v34_training_orchestration.py tests/test_dispatch_risk_v34_model_registry.py tests/test_dispatch_risk_v34_station_usage.py tests/test_dispatch_risk_v34_ui_payload.py tests/test_dispatch_risk_v34_api_contract.py --basetemp .tmp_pytest_v34
+```text
+docs/spec_v13_implementation_summary.md
+docs/spec_v20_implementation_audit.md
 ```
-
-## 文件
-
-- [v3.5 API Contract](docs/dispatch_risk_api_contract_v35.md)
-- [v3.4 API Contract](docs/dispatch_risk_api_contract_v34.md)
-- [v3.3 API Contract](docs/dispatch_risk_api_contract_v33.md)
-- [v3.2 API Contract](docs/dispatch_risk_api_contract_v32.md)
-- [v3.0 API Contract](docs/dispatch_risk_api_contract_v30.md)
-- [v2.9 API Contract](docs/dispatch_risk_api_contract_v29.md)
-- [v2.8 API Contract](docs/dispatch_risk_api_contract_v28.md)
-- [v2.7 API Contract](docs/dispatch_risk_api_contract_v27.md)
-- [v2.6 API Contract](docs/dispatch_risk_api_contract_v26.md)

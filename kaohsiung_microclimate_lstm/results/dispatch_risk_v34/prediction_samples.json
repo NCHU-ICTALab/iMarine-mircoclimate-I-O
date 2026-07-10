@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-09T22:15:39+08:00",
+  "generated_at": "2026-07-10T23:01:36+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -10,17 +10,21 @@
     {
       "label": "H1",
       "offset_minutes": 30,
-      "timestamp": "2026-07-05T23:30:00+08:00",
+      "timestamp": "2026-07-10T22:00:00+08:00",
       "rain": {
         "raw_model_probability": 0.3463,
-        "nearby_adjusted_probability": 0.3463,
+        "nearby_adjusted_probability": 0.7,
         "cwa_adjusted_probability": null,
-        "final_probability": 0.3463,
-        "level": "watch",
+        "final_probability": 0.7,
+        "level": "high_risk",
+        "predicted_amount_mm": 4.166,
+        "amount_level": "watch",
+        "amount_level_basis": "rain_amount_1hr_mm",
+        "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
-          "nearby_postprocess_applied": false,
+          "nearby_postprocess_applied": true,
           "cwa_prior_applied": false,
           "cwa_weight": 0.0,
           "cwa_dataset_id": null,
@@ -29,10 +33,10 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-09T22:45:39.840461+08:00",
+            "anchor_time": "2026-07-10T23:31:36.017088+08:00",
             "available": true,
-            "raw_value": "20",
-            "normalized_value": 0.2,
+            "raw_value": "40",
+            "normalized_value": 0.4,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -47,6 +51,12 @@
           "port_local_rain_postprocess_applied": false,
           "port_local_rain_data_available": false,
           "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "three_hour_accumulation_estimate": {
+          "predicted_amount_mm": 8.332,
+          "amount_level": "watch",
+          "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
+          "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
@@ -75,7 +85,7 @@
           "base_operation_level": "normal",
           "adjusted_operation_level": "normal",
           "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
-          "khwd_wind_speed_max": 4.318,
+          "khwd_wind_speed_max": 8.988,
           "threshold_triggered": null
         }
       },
@@ -107,7 +117,7 @@
           "base_operation_level": "normal",
           "adjusted_operation_level": "normal",
           "reason": "KHWD values did not exceed gust postprocess thresholds.",
-          "khwd_wind_gust_max": 4.68,
+          "khwd_wind_gust_max": 9.49,
           "threshold_triggered": null
         }
       },
@@ -121,13 +131,13 @@
         "level": null,
         "confidence": "reference_only"
       },
-      "dispatch_risk_level": "watch",
+      "dispatch_risk_level": "high_risk",
       "risk_trigger_detail": {
         "primary_trigger": "rain_probability",
-        "primary_trigger_level": "watch",
+        "primary_trigger_level": "high_risk",
         "primary_trigger_reliability": "low_to_medium",
         "all_trigger_levels": {
-          "rain": "watch",
+          "rain": "high_risk",
           "wind_speed": "normal",
           "wind_gust": "normal",
           "visibility": null,
@@ -135,13 +145,13 @@
         },
         "is_low_reliability_trigger": true
       },
-      "dispatch_action_level": "observe_only",
+      "dispatch_action_level": "restrict_sensitive_tasks",
       "dispatch_action": {
-        "dispatch_action_level": "observe_only",
-        "action_label": "觀察",
-        "action_description": "風險來源可靠度較低，建議先觀察並加強現場回報。"
+        "dispatch_action_level": "restrict_sensitive_tasks",
+        "action_label": "限制敏感作業",
+        "action_description": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。"
       },
-      "dispatch_suggestion": "風險來源可靠度較低，建議先觀察並加強現場回報。",
+      "dispatch_suggestion": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。",
       "port_local_postprocess": {
         "enabled": false,
         "mode": "fallback_baseline",
@@ -157,22 +167,28 @@
           "KHWD08"
         ],
         "port_local_features_used": []
-      }
+      },
+      "anchor_time_source": "port_local_khwd",
+      "anchor_time_staleness_minutes": 91
     },
     {
       "label": "H2",
       "offset_minutes": 60,
-      "timestamp": "2026-07-06T00:00:00+08:00",
+      "timestamp": "2026-07-10T22:30:00+08:00",
       "rain": {
         "raw_model_probability": 0.296,
-        "nearby_adjusted_probability": 0.296,
+        "nearby_adjusted_probability": 0.7,
         "cwa_adjusted_probability": null,
-        "final_probability": 0.296,
-        "level": "normal",
+        "final_probability": 0.7,
+        "level": "high_risk",
+        "predicted_amount_mm": 4.166,
+        "amount_level": "watch",
+        "amount_level_basis": "rain_amount_1hr_mm",
+        "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
-          "nearby_postprocess_applied": false,
+          "nearby_postprocess_applied": true,
           "cwa_prior_applied": false,
           "cwa_weight": 0.0,
           "cwa_dataset_id": null,
@@ -181,10 +197,10 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-09T23:15:39.840461+08:00",
+            "anchor_time": "2026-07-11T00:01:36.017088+08:00",
             "available": true,
-            "raw_value": "20",
-            "normalized_value": 0.2,
+            "raw_value": "40",
+            "normalized_value": 0.4,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -199,6 +215,12 @@
           "port_local_rain_postprocess_applied": false,
           "port_local_rain_data_available": false,
           "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "three_hour_accumulation_estimate": {
+          "predicted_amount_mm": 8.332,
+          "amount_level": "watch",
+          "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
+          "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
@@ -227,7 +249,7 @@
           "base_operation_level": "normal",
           "adjusted_operation_level": "normal",
           "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
-          "khwd_wind_speed_max": 4.318,
+          "khwd_wind_speed_max": 8.988,
           "threshold_triggered": null
         }
       },
@@ -259,7 +281,7 @@
           "base_operation_level": "normal",
           "adjusted_operation_level": "normal",
           "reason": "KHWD values did not exceed gust postprocess thresholds.",
-          "khwd_wind_gust_max": 4.68,
+          "khwd_wind_gust_max": 9.49,
           "threshold_triggered": null
         }
       },
@@ -273,27 +295,27 @@
         "level": null,
         "confidence": "reference_only"
       },
-      "dispatch_risk_level": "normal",
+      "dispatch_risk_level": "high_risk",
       "risk_trigger_detail": {
-        "primary_trigger": "none",
-        "primary_trigger_level": "normal",
-        "primary_trigger_reliability": null,
+        "primary_trigger": "rain_probability",
+        "primary_trigger_level": "high_risk",
+        "primary_trigger_reliability": "low_to_medium",
         "all_trigger_levels": {
-          "rain": "normal",
+          "rain": "high_risk",
           "wind_speed": "normal",
           "wind_gust": "normal",
           "visibility": null,
           "tide": null
         },
-        "is_low_reliability_trigger": false
+        "is_low_reliability_trigger": true
       },
-      "dispatch_action_level": "normal_dispatch",
+      "dispatch_action_level": "restrict_sensitive_tasks",
       "dispatch_action": {
-        "dispatch_action_level": "normal_dispatch",
-        "action_label": "正常派工",
-        "action_description": "可正常安排作業，持續監測天氣變化。"
+        "dispatch_action_level": "restrict_sensitive_tasks",
+        "action_label": "限制敏感作業",
+        "action_description": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。"
       },
-      "dispatch_suggestion": "可正常安排作業，持續監測天氣變化。",
+      "dispatch_suggestion": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。",
       "port_local_postprocess": {
         "enabled": false,
         "mode": "fallback_baseline",
@@ -309,18 +331,24 @@
           "KHWD08"
         ],
         "port_local_features_used": []
-      }
+      },
+      "anchor_time_source": "port_local_khwd",
+      "anchor_time_staleness_minutes": 91
     },
     {
       "label": "H3",
       "offset_minutes": 90,
-      "timestamp": "2026-07-06T00:30:00+08:00",
+      "timestamp": "2026-07-10T23:00:00+08:00",
       "rain": {
         "raw_model_probability": 0.1843,
         "nearby_adjusted_probability": 0.1843,
-        "cwa_adjusted_probability": 0.1874,
-        "final_probability": 0.1874,
+        "cwa_adjusted_probability": 0.2274,
+        "final_probability": 0.2274,
         "level": "normal",
+        "predicted_amount_mm": 0.0,
+        "amount_level": "normal",
+        "amount_level_basis": "rain_amount_1hr_mm",
+        "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
@@ -333,10 +361,10 @@
           "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-09T23:45:39.840461+08:00",
+            "anchor_time": "2026-07-11T00:31:36.017088+08:00",
             "available": true,
-            "raw_value": "20",
-            "normalized_value": 0.2,
+            "raw_value": "40",
+            "normalized_value": 0.4,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -351,6 +379,12 @@
           "port_local_rain_postprocess_applied": false,
           "port_local_rain_data_available": false,
           "port_local_rain_reason": "No port-local precipitation station available."
+        },
+        "three_hour_accumulation_estimate": {
+          "predicted_amount_mm": 8.332,
+          "amount_level": "watch",
+          "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
+          "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
@@ -433,18 +467,24 @@
           "KHWD08"
         ],
         "port_local_features_used": []
-      }
+      },
+      "anchor_time_source": "port_local_khwd",
+      "anchor_time_staleness_minutes": 91
     },
     {
       "label": "H4",
       "offset_minutes": 120,
-      "timestamp": "2026-07-06T01:00:00+08:00",
+      "timestamp": "2026-07-10T23:30:00+08:00",
       "rain": {
         "raw_model_probability": 0.2374,
         "nearby_adjusted_probability": 0.2374,
-        "cwa_adjusted_probability": 0.2299,
-        "final_probability": 0.2299,
+        "cwa_adjusted_probability": 0.2699,
+        "final_probability": 0.2699,
         "level": "normal",
+        "predicted_amount_mm": 0.0,
+        "amount_level": "normal",
+        "amount_level_basis": "rain_amount_1hr_mm",
+        "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
@@ -457,10 +497,10 @@
           "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-10T00:15:39.840461+08:00",
+            "anchor_time": "2026-07-11T01:01:36.017088+08:00",
             "available": true,
-            "raw_value": "20",
-            "normalized_value": 0.2,
+            "raw_value": "40",
+            "normalized_value": 0.4,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -557,7 +597,9 @@
           "KHWD08"
         ],
         "port_local_features_used": []
-      }
+      },
+      "anchor_time_source": "port_local_khwd",
+      "anchor_time_staleness_minutes": 91
     }
   ],
   "cwa_forecast": {
@@ -568,18 +610,18 @@
     "source_resolution": "3h",
     "fetched_at": "2026-07-08T00:09:14+08:00",
     "anchor_pop": {
-      "H1": 0.2,
-      "H2": 0.2,
-      "H3": 0.2,
-      "H4": 0.2
+      "H1": 0.4,
+      "H2": 0.4,
+      "H3": 0.4,
+      "H4": 0.4
     },
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-09T22:45:39.840461+08:00",
+        "anchor_time": "2026-07-10T23:31:36.017088+08:00",
         "available": true,
-        "raw_value": "20",
-        "normalized_value": 0.2,
+        "raw_value": "40",
+        "normalized_value": 0.4,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -593,10 +635,10 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-09T23:15:39.840461+08:00",
+        "anchor_time": "2026-07-11T00:01:36.017088+08:00",
         "available": true,
-        "raw_value": "20",
-        "normalized_value": 0.2,
+        "raw_value": "40",
+        "normalized_value": 0.4,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -610,10 +652,10 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-09T23:45:39.840461+08:00",
+        "anchor_time": "2026-07-11T00:31:36.017088+08:00",
         "available": true,
-        "raw_value": "20",
-        "normalized_value": 0.2,
+        "raw_value": "40",
+        "normalized_value": 0.4,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -627,10 +669,10 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-10T00:15:39.840461+08:00",
+        "anchor_time": "2026-07-11T01:01:36.017088+08:00",
         "available": true,
-        "raw_value": "20",
-        "normalized_value": 0.2,
+        "raw_value": "40",
+        "normalized_value": 0.4,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -647,8 +689,8 @@
   },
   "data_availability": {
     "target_station_available": true,
-    "nearby_station_available": false,
-    "nearby_station_count": 0,
+    "nearby_station_available": true,
+    "nearby_station_count": 6,
     "cwa_pop_available": true,
     "tide_available": false,
     "visibility_available": false,
@@ -712,6 +754,12 @@
       "rain": "baseline_lstm_v2.3_pure_temporal",
       "wind_speed_gust": "baseline_lstm_v2"
     },
+    "anchor_time_selection": {
+      "prediction_mode": "port_local_model",
+      "anchor_time_source": "port_local_khwd",
+      "anchor_base_time": "2026-07-10T21:30:00+08:00",
+      "staleness_minutes": 91
+    },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
     "using_port_local_station": true,
@@ -748,6 +796,15 @@
     "prediction_mode": "nearby_cwa_historical_model",
     "port_local_model_available": true,
     "model_retraining_required": false,
+    "nearby_cwa_live_precipitation_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "nearby_cwa_live_precipitation_used_for_rain_amount": true,
     "port_local_data_acquisition_enabled": true,
     "port_local_data_refresh_attempted": false,
     "port_local_data_refresh_success": null,
@@ -860,6 +917,8 @@
       "KHAW09"
     ]
   },
+  "anchor_time_source": "port_local_khwd",
+  "anchor_time_staleness_minutes": 91,
   "prediction_mode": "nearby_cwa_historical_model",
   "model_selection_summary": {
     "selected_mode": "nearby_cwa_historical_model",
@@ -974,7 +1033,7 @@
     "training_skipped": true,
     "skip_reason": "Existing accepted nearby CWA historical model found.",
     "training_reason": null,
-    "last_training_run_at": "2026-07-09T22:15:39+08:00",
+    "last_training_run_at": "2026-07-10T23:01:35+08:00",
     "available_models": {
       "port_local_model": {
         "trained": false,

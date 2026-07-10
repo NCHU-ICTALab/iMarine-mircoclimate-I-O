@@ -1,0 +1,80 @@
+{
+  "dataset_path": "kaohsiung_microclimate_lstm/data/processed/nearby_cwa_historical/C0V840.parquet",
+  "target_column": "wind_gust",
+  "feature_columns": [
+    "wind_speed",
+    "wind_direction",
+    "wind_gust_direction",
+    "precipitation_1hr",
+    "relative_humidity",
+    "temperature",
+    "station_pressure"
+  ],
+  "rows_total": 30733,
+  "rows_train": 24586,
+  "rows_test": 6147,
+  "requested_algorithms": [
+    "random_forest",
+    "lightgbm",
+    "xgboost"
+  ],
+  "results": {
+    "random_forest": {
+      "requested_algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor",
+      "metrics": {
+        "rmse": 0.9818123236715309,
+        "mae": 0.7305139092240116,
+        "r2": 0.8113099422320136,
+        "mape": 17.45088383030048,
+        "medae": 0.5860000000000021,
+        "bias": 0.06914185781682121,
+        "quantile_errors": {
+          "q10": 0.10400000000000205,
+          "q25": 0.2670000000000008,
+          "q50": 0.5860000000000021,
+          "q75": 0.9969999999999993,
+          "q90": 1.4708000000000014
+        }
+      }
+    },
+    "lightgbm": {
+      "requested_algorithm": "lightgbm",
+      "actual_estimator": "LGBMRegressor",
+      "metrics": {
+        "rmse": 0.950341084531526,
+        "mae": 0.7141784811381682,
+        "r2": 0.8232126975977321,
+        "mape": 17.19648568838823,
+        "medae": 0.5888100266653491,
+        "bias": 0.07127006312835986,
+        "quantile_errors": {
+          "q10": 0.11383638795399183,
+          "q25": 0.2741854869953422,
+          "q50": 0.5888100266653491,
+          "q75": 0.968348647710475,
+          "q90": 1.4012364918830018
+        }
+      }
+    },
+    "xgboost": {
+      "requested_algorithm": "xgboost",
+      "actual_estimator": "XGBRegressor",
+      "metrics": {
+        "rmse": 0.97852080907754,
+        "mae": 0.7264967085113948,
+        "r2": 0.8125729840348248,
+        "mape": 17.379265479936496,
+        "medae": 0.581382465362549,
+        "bias": 0.062478260321405375,
+        "quantile_errors": {
+          "q10": 0.10622964859008803,
+          "q25": 0.2820592403411868,
+          "q50": 0.581382465362549,
+          "q75": 0.9861690521240234,
+          "q90": 1.4474493598937996
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-07-10T21:08:26+08:00",
+  "model_family": "surge_residual_model",
+  "trained": true,
+  "target_stations": [
+    "C4P01"
+  ],
+  "feature_stations": [
+    "C4Q01",
+    "C4Q02",
+    "COMC08",
+    "46714"
+  ],
+  "min_required_rows": 336,
+  "trained_models": {
+    "C4P01": {
+      "model_path": "kaohsiung_microclimate_lstm\\models\\tide_surge_v13\\C4P01_surge_residual.joblib",
+      "harmonic_model_path": "kaohsiung_microclimate_lstm\\models\\tide\\C4P01_harmonic_coef.pkl",
+      "rows": 727,
+      "train_rows": 581,
+      "test_rows": 146,
+      "feature_columns": [
+        "C4Q01_air_pressure",
+        "C4Q01_wind_speed",
+        "C4Q01_wind_gust",
+        "C4Q01_wind_direction",
+        "C4Q01_wave_height",
+        "C4Q01_wave_period",
+        "C4Q02_air_pressure",
+        "C4Q02_wind_speed",
+        "C4Q02_wind_gust",
+        "C4Q02_wind_direction",
+        "C4Q02_wave_height",
+        "C4Q02_wave_period",
+        "COMC08_air_pressure",
+        "COMC08_wind_speed",
+        "COMC08_wind_gust",
+        "COMC08_wind_direction",
+        "COMC08_wave_height",
+        "COMC08_wave_period",
+        "hour_sin",
+        "hour_cos",
+        "doy_sin",
+        "doy_cos"
+      ],
+      "metrics": {
+        "surge_residual_MAE": 0.061,
+        "surge_residual_RMSE": 0.0753,
+        "surge_residual_R2": -0.1823,
+        "tide_level_MAE": 0.061,
+        "tide_level_RMSE": 0.0753,
+        "tide_level_R2": 0.7905
+      }
+    }
+  },
+  "station_reports": {
+    "C4P01": {
+      "aligned_rows": 727,
+      "feature_non_null": {
+        "C4Q01": {
+          "air_pressure": 727,
+          "wind_speed": 726,
+          "wind_gust": 727,
+          "wind_direction": 727,
+          "wave_height": 0,
+          "wave_period": 0
+        },
+        "C4Q02": {
+          "air_pressure": 727,
+          "wind_speed": 723,
+          "wind_gust": 727,
+          "wind_direction": 726,
+          "wave_height": 0,
+          "wave_period": 0
+        },
+        "COMC08": {
+          "air_pressure": 601,
+          "wind_speed": 564,
+          "wind_gust": 564,
+          "wind_direction": 564,
+          "wave_height": 600,
+          "wave_period": 600
+        },
+        "46714": {
+          "air_pressure": 0,
+          "wind_speed": 0,
+          "wind_gust": 0,
+          "wind_direction": 0,
+          "wave_height": 0,
+          "wave_period": 0
+        }
+      }
+    }
+  },
+  "blockers": [],
+  "method": "observed_tide_minus_harmonic_tide_residual_random_forest"
+}

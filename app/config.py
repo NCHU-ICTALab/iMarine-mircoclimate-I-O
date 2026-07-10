@@ -28,13 +28,32 @@ class Settings:
     cwa_marine_data_id: str = os.getenv("CWA_MARINE_DATA_ID", "O-B0075-001")
     cwa_marine_station_ids: str = os.getenv("CWA_MARINE_STATION_IDS", "C4P01,1786,COMC08,46714D,C4Q02,C4Q01")
     cwa_verify_ssl: bool = os.getenv("CWA_VERIFY_SSL", "true").lower() == "true"
+    codis_api_key: str = os.getenv("CODIS_API_KEY", "")
     request_timeout_seconds: float = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "10"))
     alert_wind_speed: float = float(os.getenv("ALERT_WIND_SPEED", "13.8"))
     alert_wind_gust: float = float(os.getenv("ALERT_WIND_GUST", "17.2"))
+    data_dir: str = os.getenv("DATA_DIR", "data")
+    model_dir: str = os.getenv("MODEL_DIR", "kaohsiung_microclimate_lstm/models")
+    log_dir: str = os.getenv("LOG_DIR", "logs")
+    env: str = os.getenv("ENV", "development")
+    debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+    log_level: str = os.getenv("LOG_LEVEL", "INFO")
 
     @property
     def database_path(self) -> Path:
         return Path(self.database_url)
+
+    @property
+    def data_path(self) -> Path:
+        return Path(self.data_dir)
+
+    @property
+    def model_path(self) -> Path:
+        return Path(self.model_dir)
+
+    @property
+    def log_path(self) -> Path:
+        return Path(self.log_dir)
 
     @property
     def cwa_station_name_list(self) -> list[str]:

@@ -45,7 +45,9 @@
       "bias": -0.0579,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H2": {
       "MAE": 0.592,
@@ -54,7 +56,9 @@
       "bias": -0.0579,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H3": {
       "MAE": 0.7156,
@@ -63,7 +67,9 @@
       "bias": -0.1013,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H4": {
       "MAE": 0.7156,
@@ -72,7 +78,9 @@
       "bias": -0.1012,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     }
   },
   "wind_gust": {
@@ -83,7 +91,9 @@
       "bias": 0.0692,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H2": {
       "MAE": 0.6835,
@@ -92,7 +102,9 @@
       "bias": 0.0691,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H3": {
       "MAE": 0.9458,
@@ -101,7 +113,9 @@
       "bias": 0.0126,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     },
     "H4": {
       "MAE": 0.9458,
@@ -110,7 +124,9 @@
       "bias": 0.0125,
       "beats_persistence": true,
       "level_accuracy": null,
-      "critical_under_warning_count": 0
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     }
   },
   "rain_probability": {
@@ -145,6 +161,52 @@
       "FAR": 0.2536,
       "POD": 0.3705,
       "calibration_bins": []
+    }
+  },
+  "precipitation_amount": {
+    "H1": {
+      "MAE": 0.6018,
+      "RMSE": 13.697,
+      "R2": -0.1054,
+      "bias": 0.0967,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H2": {
+      "MAE": 0.6019,
+      "RMSE": 13.6981,
+      "R2": -0.1054,
+      "bias": 0.0967,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H3": {
+      "MAE": 0.7172,
+      "RMSE": 13.8636,
+      "R2": -0.1323,
+      "bias": 0.0698,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H4": {
+      "MAE": 0.7173,
+      "RMSE": 13.8647,
+      "R2": -0.1323,
+      "bias": 0.0698,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
     }
   },
   "risk_level_evaluation": {

@@ -1,0 +1,27 @@
+version: v1.3
+source_of_truth: config/horizons.yaml
+time_step_minutes: 10
+lookback_hours: 12
+horizon_minutes: 120
+anchors:
+  H1:
+    offset_minutes: 30
+    step_index: 2
+    role: near_term_dispatch_anchor
+  H2:
+    offset_minutes: 60
+    step_index: 5
+    role: short_term_dispatch_anchor
+  H3:
+    offset_minutes: 90
+    step_index: 8
+    role: medium_term_dispatch_anchor
+  H4:
+    offset_minutes: 120
+    step_index: 11
+    role: max_operational_dispatch_anchor
+anchor_offsets_minutes: [30, 60, 90, 120]
+policy:
+  port_local_postprocess_applies_uniformly_to_all_horizons: true
+  horizon_decay_enabled: false
+  rationale: Conservative dispatch-risk design keeps KHWD realtime safety overrides on H1-H4.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-09T12:59:26+08:00",
+  "generated_at": "2026-07-10T21:15:55+08:00",
   "model_version": "nearby_cwa_v32",
   "nearby_cwa_historical_model_trained": true,
   "readiness": {
@@ -21,5 +21,5 @@
     "failed_reasons": [],
     "warnings": []
   },
-  "model_manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\model_manifest.json"
+  "model_manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\model_manifest.json"
 }

@@ -1,0 +1,71 @@
+version: v1.3
+target_area: Kaohsiung Port
+purpose: Seasonal wind and station-zone context for feature engineering and model audit.
+
+seasonal_prevalent_wind:
+  autumn:
+    prevalent_direction: WNW/NW
+    representative_stations: [KHWD01]
+  winter:
+    prevalent_direction: NNE/NE
+    secondary_inner_harbor_direction: NW/ENE
+    representative_stations: [KHWD01, KHWD07]
+  spring:
+    prevalent_direction: WNW/W
+    representative_stations: [KHWD01, KHWD04]
+  summer:
+    prevalent_direction: W
+    representative_stations: [KHWD01, KHWD04, KHWD07]
+
+zones:
+  first_harbor:
+    reference_point: {lon: 120.283, lat: 22.617}
+    stations: [KHWD01, C0V490]
+  second_harbor:
+    reference_point: {lon: 120.34, lat: 22.552}
+    stations: [KHWD04, KHWD05, KHWD06, C0V840, C0V450]
+  qianzhen_container_area:
+    reference_point: {lon: 120.304, lat: 22.574}
+    stations: [KHWD07, C0V890]
+  north_background:
+    stations: [C0V810]
+  south_background:
+    stations: [C0V900]
+
+upstream_downstream_pairs:
+  - season: summer
+    wind_from: W
+    upstream_station_ids: [C0V490, C0V810]
+    downstream_station_ids: [KHWD04, KHWD05, KHWD06]
+    lead_time_note: Upstream station changes may lead mid-port station changes and can be used as lag feature candidates; actual lead time has not been empirically verified.
+    rationale: Summer prevailing wind is mainly from the west; western and northwestern CWA stations are treated as candidate upstream references for the central harbor wind stations.
+  - season: winter
+    wind_from: NNE/NE
+    upstream_station_ids: [C0V810, C0V890]
+    downstream_station_ids: [KHWD01, KHWD07]
+    lead_time_note: Upstream station changes may lead inner-harbor and Qianzhen-area station changes and can be used as lag feature candidates; actual lead time has not been empirically verified.
+    rationale: Winter prevailing wind is mainly from north-northeast to northeast; northern/eastern nearby CWA stations are treated as upstream references.
+  - season: autumn
+    wind_from: WNW/NW
+    upstream_station_ids: [C0V490, C0V810]
+    downstream_station_ids: [KHWD01]
+    lead_time_note: Upstream station changes may lead first-harbor station changes and can be used as lag feature candidates; actual lead time has not been empirically verified.
+    rationale: Autumn prevailing wind is west-northwest to northwest; Gushan and Zuoying are candidate upstream references for first-harbor wind.
+  - season: spring
+    wind_from: WNW/W
+    upstream_station_ids: [C0V490]
+    downstream_station_ids: [KHWD01, KHWD04]
+    lead_time_note: Upstream station changes may lead first/second-harbor station changes and can be used as lag feature candidates; actual lead time has not been empirically verified.
+    rationale: Spring prevailing wind is west-northwest to west; Gushan is the primary upstream reference for first and second harbor wind stations.
+  - season: typhoon
+    wind_from: path_dependent
+    upstream_station_ids: []
+    downstream_station_ids: []
+    lead_time_note: No fixed upstream/downstream lag assumption is applied during typhoon conditions.
+    rationale: Typhoon wind direction changes sharply with storm track and circulation quadrant; normal seasonal upstream/downstream assumptions are disabled.
+
+metadata_gaps:
+  - station_id: KHWD08
+    missing: [lon, lat, height_m, sensor_type, precise_location_description]
+    metadata_status: unavailable_not_pursued
+    action: Exclude permanently from spatial feature inputs because metadata is not publicly released.

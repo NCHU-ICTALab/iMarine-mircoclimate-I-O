@@ -44,7 +44,9 @@ try:
     from .risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from .risk.level_mapping import (
         LEVEL_ORDER,
+        map_rain_amount_to_level,
         map_rain_probability_to_level,
+        rain_amount_level_basis,
         map_wind_gust_to_level,
         map_wind_gust_to_operation_level,
         map_wind_speed_to_level,
@@ -86,7 +88,9 @@ except ImportError:  # pragma: no cover
     from risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from risk.level_mapping import (
         LEVEL_ORDER,
+        map_rain_amount_to_level,
         map_rain_probability_to_level,
+        rain_amount_level_basis,
         map_wind_gust_to_level,
         map_wind_gust_to_operation_level,
         map_wind_speed_to_level,
@@ -492,6 +496,9 @@ def predict_dispatch_risk_v25(
     dispatch_levels = aggregate_dispatch_risk(rain_levels, wind_levels, gust_levels, None, None, cfg)
     reliability = reliability_profile(cfg)
     trigger_priority = cfg.get("risk_trigger", {}).get("trigger_priority", ["wind_gust", "wind_speed", "rain_probability", "visibility", "tide"])
+    rain_amount_result = _predict_nearby_precipitation_amounts(project, nearby_observations, recent_observations)
+    rain_amounts = rain_amount_result["amounts"]
+    rain_amounts = _condition_rain_amounts_on_probability(rain_amounts, final_rain_probs, cfg)
 
     wind_by_label = {item["label"]: item for item in wind["anchors"]}
     forecast_anchors = []
@@ -542,6 +549,14 @@ def predict_dispatch_risk_v25(
                     ),
                     "final_probability": round(float(final_rain_probs.get(label, 0.0)), 4),
                     "level": rain_levels.get(label, "normal"),
+                    "predicted_amount_mm": _rounded_or_none(rain_amounts.get(label)),
+                    "amount_level": (
+                        map_rain_amount_to_level(float(rain_amounts[label]), 1, cfg)
+                        if rain_amounts.get(label) is not None
+                        else None
+                    ),
+                    "amount_level_basis": rain_amount_level_basis(1),
+                    "amount_source": rain_amount_result["source"],
                     "confidence": reliability.get("rain_probability", "low_to_medium"),
                     "source_detail": source_detail,
                 },
@@ -580,6 +595,7 @@ def predict_dispatch_risk_v25(
             }
         )
 
+    _attach_rain_amount_accumulation(forecast_anchors, cfg)
     nearby_count = len(nearby.get("station_values_1hr", {}) or {})
     scope = cfg.get("spatial_scope", {})
     return {
@@ -804,6 +820,10 @@ def predict_dispatch_risk_v27(
 
     decision = station_context["station_priority_report"]["mode_decision"]
     nearby_df = pd.DataFrame()
+    nearby_cwa_precip_df = _latest_observations_from_station_ids(
+        station_context["station_frames"],
+        _station_ids_by_role(station_pool_config, "nearby_cwa_live_reference"),
+    )
     if decision["prediction_mode"] == "port_local_postprocess":
         nearby_df = _latest_observations_from_station_ids(
             station_context["station_frames"],
@@ -813,7 +833,7 @@ def predict_dispatch_risk_v27(
     result = predict_dispatch_risk_v25(
         fallback_station_id,
         fallback_observations,
-        nearby_df,
+        nearby_cwa_precip_df if not nearby_cwa_precip_df.empty else nearby_df,
         cwa_forecast,
         tide_observations,
         visibility_observations,
@@ -835,6 +855,13 @@ def predict_dispatch_risk_v27(
 
     summary = _station_priority_summary(cfg, str(target_area or "KHH"), station_context, decision, fallback_station_id)
     result["station_priority_summary"] = summary
+    _apply_dispatch_anchor_time(
+        result,
+        prediction_mode=summary["prediction_mode"],
+        station_context=station_context,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+    )
     data_availability = result.setdefault("data_availability", {})
     data_availability.update(
         {
@@ -864,6 +891,11 @@ def predict_dispatch_risk_v27(
             "prediction_mode": summary["prediction_mode"],
             "port_local_model_available": summary["port_local_model_available"],
             "model_retraining_required": summary["model_retraining_required"],
+            "nearby_cwa_live_precipitation_station_ids": list(nearby_cwa_precip_df.get("station_id", pd.Series(dtype=str)).astype(str)) if not nearby_cwa_precip_df.empty else [],
+            "nearby_cwa_live_precipitation_used_for_rain_amount": any(
+                anchor.get("rain", {}).get("amount_source") == "nearby_cwa_live_observations"
+                for anchor in result.get("forecast_anchors", [])
+            ),
         }
     )
     if legacy_target_station_id is not None:
@@ -875,6 +907,110 @@ def predict_dispatch_risk_v27(
             }
         )
     return result
+
+
+def _station_ids_by_role(station_pool_config: dict[str, Any], role: str) -> list[str]:
+    return [
+        str(station.get("station_id"))
+        for station in enabled_input_stations(station_pool_config)
+        if station.get("role") == role or station.get("group_role") == role
+    ]
+
+
+def _apply_dispatch_anchor_time(
+    result: dict[str, Any],
+    prediction_mode: str,
+    station_context: dict[str, Any],
+    fallback_observations: pd.DataFrame | None,
+    cwa_forecast: dict[str, Any] | None,
+) -> None:
+    anchor = _resolve_dispatch_anchor_time(
+        prediction_mode=prediction_mode,
+        station_context=station_context,
+        fallback_observations=fallback_observations,
+        cwa_forecast=cwa_forecast,
+        generated_at=result.get("generated_at"),
+    )
+    base_time = anchor.get("anchor_base_time")
+    if base_time is None:
+        return
+    for item in result.get("forecast_anchors", []):
+        offset = int(item.get("offset_minutes", 0))
+        item["timestamp"] = (base_time + pd.Timedelta(minutes=offset)).isoformat()
+        item["anchor_time_source"] = anchor["anchor_time_source"]
+        item["anchor_time_staleness_minutes"] = anchor["anchor_time_staleness_minutes"]
+    result["anchor_time_source"] = anchor["anchor_time_source"]
+    result["anchor_time_staleness_minutes"] = anchor["anchor_time_staleness_minutes"]
+    result.setdefault("trace", {})["anchor_time_selection"] = {
+        "prediction_mode": prediction_mode,
+        "anchor_time_source": anchor["anchor_time_source"],
+        "anchor_base_time": base_time.isoformat(),
+        "staleness_minutes": anchor["anchor_time_staleness_minutes"],
+    }
+
+
+def _resolve_dispatch_anchor_time(
+    prediction_mode: str,
+    station_context: dict[str, Any],
+    fallback_observations: pd.DataFrame | None,
+    cwa_forecast: dict[str, Any] | None = None,
+    generated_at: str | datetime | None = None,
+) -> dict[str, Any]:
+    candidates: list[tuple[str, pd.Timestamp]] = []
+    frames = station_context.get("station_frames", {})
+    if prediction_mode in {"port_local_postprocess", "port_local_model"}:
+        port_ids = list(station_context.get("available_port_local_station_ids", []))
+        latest = _latest_time_from_frames({sid: frames.get(sid) for sid in port_ids})
+        if latest is not None:
+            candidates.append(("port_local_khwd", latest))
+    elif prediction_mode == "nearby_cwa_historical_model":
+        latest = _latest_time_from_frames(frames)
+        if latest is not None:
+            candidates.append(("nearby_cwa_historical", latest))
+    if prediction_mode in {"fallback_baseline", "single_station_fallback"} or not candidates:
+        fallback_latest = _latest_time_from_frame(fallback_observations)
+        if fallback_latest is not None:
+            candidates.append(("fallback_467441", fallback_latest))
+    cwa_generated = _parse_time((cwa_forecast or {}).get("generated_at"))
+    if cwa_generated is not None and not candidates:
+        candidates.append(("cwa_forecast_generated_at", cwa_generated))
+    if not candidates:
+        return {"anchor_base_time": None, "anchor_time_source": "unavailable", "anchor_time_staleness_minutes": None}
+    source, base = max(candidates, key=lambda item: item[1])
+    generated = _parse_time(generated_at) or pd.Timestamp.now(tz=TAIPEI)
+    staleness = max(0, int((generated - base).total_seconds() // 60))
+    return {"anchor_base_time": base, "anchor_time_source": source, "anchor_time_staleness_minutes": staleness}
+
+
+def _latest_time_from_frames(station_frames: dict[str, pd.DataFrame | None]) -> pd.Timestamp | None:
+    latest_values = [_latest_time_from_frame(frame) for frame in station_frames.values()]
+    latest_values = [value for value in latest_values if value is not None]
+    return max(latest_values) if latest_values else None
+
+
+def _latest_time_from_frame(frame: pd.DataFrame | None) -> pd.Timestamp | None:
+    if frame is None or frame.empty or "obs_time" not in frame.columns:
+        return None
+    times = pd.to_datetime(frame["obs_time"], errors="coerce")
+    if times.dropna().empty:
+        return None
+    return _ensure_taipei_timestamp(times.max())
+
+
+def _parse_time(value: Any) -> pd.Timestamp | None:
+    if value is None:
+        return None
+    parsed = pd.to_datetime(value, errors="coerce")
+    if pd.isna(parsed):
+        return None
+    return _ensure_taipei_timestamp(parsed)
+
+
+def _ensure_taipei_timestamp(value: pd.Timestamp | datetime) -> pd.Timestamp:
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is None:
+        return ts.tz_localize(TAIPEI)
+    return ts.tz_convert(TAIPEI)
 
 
 def predict_dispatch_risk_v28(
@@ -1928,6 +2064,185 @@ def _latest_observations_from_station_ids(station_frames: dict[str, pd.DataFrame
             row["precip_1hr"] = row.get("precipitation_1hr")
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def _rounded_or_none(value: Any, digits: int = 3) -> float | None:
+    if value is None:
+        return None
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return None
+    if np.isnan(numeric):
+        return None
+    return round(numeric, digits)
+
+
+def _predict_nearby_precipitation_amounts(
+    project: Path,
+    nearby_observations: pd.DataFrame | None,
+    fallback_observations: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    labels = ["H1", "H2", "H3", "H4"]
+    manifest_path = project / "models" / "nearby_cwa_v32" / "model_manifest.json"
+    observations, source = _select_precipitation_amount_observations(nearby_observations, fallback_observations)
+    empty = {"amounts": {label: None for label in labels}, "source": source}
+    if observations is None or observations.empty or not manifest_path.exists():
+        return empty
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return empty
+    feature_row = _nearby_precipitation_amount_feature_row(observations)
+    if feature_row.empty:
+        return empty
+    outputs: dict[str, float | None] = {}
+    for label in labels:
+        model_info = manifest.get("models", {}).get(f"precipitation_amount_{label}")
+        model_path_value = model_info.get("model_path") if isinstance(model_info, dict) else model_info
+        if not model_path_value:
+            outputs[label] = None
+            continue
+        model_path = _resolve_model_artifact_path(model_path_value, project)
+        if model_path is None:
+            outputs[label] = None
+            continue
+        try:
+            bundle = joblib.load(model_path)
+            features = list(bundle.get("feature_columns", []))
+            fill = bundle.get("fill_values", {})
+            x = feature_row.reindex(columns=features)
+            x = x.apply(pd.to_numeric, errors="coerce").fillna(pd.Series(fill)).fillna(0.0)
+            outputs[label] = max(0.0, float(bundle["model"].predict(x)[0]))
+        except Exception:
+            outputs[label] = None
+    return {"amounts": outputs, "source": source}
+
+
+def _condition_rain_amounts_on_probability(
+    amounts: dict[str, float | None],
+    probabilities: dict[str, float],
+    cfg: dict[str, Any],
+) -> dict[str, float | None]:
+    threshold = float(
+        cfg.get("rain_amount_regression", {}).get(
+            "inference_probability_threshold",
+            cfg.get("targets", {}).get("precipitation", {}).get("inference_cls_threshold", 0.5),
+        )
+    )
+    conditioned: dict[str, float | None] = {}
+    for label, amount in amounts.items():
+        probability = float(probabilities.get(label, 0.0))
+        if probability < threshold:
+            conditioned[label] = 0.0
+        else:
+            conditioned[label] = amount
+    return conditioned
+
+
+def _attach_rain_amount_accumulation(forecast_anchors: list[dict[str, Any]], cfg: dict[str, Any]) -> None:
+    by_label = {str(anchor.get("label")): anchor for anchor in forecast_anchors}
+    values = []
+    for label in ["H1", "H2", "H3"]:
+        amount = by_label.get(label, {}).get("rain", {}).get("predicted_amount_mm")
+        if amount is None:
+            return
+        values.append(float(amount))
+    total = round(float(sum(values)), 3)
+    level = map_rain_amount_to_level(total, 3, cfg)
+    estimate = {
+        "predicted_amount_mm": total,
+        "amount_level": level,
+        "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
+        "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation.",
+    }
+    for label, anchor in by_label.items():
+        rain = anchor.get("rain", {})
+        if label in {"H1", "H2", "H3"}:
+            rain["three_hour_accumulation_estimate"] = estimate
+
+
+def _resolve_model_artifact_path(model_path_value: str, project: Path) -> Path | None:
+    """Resolve a manifest-stored model path against `project`, independent of CWD.
+
+    Manifest entries have historically stored paths two different ways: relative to
+    the outer repo root (including a leading "kaohsiung_microclimate_lstm/" segment)
+    or relative to `project` itself. Naively doing `project / model_path` when the
+    value already includes that prefix produces a doubled, nonexistent path
+    (e.g. ".../kaohsiung_microclimate_lstm/kaohsiung_microclimate_lstm/models/...").
+    Anchoring on the known "models/..." suffix avoids depending on CWD or on which
+    convention a given manifest entry happens to use.
+    """
+    candidate = Path(model_path_value)
+    if candidate.is_absolute() and candidate.exists():
+        return candidate
+    parts = candidate.parts
+    if "models" in parts:
+        suffix = parts[parts.index("models"):]
+        resolved = project.joinpath(*suffix)
+        if resolved.exists():
+            return resolved
+    direct = project / candidate
+    if direct.exists():
+        return direct
+    return None
+
+
+def _select_precipitation_amount_observations(
+    nearby_observations: pd.DataFrame | None,
+    fallback_observations: pd.DataFrame | None,
+) -> tuple[pd.DataFrame | None, str]:
+    if _has_precipitation_column(nearby_observations):
+        station_ids = set(nearby_observations.get("station_id", pd.Series(dtype=str)).astype(str)) if "station_id" in nearby_observations.columns else set()
+        if station_ids and all(station_id.startswith("C0V") for station_id in station_ids):
+            return nearby_observations, "nearby_cwa_live_observations"
+        return nearby_observations, "nearby_observations"
+    if _has_precipitation_column(fallback_observations):
+        return fallback_observations, "fallback_observations"
+    return None, "unavailable"
+
+
+def _has_precipitation_column(frame: pd.DataFrame | None) -> bool:
+    return frame is not None and not frame.empty and ("precipitation_1hr" in frame.columns or "precip_1hr" in frame.columns)
+
+
+def _nearby_precipitation_amount_feature_row(nearby_observations: pd.DataFrame) -> pd.DataFrame:
+    work = nearby_observations.copy()
+    if "obs_time" in work.columns:
+        work["obs_time"] = pd.to_datetime(work["obs_time"], errors="coerce")
+        work = work.dropna(subset=["obs_time"])
+    if work.empty:
+        return pd.DataFrame()
+    row: dict[str, Any] = {}
+    precip_source = work["precipitation_1hr"] if "precipitation_1hr" in work.columns else work.get("precip_1hr")
+    if precip_source is None:
+        return pd.DataFrame()
+    precip = pd.to_numeric(precip_source, errors="coerce")
+    if precip.dropna().empty:
+        return pd.DataFrame()
+    row["nearby_cwa_precipitation_1hr_mean"] = float(precip.mean())
+    row["nearby_cwa_precipitation_1hr_max"] = float(precip.max())
+    row["nearby_cwa_precipitation_1hr_max_lag1"] = float(precip.max())
+    row["nearby_cwa_precipitation_1hr_max_roll3"] = float(precip.mean())
+    row["nearby_cwa_precipitation_roll3"] = float(precip.mean())
+    row["nearby_cwa_precipitation_roll6"] = float(precip.mean())
+    row["nearby_cwa_rainy_station_count"] = int((precip.fillna(0.0) > 0.5).sum())
+    row["nearby_cwa_rainy_station_ratio"] = float(row["nearby_cwa_rainy_station_count"] / max(len(precip), 1))
+    if "distance_to_port_km" in work.columns:
+        distances = pd.to_numeric(work["distance_to_port_km"], errors="coerce")
+        weights = 1.0 / (distances.fillna(distances.max()).fillna(0.0) + 1.0)
+        valid = precip.notna() & weights.notna()
+        row["distance_weighted_precipitation"] = float(np.average(precip[valid], weights=weights[valid])) if valid.any() else row["nearby_cwa_precipitation_1hr_mean"]
+    else:
+        row["distance_weighted_precipitation"] = row["nearby_cwa_precipitation_1hr_mean"]
+    latest_time = pd.to_datetime(work["obs_time"], errors="coerce").max() if "obs_time" in work.columns else datetime.now(TAIPEI)
+    hour = latest_time.hour + latest_time.minute / 60.0
+    doy = latest_time.dayofyear
+    row["hour_sin"] = float(np.sin(2 * np.pi * hour / 24.0))
+    row["hour_cos"] = float(np.cos(2 * np.pi * hour / 24.0))
+    row["doy_sin"] = float(np.sin(2 * np.pi * doy / 366.0))
+    row["doy_cos"] = float(np.cos(2 * np.pi * doy / 366.0))
+    return pd.DataFrame([row])
 
 
 def _station_priority_summary(
