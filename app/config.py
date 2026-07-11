@@ -38,6 +38,7 @@ class Settings:
     env: str = os.getenv("ENV", "development")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
+    cors_allowed_origins: str = os.getenv("CORS_ALLOWED_ORIGINS", "*")
 
     @property
     def database_path(self) -> Path:

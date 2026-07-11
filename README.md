@@ -79,8 +79,18 @@ regenerate the training data locally, and how raw data becomes trained models.
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+pip install -r kaohsiung_microclimate_lstm/requirements.txt
 Copy-Item .env.example .env
 ```
+
+Both requirements files are required. `requirements.txt` covers the FastAPI app itself;
+`kaohsiung_microclimate_lstm/requirements.txt` covers the modeling/prediction pipeline
+(pandas, scikit-learn, torch, pyarrow, etc.). The server starts fine with only the first one
+installed, but every dispatch-risk endpoint (`/api/v1/dispatch/risk`, `/dispatch-risk-demo`,
+and friends) will fail at request time without the second, since those imports are lazy.
+
+For frontend integration, set `CORS_ALLOWED_ORIGINS` in `.env` to the frontend's actual
+origin(s) (comma-separated) once known; it defaults to `*` (open) for local development.
 
 Optional CWA API access:
 

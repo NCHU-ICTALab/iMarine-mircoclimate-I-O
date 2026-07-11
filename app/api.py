@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from app.collectors.cwa import collect as collect_cwa
@@ -47,6 +48,16 @@ from app.storage import ObservationStore
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
 app = FastAPI(title="TWPort Microclimate API", version="0.1.0")
+
+_cors_origins = [origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins or ["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 store = ObservationStore(settings.database_path)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
