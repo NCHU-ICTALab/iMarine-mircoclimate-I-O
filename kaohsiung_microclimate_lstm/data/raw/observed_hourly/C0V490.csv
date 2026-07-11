@@ -1,3 +1,4 @@
 station_id,station_name,obs_time,wind_speed,wind_gust,wind_direction,precipitation_1hr,tide_level,visibility,source,data_id,fetched_at
 C0V490,新興,2026-07-10T20:00:00+08:00,3.9,,351.0,0.0,,,cwa_nearby_current,O-A0001-001,2026-07-10T12:36:55.569994+00:00
 C0V490,新興,2026-07-10T21:00:00+08:00,2.5,9.0,1.0,0.0,,,cwa_nearby_current,O-A0001-001,2026-07-10T13:32:35.120413+00:00
+C0V490,新興,2026-07-11T09:00:00+08:00,2.8,17.8,357.0,6.5,,,cwa_nearby_current,O-A0001-001,2026-07-11T02:07:10.630435+00:00

@@ -801,3 +801,16 @@ seasonal_wind_context:
     summer:
       prevalent_direction: W
       note: KHWD01, KHWD04, and KHWD07 reported W.
+
+auto_fetch_scheduler:
+  enabled: false
+  implementation: app.scheduler.MicroclimateFetchScheduler
+  jobs:
+    port_local:
+      interval_minutes: 10
+    marine_realtime:
+      interval_minutes: 240
+    nearby_cwa_live:
+      interval_minutes: 15
+    cwa_forecast_history:
+      interval_minutes: 180

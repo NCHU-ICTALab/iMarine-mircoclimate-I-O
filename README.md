@@ -53,6 +53,8 @@ GET /api/v1/dispatch/risk?target_area=KHH
 GET /api/v1/dispatch/model-status?target_area=KHH
 GET /api/v1/dispatch/station-usage?target_area=KHH
 GET /api/v1/dispatch/system-audit?target_area=KHH
+POST /admin/fetch-microclimate-sources
+GET /admin/scheduler-status
 ```
 
 ## Project Layout
@@ -82,6 +84,34 @@ CWA_API_KEY=your-cwa-open-data-key
 ```
 
 Do not commit real API keys.
+
+## Data Refresh Controls
+
+The dispatch demo page includes a `抓取最新資料` button. It calls:
+
+```text
+POST /admin/fetch-microclimate-sources
+```
+
+That endpoint runs the same four source refreshers used by the scheduler foundation:
+
+- KHWD/KHTD/KHAW port-local observations
+- O-B0075-001 marine realtime observations
+- nearby CWA live observations for the six C0V stations
+- CWA forecast release history logging
+
+Automatic refresh is prepared but disabled by default to avoid extra background memory use. To enable it later, edit `kaohsiung_microclimate_lstm/config.yaml`:
+
+```yaml
+auto_fetch_scheduler:
+  enabled: true
+```
+
+Then restart the API service. Default intervals are KHWD 10 minutes, marine realtime 240 minutes, nearby CWA live 15 minutes, and CWA forecast history 180 minutes. Check status with:
+
+```text
+GET /admin/scheduler-status
+```
 
 ## CLI
 

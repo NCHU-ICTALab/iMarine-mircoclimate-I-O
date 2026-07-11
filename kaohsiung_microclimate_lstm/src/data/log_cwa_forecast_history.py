@@ -15,6 +15,23 @@ DEFAULT_HISTORY_ROOT = Path("data/raw/cwa_forecast_history")
 DEFAULT_REPORT_DIR = Path("results/cwa_comparison_v13")
 
 
+def _cwa_verify_ssl() -> bool:
+    """CWA's opendata TLS chain fails strict verification on some OpenSSL builds.
+
+    Mirrors the CWA_VERIFY_SSL toggle already used by fetch_marine_history.py /
+    fetch_nearby_cwa_current.py / app/config.py.
+    """
+    value = os.environ.get("CWA_VERIFY_SSL")
+    if value is None:
+        env_path = Path(".env")
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                if line.strip().startswith("CWA_VERIFY_SSL="):
+                    value = line.split("=", 1)[1].strip().strip('"').strip("'")
+                    break
+    return str(value).strip().lower() != "false" if value is not None else True
+
+
 def write_cwa_forecast_snapshot(
     payload: dict[str, Any],
     data_id: str = DEFAULT_DATA_ID,
@@ -43,6 +60,7 @@ def collect_cwa_forecast_history(
     base_url: str = "https://opendata.cwa.gov.tw/api/v1/rest/datastore",
     session: Any | None = None,
     timeout_seconds: int = 20,
+    verify_ssl: bool | None = None,
 ) -> dict[str, Any]:
     import requests
 
@@ -50,11 +68,13 @@ def collect_cwa_forecast_history(
     if not token:
         raise ValueError("CWA API key is required via api_key or CWA_API_KEY.")
     client = session or requests
+    verify = verify_ssl if verify_ssl is not None else _cwa_verify_ssl()
     fetched_at = datetime.now(TAIPEI)
     response = client.get(
         f"{base_url.rstrip('/')}/{data_id}",
         params={"Authorization": token, "format": "JSON"},
         timeout=timeout_seconds,
+        verify=verify,
     )
     response.raise_for_status()
     payload = response.json()

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T09:35:54+08:00",
+  "generated_at": "2026-07-11T10:08:14+08:00",
   "selected_mode": "port_local_postprocess",
   "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
   "fallback_chain": [

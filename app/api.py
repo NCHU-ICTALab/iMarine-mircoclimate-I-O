@@ -39,6 +39,8 @@ from app.contracts import (
     testing_spec_response,
 )
 from app.forecast_engine import build_wind_forecast
+from app.fetch_microclimate import run_microclimate_source_fetch
+from app.scheduler import MicroclimateFetchScheduler
 from app.storage import ObservationStore
 
 
@@ -48,6 +50,18 @@ app = FastAPI(title="TWPort Microclimate API", version="0.1.0")
 store = ObservationStore(settings.database_path)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
+MICROCLIMATE_CONFIG_PATH = MICROCLIMATE_PROJECT_ROOT / "config.yaml"
+fetch_scheduler = MicroclimateFetchScheduler(MICROCLIMATE_PROJECT_ROOT, MICROCLIMATE_CONFIG_PATH)
+
+
+@app.on_event("startup")
+def startup_scheduler() -> None:
+    fetch_scheduler.start()
+
+
+@app.on_event("shutdown")
+def shutdown_scheduler() -> None:
+    fetch_scheduler.shutdown()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -399,6 +413,16 @@ async def fetch_all(wind_mode: int = Query(1)) -> dict:
     }
 
 
+@app.post("/admin/fetch-microclimate-sources")
+def fetch_microclimate_sources() -> dict:
+    return run_microclimate_source_fetch(MICROCLIMATE_PROJECT_ROOT, MICROCLIMATE_CONFIG_PATH)
+
+
+@app.get("/admin/scheduler-status")
+def scheduler_status() -> dict:
+    return fetch_scheduler.status()
+
+
 @app.get("/microclimate/current")
 def current() -> dict:
     observations = store.latest_by_device_type()
@@ -565,6 +589,7 @@ def _render_dispatch_risk_demo_v34() -> str:
   </header>
   <main class="wrap">
     <div class="toolbar">
+      <button id="fetch-latest" class="secondary" type="button">抓取最新資料</button>
       <label>目標港區<input id="target-area" value="KHH"></label>
       <label><input id="no-khwd" type="checkbox" style="width:auto; min-height:auto"> 模擬 KHWD 不可用</label>
       <button id="refresh" type="button">更新</button>
@@ -762,7 +787,28 @@ def _render_dispatch_risk_demo_v34() -> str:
       }
     }
 
+    async function fetchLatestSources() {
+      $("fetch-latest").disabled = true;
+      $("refresh").disabled = true;
+      $("status").textContent = "正在抓取最新資料...";
+      try {
+        const response = await fetch("/admin/fetch-microclimate-sources", { method: "POST" });
+        const payload = await response.json();
+        if (!response.ok || payload.error) throw new Error(payload.detail || payload.error || `HTTP ${response.status}`);
+        const ok = payload.success_count ?? 0;
+        const total = payload.task_count ?? 0;
+        $("status").textContent = `抓取完成：${ok}/${total}，正在更新派工預測...`;
+        await loadRisk();
+      } catch (error) {
+        $("status").textContent = `抓取失敗：${error.message}`;
+      } finally {
+        $("fetch-latest").disabled = false;
+        $("refresh").disabled = false;
+      }
+    }
+
     $("refresh").addEventListener("click", loadRisk);
+    $("fetch-latest").addEventListener("click", fetchLatestSources);
     $("target-area").addEventListener("keydown", event => { if (event.key === "Enter") loadRisk(); });
     $("no-khwd").addEventListener("change", loadRisk);
     loadRisk();
