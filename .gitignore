@@ -8,6 +8,8 @@ __pycache__/
 .pytest_cache/
 .tmp_pytest*/
 kaohsiung_microclimate_lstm/data/cache/
+kaohsiung_microclimate_lstm/data/raw/historical_weather/
+kaohsiung_microclimate_lstm/data/processed/
 *規格書*.md
 codex_*_prompt.md
 .agents/

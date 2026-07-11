@@ -61,12 +61,17 @@ GET /admin/scheduler-status
 
 ```text
 app/                            FastAPI app, collectors, storage, API contracts
-microclimate/                   Legacy microclimate service modules
 kaohsiung_microclimate_lstm/    Modeling, training, prediction, risk, and audit pipeline
 tests/                          Main project tests
 docs/                           Contracts, operations notes, and implementation audit files
-cwa_rain_fetcher/               Separate CWA rainfall fetcher subproject
 ```
+
+Raw training data (`kaohsiung_microclimate_lstm/data/raw/historical_weather/`) and processed
+training-pipeline intermediates (`kaohsiung_microclimate_lstm/data/processed/`) are not tracked
+in git — they are large and can be regenerated from public sources. Trained model artifacts
+under `kaohsiung_microclimate_lstm/models/` are tracked, so the API works out of the box without
+retraining. See [`docs/dataset_guide.md`](docs/dataset_guide.md) for data sources, how to
+regenerate the training data locally, and how raw data becomes trained models.
 
 ## Setup
 
@@ -145,11 +150,13 @@ Run the main project test suite:
 python -m pytest
 ```
 
-The root `pytest.ini` intentionally scopes default tests to `tests/`. The `cwa_rain_fetcher/` folder is a separate subproject with its own `app` package name and should be tested from that folder when needed.
+The root `pytest.ini` intentionally scopes default tests to `tests/`.
 
 ## Specification Files
 
-The active v1.3 specification and earlier v2.0 specification files are stored at the repository root:
+The active v1.3 specification and earlier v2.0 specification files are stored at the repository
+root, but are excluded from git (`*規格書*.md` in `.gitignore`) since they are working documents
+for coordinating implementation rounds, not shipped project artifacts:
 
 ```text
 高雄港微氣候預測_專案規格書_v1.3.md
@@ -161,5 +168,4 @@ Implementation progress is tracked in:
 
 ```text
 docs/spec_v13_implementation_summary.md
-docs/spec_v20_implementation_audit.md
 ```
