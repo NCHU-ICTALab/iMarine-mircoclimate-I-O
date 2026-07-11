@@ -667,7 +667,7 @@ def _render_dispatch_risk_demo_v34() -> str:
     const levelClass = level => (text(level, "normal")).toLowerCase();
     const levelLabels = { normal: "正常", watch: "注意", warning: "警戒", high_risk: "高風險", stop: "停止", unavailable: "無法取得", none: "無" };
     const pill = level => `<span class="pill ${levelClass(level)}">${levelLabels[levelClass(level)] || text(level)}</span>`;
-    const actionLabels = { normal_dispatch: "正常派工", observe_only: "觀察", restrict_sensitive: "限制敏感作業", high_risk_restriction: "限制敏感作業", stop_dispatch: "停止作業" };
+    const actionLabels = { normal_dispatch: "正常派工", observe_only: "觀察", monitor: "監控", restrict_sensitive_tasks: "限制敏感作業", delay_high_risk_tasks: "延後高風險作業", suspend_exposed_tasks: "暫停暴露作業" };
     const triggerLabels = { wind_gust: "陣風", wind_speed: "風速", rain_probability: "降雨機率", visibility: "能見度", tide: "潮位", none: "無" };
     const statusLabels = { available: "可用", not_available: "不可用", unknown: "未知", disabled: "已停用", fallback_available: "備援可用", degraded: "降級", ok: "正常" };
     const statusText = value => statusLabels[value] || text(value);
@@ -704,7 +704,7 @@ def _render_dispatch_risk_demo_v34() -> str:
         const threeHour = anchor.rain?.three_hour_accumulation_estimate;
         const amount = anchor.rain?.predicted_amount_mm;
         const trigger = anchor.risk_trigger_detail || {};
-        const actionLabel = actionLabels[anchor.dispatch_action_level] || text(anchor.dispatch_action_level);
+        const actionLabel = anchor.dispatch_action?.action_label || actionLabels[anchor.dispatch_action_level] || text(anchor.dispatch_action_level);
         const triggerText = trigger.primary_trigger && trigger.primary_trigger !== "none"
           ? `<strong>觸發來源：${triggerLabels[trigger.primary_trigger] || text(trigger.primary_trigger)}</strong>（${levelLabels[levelClass(trigger.primary_trigger_level)] || text(trigger.primary_trigger_level)}）${trigger.is_low_reliability_trigger ? "，可靠度較低，建議觀察" : ""}`
           : "五項風險皆為正常，無觸發項目。";
