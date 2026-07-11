@@ -1,0 +1,49 @@
+{
+  "path": "kaohsiung_microclimate_lstm\\data\\raw\\observed_hourly\\467441.csv",
+  "row_count": 4144,
+  "columns_preserved": [
+    "station_id",
+    "station_name",
+    "obs_time",
+    "wind_speed",
+    "wind_gust",
+    "wind_direction",
+    "precipitation_1hr",
+    "tide_level",
+    "visibility"
+  ],
+  "cleaned_columns": {
+    "wind_speed": {
+      "range": [
+        0.0,
+        100.0
+      ],
+      "invalid_count": 0,
+      "negative_count_after": 0
+    },
+    "wind_gust": {
+      "range": [
+        0.0,
+        120.0
+      ],
+      "invalid_count": 0,
+      "negative_count_after": 0
+    },
+    "precipitation_1hr": {
+      "range": [
+        0.0,
+        500.0
+      ],
+      "invalid_count": 159,
+      "negative_count_after": 0
+    },
+    "visibility": {
+      "range": [
+        0.0,
+        100000.0
+      ],
+      "invalid_count": 0,
+      "negative_count_after": 0
+    }
+  }
+}

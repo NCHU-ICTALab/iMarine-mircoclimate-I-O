@@ -13,6 +13,7 @@
 - rain-event-only 雨量訓練在正式評估中變差，未採用：`train_on_rain_events_only: false`。
 - 預測端已支援 `target_transform=log1p` 時用 `expm1()` 還原雨量輸出，避免線上輸出停留在 log 尺度。
 - KHWD08 metadata 語意已對齊規格書：已確認非公開、不再追蹤；KHWD08 僅作即時校核，不用於需要座標的空間特徵。
+- 第 17 項已完成：`data/raw/observed_hourly/467441.csv` 的 159 筆負雨量缺值碼已依 `PHYSICAL_RANGE_LIMITS` 轉為空值，清理後負雨量筆數為 0。
 
 ## 正式評估
 
@@ -37,6 +38,9 @@
 - `nearby_cwa_precipitation_1hr_mean` 負值筆數：0
 - `distance_weighted_precipitation` 負值筆數：0
 - `target_nearby_precipitation_amount_H1` 負值筆數：0
+- `467441.csv precipitation_1hr` 負值筆數：0
+
+467441 清理報告：`kaohsiung_microclimate_lstm/results/dispatch_risk_v35/observed_hourly_467441_cleaning_report.json`
 
 ## 已對齊的既有項目
 
