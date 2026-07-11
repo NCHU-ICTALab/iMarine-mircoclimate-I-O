@@ -634,24 +634,22 @@ def _render_dispatch_risk_demo_v34() -> str:
         </table>
       </div>
     </section>
-    <section class="grid wide">
-      <div class="panel">
-        <h2>資料期間</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>資料集</th><th>角色</th><th>起始</th><th>結束</th><th>天數</th><th>筆數</th><th>狀態</th></tr></thead>
-            <tbody id="dataset-rows"></tbody>
-          </table>
-        </div>
+    <section class="panel" style="margin-top:16px;">
+      <h2>資料期間</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>資料集</th><th>角色</th><th>起始</th><th>結束</th><th>天數</th><th>筆數</th><th>狀態</th></tr></thead>
+          <tbody id="dataset-rows"></tbody>
+        </table>
       </div>
-      <div class="panel">
-        <h2>模型指標</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>模型</th><th>狀態</th><th>風速 H1 MAE</th><th>陣風 H1 MAE</th><th>降雨 Brier</th><th>已核准</th></tr></thead>
-            <tbody id="metric-rows"></tbody>
-          </table>
-        </div>
+    </section>
+    <section class="panel" style="margin-top:16px;">
+      <h2>模型指標</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th><th>狀態</th><th>風速 H1 MAE</th><th>陣風 H1 MAE</th><th>降雨 Brier</th><th>已核准</th></tr></thead>
+          <tbody id="metric-rows"></tbody>
+        </table>
       </div>
     </section>
     <section class="panel">
@@ -667,8 +665,12 @@ def _render_dispatch_risk_demo_v34() -> str:
     const row = (label, value) => `<div class="row"><span>${label}</span><span>${value}</span></div>`;
     const metric = (label, value, sub = "") => `<div class="panel"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="muted small">${sub}</div></div>`;
     const levelClass = level => (text(level, "normal")).toLowerCase();
-    const pill = level => `<span class="pill ${levelClass(level)}">${text(level)}</span>`;
+    const levelLabels = { normal: "正常", watch: "注意", warning: "警戒", high_risk: "高風險", stop: "停止", unavailable: "無法取得", none: "無" };
+    const pill = level => `<span class="pill ${levelClass(level)}">${levelLabels[levelClass(level)] || text(level)}</span>`;
     const actionLabels = { normal_dispatch: "正常派工", observe_only: "觀察", restrict_sensitive: "限制敏感作業", high_risk_restriction: "限制敏感作業", stop_dispatch: "停止作業" };
+    const triggerLabels = { wind_gust: "陣風", wind_speed: "風速", rain_probability: "降雨機率", visibility: "能見度", tide: "潮位", none: "無" };
+    const statusLabels = { available: "可用", not_available: "不可用", unknown: "未知", disabled: "已停用", fallback_available: "備援可用", degraded: "降級", ok: "正常" };
+    const statusText = value => statusLabels[value] || text(value);
 
     function renderAudit(audit) {
       const cards = audit.dashboard_cards || [];
@@ -678,17 +680,17 @@ def _render_dispatch_risk_demo_v34() -> str:
         <tr>
           <td>${text(item.source_id)}</td><td>${text(item.source_type)}</td><td>${text(item.role)}</td>
           <td>${(item.used_for || []).join(", ")}</td><td>${item.used_as_model_input ? "是" : "否"}</td>
-          <td>${item.used_for_current_prediction ? "是" : "否"}</td><td>${text(item.status)}</td>
+          <td>${item.used_for_current_prediction ? "是" : "否"}</td><td>${statusText(item.status)}</td>
         </tr>`).join("");
       $("dataset-rows").innerHTML = (tables.dataset_durations || []).map(item => `
         <tr>
           <td>${text(item.dataset_id)}</td><td>${text(item.role)}</td><td>${text(item.time_start, "無資料")}</td>
           <td>${text(item.time_end, "無資料")}</td><td>${text(item.duration_days, "無資料")}</td>
-          <td>${text(item.total_rows, "無資料")}</td><td>${text(item.status)}</td>
+          <td>${text(item.total_rows, "無資料")}</td><td>${statusText(item.status)}</td>
         </tr>`).join("");
       $("metric-rows").innerHTML = (tables.model_metrics || []).map(item => `
         <tr>
-          <td>${text(item.model_id)}</td><td>${text(item.activation_status || item.metrics_status)}</td>
+          <td>${text(item.model_id)}</td><td>${statusText(item.activation_status || item.metrics_status)}</td>
           <td>${text(item.metrics?.wind_speed?.H1?.mae_mps, "無資料")}</td>
           <td>${text(item.metrics?.wind_gust?.H1?.mae_mps, "無資料")}</td>
           <td>${text(item.metrics?.rain_probability?.H1?.brier_score, "無資料")}</td>
@@ -704,8 +706,8 @@ def _render_dispatch_risk_demo_v34() -> str:
         const trigger = anchor.risk_trigger_detail || {};
         const actionLabel = actionLabels[anchor.dispatch_action_level] || text(anchor.dispatch_action_level);
         const triggerText = trigger.primary_trigger && trigger.primary_trigger !== "none"
-          ? `<strong>觸發來源：${text(trigger.primary_trigger)}</strong>（${text(trigger.primary_trigger_level)}）${trigger.is_low_reliability_trigger ? "，可靠度較低，建議觀察" : ""}`
-          : "五項風險皆為 normal，無觸發項目。";
+          ? `<strong>觸發來源：${triggerLabels[trigger.primary_trigger] || text(trigger.primary_trigger)}</strong>（${levelLabels[levelClass(trigger.primary_trigger_level)] || text(trigger.primary_trigger_level)}）${trigger.is_low_reliability_trigger ? "，可靠度較低，建議觀察" : ""}`
+          : "五項風險皆為正常，無觸發項目。";
         return `
         <div class="anchor-card ${level}">
           <div>
