@@ -1,0 +1,250 @@
+{
+  "model_version": "nearby_cwa_v32",
+  "nearby_cwa_historical_model_trained": true,
+  "feature_columns": [
+    "nearby_cwa_station_count",
+    "nearby_cwa_wind_speed_mean",
+    "nearby_cwa_wind_speed_max",
+    "nearby_cwa_wind_speed_min",
+    "nearby_cwa_wind_speed_std",
+    "nearby_cwa_valid_wind_station_count",
+    "nearby_cwa_wind_gust_mean",
+    "nearby_cwa_wind_gust_max",
+    "nearby_cwa_wind_gust_min",
+    "nearby_cwa_wind_gust_std",
+    "nearby_cwa_valid_gust_station_count",
+    "nearby_cwa_precipitation_1hr_mean",
+    "nearby_cwa_precipitation_1hr_max",
+    "nearby_cwa_rainy_station_count",
+    "nearby_cwa_rainy_station_ratio",
+    "nearby_cwa_wind_direction_sin_mean",
+    "nearby_cwa_wind_direction_cos_mean",
+    "nearby_cwa_gust_direction_sin_mean",
+    "nearby_cwa_gust_direction_cos_mean",
+    "distance_weighted_wind_speed",
+    "distance_weighted_wind_gust",
+    "distance_weighted_precipitation",
+    "upstream_subset_season_code",
+    "upstream_subset_station_count",
+    "upstream_subset_wind_speed_mean",
+    "upstream_subset_wind_speed_max",
+    "upstream_subset_wind_gust_mean",
+    "upstream_subset_wind_gust_max",
+    "upstream_subset_precipitation_1hr_mean",
+    "upstream_subset_precipitation_1hr_max",
+    "hour_sin",
+    "hour_cos",
+    "doy_sin",
+    "doy_cos",
+    "nearby_cwa_wind_speed_max_lag1",
+    "nearby_cwa_wind_speed_max_roll3",
+    "nearby_cwa_wind_gust_max_lag1",
+    "nearby_cwa_wind_gust_max_roll3",
+    "nearby_cwa_precipitation_1hr_max_lag1",
+    "nearby_cwa_precipitation_1hr_max_roll3",
+    "nearby_cwa_precipitation_roll3",
+    "nearby_cwa_precipitation_roll6",
+    "upstream_subset_wind_speed_max_lag1",
+    "upstream_subset_wind_speed_max_roll3",
+    "upstream_subset_wind_gust_max_lag1",
+    "upstream_subset_wind_gust_max_roll3",
+    "upstream_subset_precipitation_1hr_max_lag1",
+    "upstream_subset_precipitation_1hr_max_roll3",
+    "upstream_subset_precipitation_roll3",
+    "upstream_subset_precipitation_roll6"
+  ],
+  "upstream_lead_feature_columns": [
+    "upstream_subset_season_code",
+    "upstream_subset_station_count",
+    "upstream_subset_wind_speed_mean",
+    "upstream_subset_wind_speed_max",
+    "upstream_subset_wind_gust_mean",
+    "upstream_subset_wind_gust_max",
+    "upstream_subset_precipitation_1hr_mean",
+    "upstream_subset_precipitation_1hr_max",
+    "upstream_subset_wind_speed_max_lag1",
+    "upstream_subset_wind_speed_max_roll3",
+    "upstream_subset_wind_gust_max_lag1",
+    "upstream_subset_wind_gust_max_roll3",
+    "upstream_subset_precipitation_1hr_max_lag1",
+    "upstream_subset_precipitation_1hr_max_roll3",
+    "upstream_subset_precipitation_roll3",
+    "upstream_subset_precipitation_roll6"
+  ],
+  "wind_speed": {
+    "H1": {
+      "MAE": 0.7309,
+      "RMSE": 1.8118,
+      "R2": -0.2111,
+      "bias": -0.1886,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H2": {
+      "MAE": 0.731,
+      "RMSE": 1.8121,
+      "R2": -0.2111,
+      "bias": -0.1886,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H3": {
+      "MAE": 0.8692,
+      "RMSE": 1.8699,
+      "R2": -0.2898,
+      "bias": -0.2442,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H4": {
+      "MAE": 0.8692,
+      "RMSE": 1.8701,
+      "R2": -0.2898,
+      "bias": -0.2442,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    }
+  },
+  "wind_gust": {
+    "H1": {
+      "MAE": 0.7189,
+      "RMSE": 1.016,
+      "R2": 0.8383,
+      "bias": 0.0465,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H2": {
+      "MAE": 0.719,
+      "RMSE": 1.0161,
+      "R2": 0.8383,
+      "bias": 0.0463,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H3": {
+      "MAE": 1.0068,
+      "RMSE": 1.4051,
+      "R2": 0.6907,
+      "bias": -0.0137,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H4": {
+      "MAE": 1.0069,
+      "RMSE": 1.4053,
+      "R2": 0.6907,
+      "bias": -0.0138,
+      "beats_persistence": true,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    }
+  },
+  "rain_probability": {
+    "H1": {
+      "Brier Score": 0.0241,
+      "AUC": 0.9609,
+      "CSI": 0.5601,
+      "FAR": 0.1809,
+      "POD": 0.6392,
+      "calibration_bins": []
+    },
+    "H2": {
+      "Brier Score": 0.0241,
+      "AUC": 0.9609,
+      "CSI": 0.5601,
+      "FAR": 0.1809,
+      "POD": 0.6392,
+      "calibration_bins": []
+    },
+    "H3": {
+      "Brier Score": 0.0342,
+      "AUC": 0.934,
+      "CSI": 0.3368,
+      "FAR": 0.2538,
+      "POD": 0.3804,
+      "calibration_bins": []
+    },
+    "H4": {
+      "Brier Score": 0.0342,
+      "AUC": 0.934,
+      "CSI": 0.3368,
+      "FAR": 0.2538,
+      "POD": 0.3804,
+      "calibration_bins": []
+    }
+  },
+  "precipitation_amount": {
+    "H1": {
+      "MAE": 0.5817,
+      "RMSE": 3.2077,
+      "R2": 0.0597,
+      "bias": -0.0044,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H2": {
+      "MAE": 0.5818,
+      "RMSE": 3.2081,
+      "R2": 0.0597,
+      "bias": -0.0044,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H3": {
+      "MAE": 0.6677,
+      "RMSE": 2.9653,
+      "R2": 0.1967,
+      "bias": 0.0344,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    },
+    "H4": {
+      "MAE": 0.6679,
+      "RMSE": 2.9657,
+      "R2": 0.1967,
+      "bias": 0.0344,
+      "beats_persistence": false,
+      "level_accuracy": null,
+      "critical_under_warning_count": 0,
+      "algorithm": "random_forest",
+      "actual_estimator": "RandomForestRegressor"
+    }
+  },
+  "risk_level_evaluation": {
+    "critical_under_warning_count": 0,
+    "level_accuracy": null
+  }
+}

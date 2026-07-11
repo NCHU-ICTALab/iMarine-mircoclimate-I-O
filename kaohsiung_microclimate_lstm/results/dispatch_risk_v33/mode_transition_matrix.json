@@ -6,7 +6,7 @@
     "nearby_cwa_historical_model",
     "fallback_baseline"
   ],
-  "selected_mode": "nearby_cwa_historical_model",
+  "selected_mode": "port_local_postprocess",
   "transitions": [
     {
       "mode": "port_local_model",
@@ -21,13 +21,11 @@
     },
     {
       "mode": "port_local_postprocess",
-      "eligible": false,
+      "eligible": true,
       "reason_codes": [
-        "KHWD_REALTIME_DISABLED_BY_REQUEST",
-        "KHWD_REALTIME_UNAVAILABLE",
-        "VALID_KHWD_STATION_COUNT_LT_2"
+        "VALID_KHWD_REALTIME_AVAILABLE"
       ],
-      "selected": false
+      "selected": true
     },
     {
       "mode": "nearby_cwa_historical_model",
@@ -35,15 +33,15 @@
       "reason_codes": [
         "MODEL_AVAILABLE",
         "MODEL_ACCEPTED",
-        "ALL_SELECTED_STATIONS_CLOSER_THAN_467441"
+        "NOT_SELECTED_BECAUSE_KHWD_REALTIME_HAS_PRIORITY"
       ],
-      "selected": true
+      "selected": false
     },
     {
       "mode": "fallback_baseline",
       "eligible": true,
       "reason_codes": [
-        "NOT_SELECTED_BECAUSE_NEARBY_CWA_MODEL_AVAILABLE"
+        "NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"
       ],
       "selected": false
     }

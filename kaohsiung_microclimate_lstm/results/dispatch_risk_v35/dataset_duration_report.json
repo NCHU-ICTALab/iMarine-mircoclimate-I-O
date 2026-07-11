@@ -42,8 +42,8 @@
       "time_end": null,
       "duration_days": 1282,
       "total_rows": 184614,
-      "valid_rows": 184385,
-      "valid_ratio": 0.9988,
+      "valid_rows": 182940,
+      "valid_ratio": 0.9909,
       "used_for_training": true,
       "used_for_current_prediction": false,
       "status": "available"

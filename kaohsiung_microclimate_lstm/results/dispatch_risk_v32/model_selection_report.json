@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T10:08:14+08:00",
+  "generated_at": "2026-07-11T19:15:33+08:00",
   "selected_mode": "port_local_postprocess",
   "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
   "fallback_chain": [
@@ -98,14 +98,14 @@
     "station_count": 6,
     "sample_count": 184614,
     "training_days": 1282,
-    "valid_wind_samples": 184385,
+    "valid_wind_samples": 182940,
     "valid_gust_samples": 183821,
-    "valid_rain_samples": 184614,
+    "valid_rain_samples": 183836,
     "failed_reasons": [],
     "warnings": []
   },
   "nearby_station_ranking": {
-    "generated_at": "2026-07-10T21:08:38+08:00",
+    "generated_at": "2026-07-11T17:57:22+08:00",
     "baseline_station": {
       "station_id": "467441",
       "name": "Kaohsiung",

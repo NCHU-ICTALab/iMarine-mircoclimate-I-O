@@ -1,13 +1,13 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "prediction_mode": "nearby_cwa_historical_model",
+  "prediction_mode": "port_local_postprocess",
   "model_training_status": {
     "training_checked": true,
     "training_required": false,
     "training_skipped": true,
     "skip_reason": "Existing accepted nearby CWA historical model found.",
     "training_reason": null,
-    "last_training_run_at": "2026-07-11T10:08:12+08:00",
+    "last_training_run_at": "2026-07-11T19:15:30+08:00",
     "available_models": {
       "port_local_model": {
         "trained": false,
@@ -28,17 +28,24 @@
           "C0V450",
           "C0V900"
         ],
-        "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+        "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
         "reason": null
       }
     }
   },
   "current_station_usage": {
-    "selected_prediction_mode": "nearby_cwa_historical_model",
-    "active_wind_source": "nearby_cwa_historical_model",
-    "active_gust_source": "nearby_cwa_historical_model",
+    "selected_prediction_mode": "port_local_postprocess",
+    "active_wind_source": "KHWD",
+    "active_gust_source": "KHWD",
     "active_rain_source": "nearby_cwa_historical_rain_model_plus_cwa_prior",
-    "port_local_station_ids_used": [],
+    "port_local_station_ids_used": [
+      "KHWD01",
+      "KHWD04",
+      "KHWD05",
+      "KHWD06",
+      "KHWD07",
+      "KHWD08"
+    ],
     "nearby_cwa_station_ids_available": [
       "C0V890",
       "C0V490",
@@ -47,14 +54,7 @@
       "C0V450",
       "C0V900"
     ],
-    "nearby_cwa_station_ids_used_for_current_prediction": [
-      "C0V890",
-      "C0V490",
-      "C0V840",
-      "C0V810",
-      "C0V450",
-      "C0V900"
-    ],
+    "nearby_cwa_station_ids_used_for_current_prediction": [],
     "baseline_station_id": "467441",
     "baseline_station_used_for_current_prediction": false,
     "cwa_pop_prior_used": true
@@ -69,7 +69,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -83,7 +83,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -97,7 +97,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -111,7 +111,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -125,7 +125,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -139,7 +139,7 @@
         "wind_speed",
         "wind_gust"
       ],
-      "used_for_current_prediction": false,
+      "used_for_current_prediction": true,
       "is_port_local_core": true,
       "is_fallback_reference": false,
       "is_baseline_station": false
@@ -154,7 +154,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false
@@ -169,7 +169,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false
@@ -184,7 +184,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false
@@ -199,7 +199,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false
@@ -214,7 +214,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false
@@ -229,7 +229,7 @@
         "wind_gust",
         "rain"
       ],
-      "used_for_current_prediction": true,
+      "used_for_current_prediction": false,
       "is_port_local_core": false,
       "is_fallback_reference": true,
       "is_baseline_station": false

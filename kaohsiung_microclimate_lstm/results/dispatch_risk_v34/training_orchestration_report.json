@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-11T10:08:12+08:00",
+  "generated_at": "2026-07-11T19:15:30+08:00",
   "training_orchestration_version": "v3.4",
   "target_area": "KHH",
   "training_checked": true,
@@ -14,7 +14,7 @@
     "port_local_model": {
       "model_family": "port_local_model",
       "artifact_version": "port_local_v34",
-      "manifest_path": "kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
+      "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
       "trained": false,
       "available": false,
       "accepted": false,
@@ -23,7 +23,7 @@
     "nearby_cwa_historical_model": {
       "model_family": "nearby_cwa_historical_model",
       "artifact_version": "nearby_cwa_v34",
-      "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+      "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
       "trained": true,
       "available": true,
       "accepted": true,
@@ -40,8 +40,8 @@
       "reason": null
     }
   },
-  "registry_path": "kaohsiung_microclimate_lstm\\models\\model_registry.json",
-  "nearby_manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+  "registry_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\model_registry.json",
+  "nearby_manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
   "model_registry_summary": {
     "model_registry_used": true,
     "registry_version": "v3.4",
@@ -56,7 +56,7 @@
       "port_local_model": {
         "model_family": "port_local_model",
         "artifact_version": "port_local_v34",
-        "manifest_path": "kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
+        "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
         "trained": false,
         "available": false,
         "accepted": false,
@@ -65,7 +65,7 @@
       "nearby_cwa_historical_model": {
         "model_family": "nearby_cwa_historical_model",
         "artifact_version": "nearby_cwa_v34",
-        "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+        "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
         "trained": true,
         "available": true,
         "accepted": true,

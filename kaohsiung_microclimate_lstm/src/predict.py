@@ -2113,7 +2113,10 @@ def _predict_nearby_precipitation_amounts(
             fill = bundle.get("fill_values", {})
             x = feature_row.reindex(columns=features)
             x = x.apply(pd.to_numeric, errors="coerce").fillna(pd.Series(fill)).fillna(0.0)
-            outputs[label] = max(0.0, float(bundle["model"].predict(x)[0]))
+            predicted = float(bundle["model"].predict(x)[0])
+            if bundle.get("target_transform") == "log1p":
+                predicted = float(np.expm1(predicted))
+            outputs[label] = max(0.0, predicted)
         except Exception:
             outputs[label] = None
     return {"amounts": outputs, "source": source}

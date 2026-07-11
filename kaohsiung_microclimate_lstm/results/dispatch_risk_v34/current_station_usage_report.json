@@ -1,10 +1,17 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "selected_prediction_mode": "nearby_cwa_historical_model",
-  "active_wind_source": "nearby_cwa_historical_model",
-  "active_gust_source": "nearby_cwa_historical_model",
+  "selected_prediction_mode": "port_local_postprocess",
+  "active_wind_source": "KHWD",
+  "active_gust_source": "KHWD",
   "active_rain_source": "nearby_cwa_historical_rain_model_plus_cwa_prior",
-  "port_local_station_ids_used": [],
+  "port_local_station_ids_used": [
+    "KHWD01",
+    "KHWD04",
+    "KHWD05",
+    "KHWD06",
+    "KHWD07",
+    "KHWD08"
+  ],
   "nearby_cwa_station_ids_available": [
     "C0V890",
     "C0V490",
@@ -13,14 +20,7 @@
     "C0V450",
     "C0V900"
   ],
-  "nearby_cwa_station_ids_used_for_current_prediction": [
-    "C0V890",
-    "C0V490",
-    "C0V840",
-    "C0V810",
-    "C0V450",
-    "C0V900"
-  ],
+  "nearby_cwa_station_ids_used_for_current_prediction": [],
   "baseline_station_id": "467441",
   "baseline_station_used_for_current_prediction": false,
   "cwa_pop_prior_used": true

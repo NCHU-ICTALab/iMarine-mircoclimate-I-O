@@ -1,0 +1,167 @@
+{
+  "generated_at": "2026-07-11T12:41:49+08:00",
+  "baseline_station": {
+    "station_id": "467441",
+    "name": "Kaohsiung",
+    "distance_to_port_km": 12.9715
+  },
+  "ranked_candidates": [
+    {
+      "station_id": "C0V890",
+      "name": "Qianzhen",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical",
+      "longitude": 120.3117,
+      "latitude": 22.5718,
+      "start_date": "2022-12-26",
+      "reason": "Located in Qianzhen near Kaohsiung Port.",
+      "expected_training_use": [
+        "wind_speed",
+        "wind_gust",
+        "rain_probability"
+      ],
+      "priority_group": "priority_1_near_port",
+      "distance_to_port_km": 0.8276,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V490",
+      "name": "Gushan",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical",
+      "longitude": 120.298803,
+      "latitude": 22.627422,
+      "start_date": "2009-12-01",
+      "reason": "Closer to Kaohsiung Port urban core than 467441.",
+      "expected_training_use": [
+        "wind_speed",
+        "wind_gust",
+        "rain_probability"
+      ],
+      "priority_group": "priority_1_near_port",
+      "distance_to_port_km": 1.9935,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V840",
+      "name": "Xiaogang",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical",
+      "longitude": 120.3591,
+      "latitude": 22.5083,
+      "start_date": "2022-12-26",
+      "reason": "South-side coastal reference near southern Kaohsiung Port.",
+      "expected_training_use": [
+        "wind_speed",
+        "wind_gust",
+        "rain_probability"
+      ],
+      "priority_group": "priority_1_near_port",
+      "distance_to_port_km": 5.2403,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V810",
+      "name": "Zuoying",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical",
+      "longitude": 120.28491,
+      "latitude": 22.67491,
+      "start_date": "2015-09-21",
+      "reason": "North-side coastal and urban reference.",
+      "expected_training_use": [
+        "wind_speed",
+        "wind_gust",
+        "rain_probability"
+      ],
+      "priority_group": "priority_1_near_port",
+      "distance_to_port_km": 6.4423,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V450",
+      "name": "Xiaogang Outer",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical_outer",
+      "longitude": 120.392592,
+      "latitude": 22.545064,
+      "start_date": "2013-12-01",
+      "reason": "Xiaogang-side outer reference.",
+      "priority_group": "priority_2_outer_nearby",
+      "distance_to_port_km": 5.4557,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V900",
+      "name": "Linyuan",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical_outer",
+      "longitude": 120.4151,
+      "latitude": 22.4782,
+      "start_date": "2022-12-26",
+      "reason": "South coastal reference.",
+      "priority_group": "priority_2_outer_nearby",
+      "distance_to_port_km": 11.2628,
+      "closer_than_467441": true,
+      "selected": true
+    },
+    {
+      "station_id": "C0V680",
+      "name": "Nanzi",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical_outer",
+      "longitude": 120.347722,
+      "latitude": 22.701083,
+      "start_date": "2013-12-01",
+      "reason": "Urban inland reference.",
+      "priority_group": "priority_2_outer_nearby",
+      "distance_to_port_km": 11.4683,
+      "closer_than_467441": true,
+      "selected": false
+    },
+    {
+      "station_id": "467441",
+      "name": "Kaohsiung",
+      "source": "cwa_codis",
+      "role": "fallback_baseline",
+      "longitude": 120.312516,
+      "latitude": 22.730432,
+      "start_date": "2022-01-24",
+      "is_port_local": false,
+      "is_core_station": false,
+      "usage": "fallback_only",
+      "distance_to_port_km": 12.9715,
+      "closer_than_467441": false,
+      "priority_group": "priority_2_outer_nearby",
+      "selected": false
+    },
+    {
+      "station_id": "C0V610",
+      "name": "Ziguan",
+      "source": "cwa_codis",
+      "role": "nearby_cwa_historical_outer",
+      "longitude": 120.267211,
+      "latitude": 22.760558,
+      "start_date": "2013-12-01",
+      "reason": "Coastal north-side reference.",
+      "priority_group": "priority_2_outer_nearby",
+      "distance_to_port_km": 16.0449,
+      "closer_than_467441": false,
+      "selected": false
+    }
+  ],
+  "selected_station_ids": [
+    "C0V890",
+    "C0V490",
+    "C0V840",
+    "C0V810",
+    "C0V450",
+    "C0V900"
+  ],
+  "all_selected_stations_closer_than_467441": true
+}

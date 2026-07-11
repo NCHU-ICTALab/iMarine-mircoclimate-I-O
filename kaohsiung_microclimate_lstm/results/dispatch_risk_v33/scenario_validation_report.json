@@ -1,7 +1,7 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "scenario": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED",
-  "selected_mode": "nearby_cwa_historical_model",
+  "scenario": "KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED",
+  "selected_mode": "port_local_postprocess",
   "passed": true,
   "assertions": {
     "khwd_realtime_overrides_nearby_cwa_historical": true,

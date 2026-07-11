@@ -1,7 +1,7 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
   "target_area": "KHH",
-  "generated_at": "2026-07-11T10:08:14+08:00",
+  "generated_at": "2026-07-11T19:13:22+08:00",
   "system_status_summary": {
     "overall_status": "ready_for_demo_and_operation",
     "normal_prediction_mode": "port_local_postprocess",
@@ -76,8 +76,8 @@
       "time_end": null,
       "duration_days": 1282,
       "total_rows": 184614,
-      "valid_rows": 184385,
-      "valid_ratio": 0.9988,
+      "valid_rows": 182940,
+      "valid_ratio": 0.9909,
       "used_for_training": true,
       "used_for_current_prediction": false,
       "status": "available"
@@ -105,8 +105,8 @@
     "nearby_cwa_historical_model": {
       "trained": true,
       "accepted": true,
-      "wind_speed_h1_mae_mps": 0.5919,
-      "wind_gust_h1_mae_mps": 0.6835,
+      "wind_speed_h1_mae_mps": 0.5512,
+      "wind_gust_h1_mae_mps": 0.6809,
       "rain_probability_brier_score": 0.0183,
       "metrics_available": true
     },
@@ -473,8 +473,8 @@
         "time_end": null,
         "duration_days": 1282,
         "total_rows": 184614,
-        "valid_rows": 184385,
-        "valid_ratio": 0.9988,
+        "valid_rows": 182940,
+        "valid_ratio": 0.9909,
         "used_for_training": true,
         "used_for_current_prediction": false,
         "status": "available"
@@ -533,92 +533,92 @@
         "metrics": {
           "wind_speed": {
             "H1": {
-              "mae_mps": 0.5919,
-              "rmse_mps": 1.6457,
-              "r2": 0.3698,
-              "bias": -0.0579,
+              "mae_mps": 0.5512,
+              "rmse_mps": 0.7803,
+              "r2": 0.7625,
+              "bias": -0.0488,
               "critical_under_warning_count": 0
             },
             "H2": {
-              "mae_mps": 0.592,
-              "rmse_mps": 1.6458,
-              "r2": 0.3697,
-              "bias": -0.0579,
+              "mae_mps": 0.5513,
+              "rmse_mps": 0.7804,
+              "r2": 0.7625,
+              "bias": -0.0488,
               "critical_under_warning_count": 0
             },
             "H3": {
-              "mae_mps": 0.7156,
-              "rmse_mps": 1.6933,
-              "r2": 0.3329,
-              "bias": -0.1013,
+              "mae_mps": 0.6786,
+              "rmse_mps": 0.9669,
+              "r2": 0.6354,
+              "bias": -0.0874,
               "critical_under_warning_count": 0
             },
             "H4": {
-              "mae_mps": 0.7156,
-              "rmse_mps": 1.6934,
-              "r2": 0.3329,
-              "bias": -0.1012,
+              "mae_mps": 0.6786,
+              "rmse_mps": 0.9669,
+              "r2": 0.6354,
+              "bias": -0.0873,
               "critical_under_warning_count": 0
             }
           },
           "wind_gust": {
             "H1": {
-              "mae_mps": 0.6835,
-              "rmse_mps": 0.9632,
-              "r2": 0.8519,
-              "bias": 0.0692,
+              "mae_mps": 0.6809,
+              "rmse_mps": 0.9556,
+              "r2": 0.8542,
+              "bias": 0.0725,
               "critical_under_warning_count": 0
             },
             "H2": {
-              "mae_mps": 0.6835,
-              "rmse_mps": 0.9632,
-              "r2": 0.8519,
-              "bias": 0.0691,
+              "mae_mps": 0.6809,
+              "rmse_mps": 0.9557,
+              "r2": 0.8542,
+              "bias": 0.0724,
               "critical_under_warning_count": 0
             },
             "H3": {
-              "mae_mps": 0.9458,
-              "rmse_mps": 1.3301,
-              "r2": 0.7175,
-              "bias": 0.0126,
+              "mae_mps": 0.9457,
+              "rmse_mps": 1.333,
+              "r2": 0.7163,
+              "bias": 0.0154,
               "critical_under_warning_count": 0
             },
             "H4": {
               "mae_mps": 0.9458,
-              "rmse_mps": 1.3302,
-              "r2": 0.7175,
-              "bias": 0.0125,
+              "rmse_mps": 1.3331,
+              "r2": 0.7163,
+              "bias": 0.0152,
               "critical_under_warning_count": 0
             }
           },
           "rain_probability": {
             "H1": {
               "brier_score": 0.0183,
-              "pod": 0.6187,
-              "far": 0.181,
-              "auc": 0.9638,
-              "csi": 0.5443
+              "pod": 0.6259,
+              "far": 0.1754,
+              "auc": 0.9546,
+              "csi": 0.5524
             },
             "H2": {
               "brier_score": 0.0183,
-              "pod": 0.6187,
-              "far": 0.181,
-              "auc": 0.9638,
-              "csi": 0.5443
+              "pod": 0.6259,
+              "far": 0.1754,
+              "auc": 0.9546,
+              "csi": 0.5524
             },
             "H3": {
-              "brier_score": 0.0261,
-              "pod": 0.3705,
-              "far": 0.2536,
-              "auc": 0.9274,
-              "csi": 0.3291
+              "brier_score": 0.0263,
+              "pod": 0.3597,
+              "far": 0.2647,
+              "auc": 0.9322,
+              "csi": 0.3185
             },
             "H4": {
-              "brier_score": 0.0261,
-              "pod": 0.3705,
-              "far": 0.2536,
-              "auc": 0.9274,
-              "csi": 0.3291
+              "brier_score": 0.0263,
+              "pod": 0.3597,
+              "far": 0.2647,
+              "auc": 0.9322,
+              "csi": 0.3185
             }
           }
         },

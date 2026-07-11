@@ -1,4 +1,5 @@
 import pandas as pd
+import joblib
 
 from kaohsiung_microclimate_lstm.src.training.train_nearby_cwa_historical_model import train_nearby_cwa_historical_model
 
@@ -94,6 +95,24 @@ def test_train_nearby_cwa_historical_model_uses_target_algorithm_config(tmp_path
     assert result["metrics"]["wind_speed"]["H1"]["algorithm"] == "lightgbm"
     assert result["metrics"]["wind_gust"]["H1"]["algorithm"] == "random_forest"
     assert result["metrics"]["wind_speed"]["H1"]["actual_estimator"] in {"LGBMRegressor", "GradientBoostingRegressor"}
+
+
+def test_train_nearby_cwa_historical_model_can_filter_rain_amount_and_log_transform(tmp_path):
+    readiness = {"ready": True, "failed_reasons": [], "selected_station_ids": ["C0V890", "C0V490"]}
+    config = {
+        "nearby_cwa_historical_training": {
+            "precipitation_amount_training": {"train_on_rain_events_only": True, "log1p_target": True},
+            "model_algorithms": {"random_forest": {"n_estimators": 5, "random_state": 42, "min_samples_leaf": 1}},
+        }
+    }
+
+    result = train_nearby_cwa_historical_model(_dataset(), readiness, config, tmp_path / "models", tmp_path / "reports")
+    artifact = joblib.load(tmp_path / "models" / "precipitation_amount_H1.joblib")
+
+    assert result["metrics"]["precipitation_amount"]["H1"]["sample_filter_column"] == "target_rain_event_H1"
+    assert result["metrics"]["precipitation_amount"]["H1"]["target_transform"] == "log1p"
+    assert artifact["sample_filter_column"] == "target_rain_event_H1"
+    assert artifact["target_transform"] == "log1p"
 
 
 def test_train_nearby_cwa_historical_model_skips_when_not_ready(tmp_path):

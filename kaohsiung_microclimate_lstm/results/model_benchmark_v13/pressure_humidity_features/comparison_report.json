@@ -1,0 +1,440 @@
+{
+  "evaluated": true,
+  "evaluation_mode": "full_scale_production_config",
+  "sample_count": 30769,
+  "readiness": {
+    "ready": true,
+    "selected_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "station_count": 6,
+    "sample_count": 184614,
+    "training_days": 1282,
+    "valid_wind_samples": 184385,
+    "valid_gust_samples": 183821,
+    "valid_rain_samples": 184614,
+    "failed_reasons": [],
+    "warnings": []
+  },
+  "pressure_humidity_feature_columns": [
+    "nearby_cwa_pressure_mean",
+    "nearby_cwa_pressure_max",
+    "nearby_cwa_pressure_min",
+    "nearby_cwa_pressure_std",
+    "nearby_cwa_relative_humidity_mean",
+    "nearby_cwa_relative_humidity_max",
+    "nearby_cwa_relative_humidity_min",
+    "nearby_cwa_relative_humidity_std",
+    "nearby_cwa_temperature_mean",
+    "nearby_cwa_temperature_max",
+    "nearby_cwa_temperature_min",
+    "nearby_cwa_temperature_std",
+    "nearby_cwa_pressure_gradient",
+    "nearby_cwa_dew_point_mean",
+    "nearby_cwa_dew_point_spread_mean",
+    "nearby_cwa_pressure_mean_lag1",
+    "nearby_cwa_pressure_mean_roll3",
+    "nearby_cwa_pressure_mean_trend_3h"
+  ],
+  "comparison": {
+    "wind_speed": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.5919,
+          "RMSE": 1.6457,
+          "R2": 0.3698,
+          "bias": -0.0579,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.5983,
+          "RMSE": 1.6563,
+          "R2": 0.3616,
+          "bias": -0.1034,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0064,
+        "delta_R2": -0.0082,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.592,
+          "RMSE": 1.6458,
+          "R2": 0.3697,
+          "bias": -0.0579,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.5983,
+          "RMSE": 1.6564,
+          "R2": 0.3616,
+          "bias": -0.1033,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0063,
+        "delta_R2": -0.0081,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 0.7156,
+          "RMSE": 1.6933,
+          "R2": 0.3329,
+          "bias": -0.1013,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.7317,
+          "RMSE": 1.7544,
+          "R2": 0.2838,
+          "bias": -0.1772,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0161,
+        "delta_R2": -0.0491,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 0.7156,
+          "RMSE": 1.6934,
+          "R2": 0.3329,
+          "bias": -0.1012,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.7317,
+          "RMSE": 1.7545,
+          "R2": 0.2838,
+          "bias": -0.1771,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0161,
+        "delta_R2": -0.0491,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      }
+    },
+    "wind_gust": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.6835,
+          "RMSE": 0.9632,
+          "R2": 0.8519,
+          "bias": 0.0692,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.6795,
+          "RMSE": 0.9607,
+          "R2": 0.8526,
+          "bias": 0.0498,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.004,
+        "delta_R2": 0.0007,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": true
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.6835,
+          "RMSE": 0.9632,
+          "R2": 0.8519,
+          "bias": 0.0691,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.6795,
+          "RMSE": 0.9608,
+          "R2": 0.8526,
+          "bias": 0.0497,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.004,
+        "delta_R2": 0.0007,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": true
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 0.9458,
+          "RMSE": 1.3301,
+          "R2": 0.7175,
+          "bias": 0.0126,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.9367,
+          "RMSE": 1.3246,
+          "R2": 0.7198,
+          "bias": -0.0278,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0091,
+        "delta_R2": 0.0023,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": true
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 0.9458,
+          "RMSE": 1.3302,
+          "R2": 0.7175,
+          "bias": 0.0125,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.9368,
+          "RMSE": 1.3247,
+          "R2": 0.7199,
+          "bias": -0.0279,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.009,
+        "delta_R2": 0.0024,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": true
+      }
+    },
+    "rain_probability": {
+      "H1": {
+        "baseline": {
+          "Brier Score": 0.0183,
+          "AUC": 0.9638,
+          "CSI": 0.5443,
+          "FAR": 0.181,
+          "POD": 0.6187
+        },
+        "with_pressure_humidity_features": {
+          "Brier Score": 0.0186,
+          "AUC": 0.9657,
+          "CSI": 0.5312,
+          "FAR": 0.1981,
+          "POD": 0.6115
+        },
+        "delta_MAE": null,
+        "delta_R2": null,
+        "delta_AUC": 0.0019,
+        "delta_CSI": -0.0131,
+        "improved_by_primary_metric": true
+      },
+      "H2": {
+        "baseline": {
+          "Brier Score": 0.0183,
+          "AUC": 0.9638,
+          "CSI": 0.5443,
+          "FAR": 0.181,
+          "POD": 0.6187
+        },
+        "with_pressure_humidity_features": {
+          "Brier Score": 0.0186,
+          "AUC": 0.9657,
+          "CSI": 0.5312,
+          "FAR": 0.1981,
+          "POD": 0.6115
+        },
+        "delta_MAE": null,
+        "delta_R2": null,
+        "delta_AUC": 0.0019,
+        "delta_CSI": -0.0131,
+        "improved_by_primary_metric": true
+      },
+      "H3": {
+        "baseline": {
+          "Brier Score": 0.0261,
+          "AUC": 0.9274,
+          "CSI": 0.3291,
+          "FAR": 0.2536,
+          "POD": 0.3705
+        },
+        "with_pressure_humidity_features": {
+          "Brier Score": 0.0262,
+          "AUC": 0.9457,
+          "CSI": 0.3194,
+          "FAR": 0.2443,
+          "POD": 0.3561
+        },
+        "delta_MAE": null,
+        "delta_R2": null,
+        "delta_AUC": 0.0183,
+        "delta_CSI": -0.0097,
+        "improved_by_primary_metric": true
+      },
+      "H4": {
+        "baseline": {
+          "Brier Score": 0.0261,
+          "AUC": 0.9274,
+          "CSI": 0.3291,
+          "FAR": 0.2536,
+          "POD": 0.3705
+        },
+        "with_pressure_humidity_features": {
+          "Brier Score": 0.0263,
+          "AUC": 0.9457,
+          "CSI": 0.3194,
+          "FAR": 0.2443,
+          "POD": 0.3561
+        },
+        "delta_MAE": null,
+        "delta_R2": null,
+        "delta_AUC": 0.0183,
+        "delta_CSI": -0.0097,
+        "improved_by_primary_metric": true
+      }
+    },
+    "precipitation_amount": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.6018,
+          "RMSE": 13.697,
+          "R2": -0.1054,
+          "bias": 0.0967,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.7217,
+          "RMSE": 12.6809,
+          "R2": 0.0525,
+          "bias": 0.0017,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.1199,
+        "delta_R2": 0.1579,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.6019,
+          "RMSE": 13.6981,
+          "R2": -0.1054,
+          "bias": 0.0967,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.7218,
+          "RMSE": 12.6819,
+          "R2": 0.0525,
+          "bias": 0.0017,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.1199,
+        "delta_R2": 0.1579,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 0.7172,
+          "RMSE": 13.8636,
+          "R2": -0.1323,
+          "bias": 0.0698,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.7269,
+          "RMSE": 13.2049,
+          "R2": -0.0272,
+          "bias": 0.0833,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0097,
+        "delta_R2": 0.1051,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 0.7173,
+          "RMSE": 13.8647,
+          "R2": -0.1323,
+          "bias": 0.0698,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_pressure_humidity_features": {
+          "MAE": 0.727,
+          "RMSE": 13.2059,
+          "R2": -0.0272,
+          "bias": 0.0833,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0097,
+        "delta_R2": 0.1051,
+        "delta_AUC": null,
+        "delta_CSI": null,
+        "improved_by_primary_metric": false
+      }
+    }
+  },
+  "baseline_metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\pressure_humidity_features\\baseline_reports\\nearby_cwa_model_metrics.json",
+  "pressure_humidity_metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\pressure_humidity_features\\pressure_humidity_reports\\nearby_cwa_model_metrics.json"
+}

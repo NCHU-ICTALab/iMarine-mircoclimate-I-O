@@ -11,9 +11,9 @@
   "station_count": 6,
   "sample_count": 184614,
   "training_days": 1282,
-  "valid_wind_samples": 184385,
+  "valid_wind_samples": 182940,
   "valid_gust_samples": 183821,
-  "valid_rain_samples": 184614,
+  "valid_rain_samples": 183836,
   "failed_reasons": [],
   "warnings": []
 }

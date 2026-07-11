@@ -36,6 +36,8 @@
     "nearby_cwa_precipitation_roll3",
     "nearby_cwa_precipitation_roll6"
   ],
+  "upstream_lead_feature_columns": [],
+  "pressure_humidity_feature_columns": [],
   "models": {
     "wind_speed_H1": {
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H1.joblib",
@@ -52,7 +54,11 @@
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H1.joblib",
       "algorithm": "random_forest",
       "actual_estimator": "RandomForestRegressor",
-      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+      "training_policy": {
+        "train_on_rain_events_only": false,
+        "log1p_target": true
+      }
     },
     "wind_speed_H2": {
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H2.joblib",
@@ -69,7 +75,11 @@
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H2.joblib",
       "algorithm": "random_forest",
       "actual_estimator": "RandomForestRegressor",
-      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+      "training_policy": {
+        "train_on_rain_events_only": false,
+        "log1p_target": true
+      }
     },
     "wind_speed_H3": {
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H3.joblib",
@@ -86,7 +96,11 @@
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H3.joblib",
       "algorithm": "random_forest",
       "actual_estimator": "RandomForestRegressor",
-      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+      "training_policy": {
+        "train_on_rain_events_only": false,
+        "log1p_target": true
+      }
     },
     "wind_speed_H4": {
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\wind_speed_H4.joblib",
@@ -103,7 +117,11 @@
       "model_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v32\\precipitation_amount_H4.joblib",
       "algorithm": "random_forest",
       "actual_estimator": "RandomForestRegressor",
-      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust"
+      "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+      "training_policy": {
+        "train_on_rain_events_only": false,
+        "log1p_target": true
+      }
     }
   }
 }

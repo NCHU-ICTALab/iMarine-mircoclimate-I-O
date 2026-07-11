@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-07-11T11:31:50+08:00",
+  "model_version": "nearby_cwa_v32",
+  "nearby_cwa_historical_model_trained": true,
+  "readiness": {
+    "ready": true,
+    "failed_reasons": [],
+    "selected_station_ids": []
+  },
+  "model_manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\upstream_lead_features\\baseline_models\\model_manifest.json"
+}

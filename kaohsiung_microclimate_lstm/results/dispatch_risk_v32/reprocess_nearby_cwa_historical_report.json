@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-07-11T17:57:14+08:00",
+  "raw_dir": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather",
+  "output_dir": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical",
+  "records": [
+    {
+      "station_id": "C0V450",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V450\\C0V450_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V450.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V490",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V490\\C0V490_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V490.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V610",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V610\\C0V610_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V610.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V680",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V680\\C0V680_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V680.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V810",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V810\\C0V810_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V810.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V840",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V840\\C0V840_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V840.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V890",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V890\\C0V890_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V890.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    },
+    {
+      "station_id": "C0V900",
+      "success": true,
+      "raw_path": "kaohsiung_microclimate_lstm\\data\\raw\\historical_weather\\C0V900\\C0V900_20230101_20260708.csv",
+      "processed_path": "kaohsiung_microclimate_lstm\\data\\processed\\nearby_cwa_historical\\C0V900.parquet",
+      "storage_format": "parquet",
+      "row_count": 30769,
+      "negative_wind_speed_count": 0,
+      "negative_precipitation_count": 0
+    }
+  ],
+  "success_count": 8
+}

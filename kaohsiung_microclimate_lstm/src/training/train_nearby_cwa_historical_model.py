@@ -99,6 +99,7 @@ def train_nearby_cwa_historical_model(
             model_path = output_path / f"precipitation_amount_{horizon}.joblib"
             rain_features = _rain_amount_feature_columns(features)
             algorithm = _algorithm_for_target("precipitation_amount", algorithm_config)
+            rain_training_cfg = _rain_amount_training_config(config)
             trained = _train_regressor(
                 train,
                 test,
@@ -108,6 +109,9 @@ def train_nearby_cwa_historical_model(
                 model_path,
                 algorithm,
                 algorithm_config,
+                sample_filter_column=rain_label if rain_training_cfg["train_on_rain_events_only"] else None,
+                sample_filter_value=1,
+                target_transform="log1p" if rain_training_cfg["log1p_target"] else None,
             )
             metrics["precipitation_amount"][horizon] = trained["metrics"]
             manifest["models"][f"precipitation_amount_{horizon}"] = {
@@ -115,6 +119,7 @@ def train_nearby_cwa_historical_model(
                 "algorithm": trained["algorithm"],
                 "actual_estimator": trained["actual_estimator"],
                 "feature_policy": "precipitation_correct_features_no_same_timestamp_wind_or_gust",
+                "training_policy": rain_training_cfg,
             }
     (output_path / "model_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     training_report = {
@@ -128,14 +133,33 @@ def train_nearby_cwa_historical_model(
     return {"metrics": metrics, "training_report": training_report}
 
 
-def _train_regressor(train, test, features, label, persistence, model_path: Path, algorithm: str, config: dict[str, Any]) -> dict[str, Any]:
+def _train_regressor(
+    train,
+    test,
+    features,
+    label,
+    persistence,
+    model_path: Path,
+    algorithm: str,
+    config: dict[str, Any],
+    sample_filter_column: str | None = None,
+    sample_filter_value: Any = None,
+    target_transform: str | None = None,
+) -> dict[str, Any]:
     train_rows = train.dropna(subset=[label])
     test_rows = test.dropna(subset=[label])
+    if sample_filter_column and sample_filter_column in train_rows.columns:
+        train_rows = train_rows[train_rows[sample_filter_column] == sample_filter_value].copy()
+    if sample_filter_column and sample_filter_column in test_rows.columns:
+        test_rows = test_rows[test_rows[sample_filter_column] == sample_filter_value].copy()
+    if train_rows.empty:
+        train_rows = train.dropna(subset=[label])
     fill = train_rows[features].median(numeric_only=True)
     x_train = train_rows[features].apply(pd.to_numeric, errors="coerce").fillna(fill).fillna(0.0)
     y_train = pd.to_numeric(train_rows[label], errors="coerce")
+    y_fit = np.log1p(y_train.clip(lower=0.0)) if target_transform == "log1p" else y_train
     model = _build_regressor(algorithm, config)
-    model.fit(x_train, y_train)
+    model.fit(x_train, y_fit)
     actual_estimator = model.__class__.__name__
     joblib.dump(
         {
@@ -145,6 +169,9 @@ def _train_regressor(train, test, features, label, persistence, model_path: Path
             "label_column": label,
             "algorithm": algorithm,
             "actual_estimator": actual_estimator,
+            "sample_filter_column": sample_filter_column,
+            "sample_filter_value": sample_filter_value,
+            "target_transform": target_transform,
         },
         model_path,
     )
@@ -158,6 +185,9 @@ def _train_regressor(train, test, features, label, persistence, model_path: Path
     x_test = test_rows[features].apply(pd.to_numeric, errors="coerce").fillna(fill).fillna(0.0)
     y_test = pd.to_numeric(test_rows[label], errors="coerce")
     pred = model.predict(x_test)
+    if target_transform == "log1p":
+        pred = np.expm1(pred)
+    pred = np.maximum(pred, 0.0) if str(label).startswith("target_nearby_precipitation") else pred
     persistence_values = pd.to_numeric(test_rows.get(persistence), errors="coerce").fillna(y_train.mean())
     mae = mean_absolute_error(y_test, pred)
     p_mae = mean_absolute_error(y_test, persistence_values)
@@ -175,6 +205,8 @@ def _train_regressor(train, test, features, label, persistence, model_path: Path
             "critical_under_warning_count": 0,
             "algorithm": algorithm,
             "actual_estimator": actual_estimator,
+            "sample_filter_column": sample_filter_column,
+            "target_transform": target_transform,
         },
     }
 
@@ -252,6 +284,15 @@ def _rain_amount_feature_columns(features: list[str]) -> list[str]:
         "doy_cos",
     }
     return [col for col in features if col in allowed_exact and "wind_speed" not in col and "wind_gust" not in col]
+
+
+def _rain_amount_training_config(config: dict[str, Any]) -> dict[str, bool]:
+    training = config.get("nearby_cwa_historical_training", {}) if isinstance(config, dict) else {}
+    rain_cfg = training.get("precipitation_amount_training", {}) if isinstance(training, dict) else {}
+    return {
+        "train_on_rain_events_only": bool(rain_cfg.get("train_on_rain_events_only", False)),
+        "log1p_target": bool(rain_cfg.get("log1p_target", False)),
+    }
 
 
 def _ratio(num: int, den: int) -> float | None:

@@ -235,6 +235,9 @@ nearby_cwa_historical_training:
   # 幾乎持平，未達規格書 §13.3 要求的「確實優於baseline」門檻，故預設關閉，不進正式模型。
   enable_upstream_lead_features: false
   enable_pressure_humidity_features: false
+  precipitation_amount_training:
+    train_on_rain_events_only: false
+    log1p_target: true
   training_thresholds:
     min_total_samples: 1000
     min_training_days: 30
@@ -794,7 +797,7 @@ output:
   include_data_availability: true
 
 seasonal_wind_context:
-  source_note: KHWD 2021-09 to 2022-08 port wind analysis; KHWD08 metadata pending.
+  source_note: KHWD 2021-09 to 2022-08 port wind analysis; KHWD08 metadata confirmed unavailable and no longer pursued.
   seasons:
     autumn:
       prevalent_direction: WNW/NW

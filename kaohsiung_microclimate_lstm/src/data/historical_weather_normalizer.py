@@ -30,6 +30,18 @@ COLUMN_MAPPING = {
     "降水量(mm)": "precipitation_1hr",
 }
 
+PHYSICAL_RANGE_LIMITS = {
+    "wind_speed": (0.0, 100.0),
+    "wind_gust": (0.0, 120.0),
+    "precipitation_1hr": (0.0, 500.0),
+    "relative_humidity": (0.0, 100.0),
+    "station_pressure": (800.0, 1100.0),
+    "sea_level_pressure": (800.0, 1100.0),
+    "temperature": (-20.0, 50.0),
+    "visibility": (0.0, 100000.0),
+    "dew_point": (-30.0, 40.0),
+}
+
 
 def normalize_historical_weather_frame(frame: pd.DataFrame, station_id: str) -> pd.DataFrame:
     work = frame.copy()
@@ -56,6 +68,9 @@ def normalize_historical_weather_frame(frame: pd.DataFrame, station_id: str) -> 
     ]:
         if column in work.columns:
             work[column] = pd.to_numeric(work[column], errors="coerce")
+            if column in PHYSICAL_RANGE_LIMITS:
+                low, high = PHYSICAL_RANGE_LIMITS[column]
+                work.loc[~work[column].between(low, high), column] = pd.NA
     keep = ["obs_time", "station_id", *[col for col in COLUMN_MAPPING.values() if col in work.columns]]
     return work.loc[:, list(dict.fromkeys(keep))].sort_values("obs_time").reset_index(drop=True)
 

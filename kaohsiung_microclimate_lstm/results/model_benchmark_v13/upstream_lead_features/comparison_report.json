@@ -1,0 +1,311 @@
+{
+  "evaluated": true,
+  "evaluation_mode": "recent_tail_sample_fast_random_forest",
+  "sample_count": 20000,
+  "max_rows": 20000,
+  "fast_estimators": 30,
+  "upstream_feature_columns": [
+    "upstream_subset_season_code",
+    "upstream_subset_station_count",
+    "upstream_subset_wind_speed_mean",
+    "upstream_subset_wind_speed_max",
+    "upstream_subset_wind_gust_mean",
+    "upstream_subset_wind_gust_max",
+    "upstream_subset_precipitation_1hr_mean",
+    "upstream_subset_precipitation_1hr_max",
+    "upstream_subset_wind_speed_max_lag1",
+    "upstream_subset_wind_speed_max_roll3",
+    "upstream_subset_wind_gust_max_lag1",
+    "upstream_subset_wind_gust_max_roll3",
+    "upstream_subset_precipitation_1hr_max_lag1",
+    "upstream_subset_precipitation_1hr_max_roll3",
+    "upstream_subset_precipitation_roll3",
+    "upstream_subset_precipitation_roll6"
+  ],
+  "comparison": {
+    "wind_speed": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.7373,
+          "RMSE": 1.8572,
+          "R2": -0.2725,
+          "bias": -0.1926,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.7309,
+          "RMSE": 1.8118,
+          "R2": -0.2111,
+          "bias": -0.1886,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0064,
+        "delta_R2": 0.0614,
+        "improved_by_MAE": true
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.7374,
+          "RMSE": 1.8574,
+          "R2": -0.2725,
+          "bias": -0.1927,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.731,
+          "RMSE": 1.8121,
+          "R2": -0.2111,
+          "bias": -0.1886,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0064,
+        "delta_R2": 0.0614,
+        "improved_by_MAE": true
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 0.8671,
+          "RMSE": 1.8743,
+          "R2": -0.2959,
+          "bias": -0.2394,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.8692,
+          "RMSE": 1.8699,
+          "R2": -0.2898,
+          "bias": -0.2442,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0021,
+        "delta_R2": 0.0061,
+        "improved_by_MAE": false
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 0.8672,
+          "RMSE": 1.8746,
+          "R2": -0.2959,
+          "bias": -0.2394,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.8692,
+          "RMSE": 1.8701,
+          "R2": -0.2898,
+          "bias": -0.2442,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.002,
+        "delta_R2": 0.0061,
+        "improved_by_MAE": false
+      }
+    },
+    "wind_gust": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.7213,
+          "RMSE": 1.0174,
+          "R2": 0.8378,
+          "bias": 0.0518,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.7189,
+          "RMSE": 1.016,
+          "R2": 0.8383,
+          "bias": 0.0465,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0024,
+        "delta_R2": 0.0005,
+        "improved_by_MAE": true
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.7214,
+          "RMSE": 1.0175,
+          "R2": 0.8378,
+          "bias": 0.0517,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.719,
+          "RMSE": 1.0161,
+          "R2": 0.8383,
+          "bias": 0.0463,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0024,
+        "delta_R2": 0.0005,
+        "improved_by_MAE": true
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 1.0138,
+          "RMSE": 1.4136,
+          "R2": 0.687,
+          "bias": -0.0241,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 1.0068,
+          "RMSE": 1.4051,
+          "R2": 0.6907,
+          "bias": -0.0137,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.007,
+        "delta_R2": 0.0037,
+        "improved_by_MAE": true
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 1.0139,
+          "RMSE": 1.4137,
+          "R2": 0.687,
+          "bias": -0.0243,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 1.0069,
+          "RMSE": 1.4053,
+          "R2": 0.6907,
+          "bias": -0.0138,
+          "beats_persistence": true,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.007,
+        "delta_R2": 0.0037,
+        "improved_by_MAE": true
+      }
+    },
+    "precipitation_amount": {
+      "H1": {
+        "baseline": {
+          "MAE": 0.5692,
+          "RMSE": 2.8891,
+          "R2": 0.2373,
+          "bias": 0.0053,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.5817,
+          "RMSE": 3.2077,
+          "R2": 0.0597,
+          "bias": -0.0044,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0125,
+        "delta_R2": -0.1776,
+        "improved_by_MAE": false
+      },
+      "H2": {
+        "baseline": {
+          "MAE": 0.5693,
+          "RMSE": 2.8894,
+          "R2": 0.2373,
+          "bias": 0.0053,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.5818,
+          "RMSE": 3.2081,
+          "R2": 0.0597,
+          "bias": -0.0044,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": 0.0125,
+        "delta_R2": -0.1776,
+        "improved_by_MAE": false
+      },
+      "H3": {
+        "baseline": {
+          "MAE": 0.6734,
+          "RMSE": 2.9715,
+          "R2": 0.1933,
+          "bias": 0.033,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.6677,
+          "RMSE": 2.9653,
+          "R2": 0.1967,
+          "bias": 0.0344,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0057,
+        "delta_R2": 0.0034,
+        "improved_by_MAE": true
+      },
+      "H4": {
+        "baseline": {
+          "MAE": 0.6736,
+          "RMSE": 2.9719,
+          "R2": 0.1933,
+          "bias": 0.033,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "with_upstream_features": {
+          "MAE": 0.6679,
+          "RMSE": 2.9657,
+          "R2": 0.1967,
+          "bias": 0.0344,
+          "beats_persistence": false,
+          "algorithm": "random_forest",
+          "actual_estimator": "RandomForestRegressor"
+        },
+        "delta_MAE": -0.0057,
+        "delta_R2": 0.0034,
+        "improved_by_MAE": true
+      }
+    }
+  },
+  "baseline_metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\upstream_lead_features\\baseline_reports\\nearby_cwa_model_metrics.json",
+  "upstream_metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\upstream_lead_features\\upstream_reports\\nearby_cwa_model_metrics.json"
+}

@@ -1,34 +1,34 @@
 {
   "H1": {
     "Brier Score": 0.0183,
-    "AUC": 0.9638,
-    "CSI": 0.5443,
-    "FAR": 0.181,
-    "POD": 0.6187,
+    "AUC": 0.9546,
+    "CSI": 0.5524,
+    "FAR": 0.1754,
+    "POD": 0.6259,
     "calibration_bins": []
   },
   "H2": {
     "Brier Score": 0.0183,
-    "AUC": 0.9638,
-    "CSI": 0.5443,
-    "FAR": 0.181,
-    "POD": 0.6187,
+    "AUC": 0.9546,
+    "CSI": 0.5524,
+    "FAR": 0.1754,
+    "POD": 0.6259,
     "calibration_bins": []
   },
   "H3": {
-    "Brier Score": 0.0261,
-    "AUC": 0.9274,
-    "CSI": 0.3291,
-    "FAR": 0.2536,
-    "POD": 0.3705,
+    "Brier Score": 0.0263,
+    "AUC": 0.9322,
+    "CSI": 0.3185,
+    "FAR": 0.2647,
+    "POD": 0.3597,
     "calibration_bins": []
   },
   "H4": {
-    "Brier Score": 0.0261,
-    "AUC": 0.9274,
-    "CSI": 0.3291,
-    "FAR": 0.2536,
-    "POD": 0.3705,
+    "Brier Score": 0.0263,
+    "AUC": 0.9322,
+    "CSI": 0.3185,
+    "FAR": 0.2647,
+    "POD": 0.3597,
     "calibration_bins": []
   }
 }

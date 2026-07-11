@@ -23,3 +23,27 @@ def test_historical_weather_normalizer_maps_codis_columns():
     assert "wind_gust" in result.columns
     assert "precipitation_1hr" in result.columns
     assert result["precipitation_1hr"].iloc[1] == 1.2
+
+
+def test_historical_weather_normalizer_converts_out_of_physical_range_sentinels_to_nan():
+    raw = pd.DataFrame(
+        {
+            "ObsTime": ["2026-07-01 00:00", "2026-07-01 01:00"],
+            "WS": [-99.7, 4.0],
+            "WSGust": [-99.8, 7.0],
+            "Precp": [-999.6, 1.2],
+            "RH": [101.0, 82.0],
+            "Tx": [-99.0, 28.0],
+            "StnPres": [9999.0, 1008.5],
+        }
+    )
+
+    result = normalize_historical_weather_frame(raw, "C0V890")
+
+    assert pd.isna(result["wind_speed"].iloc[0])
+    assert pd.isna(result["wind_gust"].iloc[0])
+    assert pd.isna(result["precipitation_1hr"].iloc[0])
+    assert pd.isna(result["relative_humidity"].iloc[0])
+    assert pd.isna(result["temperature"].iloc[0])
+    assert pd.isna(result["station_pressure"].iloc[0])
+    assert result["wind_speed"].iloc[1] == 4.0

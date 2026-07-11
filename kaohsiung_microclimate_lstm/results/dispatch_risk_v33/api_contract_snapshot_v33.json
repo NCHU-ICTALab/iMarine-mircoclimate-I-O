@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-11T10:08:13+08:00",
+  "generated_at": "2026-07-11T19:15:31+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -17,7 +17,7 @@
         "cwa_adjusted_probability": null,
         "final_probability": 0.85,
         "level": "high_risk",
-        "predicted_amount_mm": 11.877,
+        "predicted_amount_mm": 8.072,
         "amount_level": "watch",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
@@ -33,7 +33,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-11T10:38:13.518654+08:00",
+            "anchor_time": "2026-07-11T19:45:31.622404+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -53,7 +53,7 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 23.754,
+          "predicted_amount_mm": 16.144,
           "amount_level": "watch",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
@@ -169,7 +169,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 3
+      "anchor_time_staleness_minutes": 550
     },
     {
       "label": "H2",
@@ -181,7 +181,7 @@
         "cwa_adjusted_probability": null,
         "final_probability": 0.85,
         "level": "high_risk",
-        "predicted_amount_mm": 11.877,
+        "predicted_amount_mm": 8.072,
         "amount_level": "watch",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
@@ -197,7 +197,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-11T11:08:13.518654+08:00",
+            "anchor_time": "2026-07-11T20:15:31.622404+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -217,7 +217,7 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 23.754,
+          "predicted_amount_mm": 16.144,
           "amount_level": "watch",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
@@ -333,7 +333,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 3
+      "anchor_time_staleness_minutes": 550
     },
     {
       "label": "H3",
@@ -361,7 +361,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-11T11:38:13.518654+08:00",
+            "anchor_time": "2026-07-11T20:45:31.622404+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -381,7 +381,7 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 23.754,
+          "predicted_amount_mm": 16.144,
           "amount_level": "watch",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
@@ -469,7 +469,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 3
+      "anchor_time_staleness_minutes": 550
     },
     {
       "label": "H4",
@@ -497,7 +497,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-11T12:08:13.518654+08:00",
+            "anchor_time": "2026-07-11T21:15:31.622404+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -599,7 +599,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 3
+      "anchor_time_staleness_minutes": 550
     }
   ],
   "cwa_forecast": {
@@ -618,7 +618,7 @@
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-11T10:38:13.518654+08:00",
+        "anchor_time": "2026-07-11T19:45:31.622404+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -635,7 +635,7 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-11T11:08:13.518654+08:00",
+        "anchor_time": "2026-07-11T20:15:31.622404+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -652,7 +652,7 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-11T11:38:13.518654+08:00",
+        "anchor_time": "2026-07-11T20:45:31.622404+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -669,7 +669,7 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-11T12:08:13.518654+08:00",
+        "anchor_time": "2026-07-11T21:15:31.622404+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -718,7 +718,7 @@
       "refresh_attempted": false,
       "refresh_success": null,
       "created_files": [],
-      "report_path": "kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json"
+      "report_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json"
     },
     "port_local_postprocess_validation": {
       "khwd_station_count": 6,
@@ -754,7 +754,7 @@
       "prediction_mode": "port_local_model",
       "anchor_time_source": "port_local_khwd",
       "anchor_base_time": "2026-07-11T10:05:00+08:00",
-      "staleness_minutes": 3
+      "staleness_minutes": 550
     },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
@@ -789,7 +789,7 @@
     "fallback_reason": "Dataset readiness failed; using port-local postprocess.",
     "467441_used_as_core_station": false,
     "467441_usage": "not_used_or_fallback_only",
-    "prediction_mode": "nearby_cwa_historical_model",
+    "prediction_mode": "port_local_postprocess",
     "port_local_model_available": true,
     "model_retraining_required": false,
     "nearby_cwa_live_precipitation_station_ids": [
@@ -805,7 +805,7 @@
     "port_local_data_refresh_attempted": false,
     "port_local_data_refresh_success": null,
     "port_local_station_files_created": [],
-    "port_local_data_report_path": "kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json",
+    "port_local_data_report_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json",
     "fallback_to_existing_files": true,
     "model_version": "kaohsiung_port_dispatch_risk_v3.5",
     "port_local_wind_station_count": 6,
@@ -841,13 +841,13 @@
     ],
     "all_nearby_cwa_stations_closer_than_467441": true,
     "nearby_cwa_used_as_port_local_core": false,
-    "fallback_to_nearby_cwa_historical_model": true,
+    "fallback_to_nearby_cwa_historical_model": false,
     "selection_engine_version": "v3.3",
-    "selection_case_id": "KHWD_UNAVAILABLE_NEARBY_ACCEPTED",
-    "khwd_realtime_available": false,
-    "valid_khwd_station_count": 0,
-    "no_realtime_khwd_mode": true,
-    "khwd_realtime_disabled_by_request": true,
+    "selection_case_id": "KHWD_REALTIME_AVAILABLE_NEARBY_ACCEPTED",
+    "khwd_realtime_available": true,
+    "valid_khwd_station_count": 6,
+    "no_realtime_khwd_mode": false,
+    "khwd_realtime_disabled_by_request": false,
     "selection_assertions": {
       "khwd_realtime_overrides_nearby_cwa_historical": true,
       "nearby_cwa_only_used_when_khwd_unavailable": true,
@@ -907,16 +907,16 @@
     ]
   },
   "anchor_time_source": "port_local_khwd",
-  "anchor_time_staleness_minutes": 3,
-  "prediction_mode": "nearby_cwa_historical_model",
+  "anchor_time_staleness_minutes": 550,
+  "prediction_mode": "port_local_postprocess",
   "model_selection_summary": {
-    "selected_mode": "nearby_cwa_historical_model",
+    "selected_mode": "port_local_postprocess",
     "dataset_ready": false,
     "port_local_model_trained": false,
     "port_local_model_accepted": false,
     "fallback_to_port_local_postprocess": true,
     "fallback_to_467441": false,
-    "selection_reason": "KHWD realtime unavailable; nearby CWA historical model accepted and all selected stations are closer than 467441.",
+    "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
     "failed_reasons": [
       "sample_count below min_total_samples",
       "training_days below min_training_days",
@@ -934,8 +934,8 @@
       "fallback_baseline"
     ],
     "nearby_cwa_historical_model_accepted": true,
-    "fallback_to_nearby_cwa_historical_model": true,
-    "port_local_postprocess_available": false,
+    "fallback_to_nearby_cwa_historical_model": false,
+    "port_local_postprocess_available": true,
     "nearby_cwa_historical_model_available": true,
     "evaluated_modes": [
       {
@@ -951,13 +951,11 @@
       },
       {
         "mode": "port_local_postprocess",
-        "eligible": false,
+        "eligible": true,
         "reason_codes": [
-          "KHWD_REALTIME_DISABLED_BY_REQUEST",
-          "KHWD_REALTIME_UNAVAILABLE",
-          "VALID_KHWD_STATION_COUNT_LT_2"
+          "VALID_KHWD_REALTIME_AVAILABLE"
         ],
-        "selected": false
+        "selected": true
       },
       {
         "mode": "nearby_cwa_historical_model",
@@ -965,15 +963,15 @@
         "reason_codes": [
           "MODEL_AVAILABLE",
           "MODEL_ACCEPTED",
-          "ALL_SELECTED_STATIONS_CLOSER_THAN_467441"
+          "NOT_SELECTED_BECAUSE_KHWD_REALTIME_HAS_PRIORITY"
         ],
-        "selected": true
+        "selected": false
       },
       {
         "mode": "fallback_baseline",
         "eligible": true,
         "reason_codes": [
-          "NOT_SELECTED_BECAUSE_NEARBY_CWA_MODEL_AVAILABLE"
+          "NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"
         ],
         "selected": false
       }
@@ -984,11 +982,6 @@
         "PORT_LOCAL_MODEL_NOT_TRAINED",
         "PORT_LOCAL_MODEL_UNAVAILABLE",
         "PORT_LOCAL_MODEL_NOT_ACCEPTED"
-      ],
-      "port_local_postprocess": [
-        "KHWD_REALTIME_DISABLED_BY_REQUEST",
-        "KHWD_REALTIME_UNAVAILABLE",
-        "VALID_KHWD_STATION_COUNT_LT_2"
       ]
     }
   },
@@ -1009,7 +1002,7 @@
     "usage": "fallback_training_reference",
     "is_port_local_core": false,
     "fallback_eligible": true,
-    "selected_for_this_request": true,
-    "not_selected_reason": null
+    "selected_for_this_request": false,
+    "not_selected_reason": "KHWD realtime data is available; port_local_postprocess has higher priority."
   }
 }

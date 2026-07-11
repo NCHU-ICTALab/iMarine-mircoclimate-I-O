@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-10T21:10:36+08:00",
+  "generated_at": "2026-07-11T18:00:20+08:00",
   "sample_count": 30769,
   "selected_station_ids": [
     "C0V890",
@@ -86,9 +86,9 @@
     "station_count": 6,
     "sample_count": 184614,
     "training_days": 1282,
-    "valid_wind_samples": 184385,
+    "valid_wind_samples": 182940,
     "valid_gust_samples": 183821,
-    "valid_rain_samples": 184614,
+    "valid_rain_samples": 183836,
     "failed_reasons": [],
     "warnings": []
   }

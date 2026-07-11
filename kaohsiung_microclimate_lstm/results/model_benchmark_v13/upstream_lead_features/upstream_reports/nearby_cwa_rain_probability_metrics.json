@@ -1,0 +1,34 @@
+{
+  "H1": {
+    "Brier Score": 0.0241,
+    "AUC": 0.9609,
+    "CSI": 0.5601,
+    "FAR": 0.1809,
+    "POD": 0.6392,
+    "calibration_bins": []
+  },
+  "H2": {
+    "Brier Score": 0.0241,
+    "AUC": 0.9609,
+    "CSI": 0.5601,
+    "FAR": 0.1809,
+    "POD": 0.6392,
+    "calibration_bins": []
+  },
+  "H3": {
+    "Brier Score": 0.0342,
+    "AUC": 0.934,
+    "CSI": 0.3368,
+    "FAR": 0.2538,
+    "POD": 0.3804,
+    "calibration_bins": []
+  },
+  "H4": {
+    "Brier Score": 0.0342,
+    "AUC": 0.934,
+    "CSI": 0.3368,
+    "FAR": 0.2538,
+    "POD": 0.3804,
+    "calibration_bins": []
+  }
+}

@@ -1,0 +1,925 @@
+{
+  "generated_at": "2026-07-11T18:39:29+08:00",
+  "evaluation_mode": "full_scale_production_config",
+  "known_polluted_baseline": {
+    "wind_speed": {
+      "H1": {
+        "R2": 0.3698
+      }
+    },
+    "wind_gust": {
+      "H1": {
+        "R2": 0.8519
+      }
+    },
+    "precipitation_amount": {
+      "H1": {
+        "R2": -0.1054
+      }
+    }
+  },
+  "readiness": {
+    "ready": true,
+    "selected_station_ids": [
+      "C0V890",
+      "C0V490",
+      "C0V840",
+      "C0V810",
+      "C0V450",
+      "C0V900"
+    ],
+    "station_count": 6,
+    "sample_count": 184614,
+    "training_days": 1282,
+    "valid_wind_samples": 182940,
+    "valid_gust_samples": 183821,
+    "valid_rain_samples": 183836,
+    "failed_reasons": [],
+    "warnings": []
+  },
+  "stage2_stacked_into_stage3": false,
+  "stages": {
+    "stage1_clean_data": {
+      "dataset_sample_count": 30769,
+      "metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\data_cleaning_and_rain_training\\stage1_clean_data\\models\\model_manifest.json",
+      "targets": {
+        "wind_speed": {
+          "H1": {
+            "current": {
+              "MAE": 0.5512,
+              "RMSE": 0.7803,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.5513,
+              "RMSE": 0.7804,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0874,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0873,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "wind_gust": {
+          "H1": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9556,
+              "R2": 0.8542,
+              "bias": 0.0725,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9557,
+              "R2": 0.8542,
+              "bias": 0.0724,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.9457,
+              "RMSE": 1.333,
+              "R2": 0.7163,
+              "bias": 0.0154,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.9458,
+              "RMSE": 1.3331,
+              "R2": 0.7163,
+              "bias": 0.0152,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "rain_probability": {
+          "H1": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "precipitation_amount": {
+          "H1": {
+            "current": {
+              "MAE": 0.3523,
+              "RMSE": 1.9962,
+              "R2": 0.451,
+              "bias": 0.0128,
+              "beats_persistence": false,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.3524,
+              "RMSE": 1.9964,
+              "R2": 0.451,
+              "bias": 0.0128,
+              "beats_persistence": false,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.4498,
+              "RMSE": 2.3268,
+              "R2": 0.2543,
+              "bias": 0.0098,
+              "beats_persistence": false,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.4499,
+              "RMSE": 2.327,
+              "R2": 0.2543,
+              "bias": 0.0098,
+              "beats_persistence": false,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        }
+      }
+    },
+    "stage2_rain_event_only": {
+      "dataset_sample_count": 30769,
+      "metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\data_cleaning_and_rain_training\\stage2_rain_event_only\\models\\model_manifest.json",
+      "targets": {
+        "wind_speed": {
+          "H1": {
+            "current": {
+              "MAE": 0.5512,
+              "RMSE": 0.7803,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.5513,
+              "RMSE": 0.7804,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0874,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0873,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "wind_gust": {
+          "H1": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9556,
+              "R2": 0.8542,
+              "bias": 0.0725,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9557,
+              "R2": 0.8542,
+              "bias": 0.0724,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.9457,
+              "RMSE": 1.333,
+              "R2": 0.7163,
+              "bias": 0.0154,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.9458,
+              "RMSE": 1.3331,
+              "R2": 0.7163,
+              "bias": 0.0152,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "rain_probability": {
+          "H1": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H2": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H3": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H4": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          }
+        },
+        "precipitation_amount": {
+          "H1": {
+            "current": {
+              "MAE": 5.8503,
+              "RMSE": 8.6537,
+              "R2": 0.2591,
+              "bias": 0.8427,
+              "beats_persistence": true,
+              "sample_filter_column": "target_rain_event_H1",
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 5.498,
+              "delta_RMSE": 6.6575,
+              "delta_R2": -0.1919,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 5.8503,
+              "RMSE": 8.6537,
+              "R2": 0.2591,
+              "bias": 0.8427,
+              "beats_persistence": true,
+              "sample_filter_column": "target_rain_event_H2",
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 5.4979,
+              "delta_RMSE": 6.6573,
+              "delta_R2": -0.1919,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 6.9746,
+              "RMSE": 9.7951,
+              "R2": 0.0508,
+              "bias": 1.2792,
+              "beats_persistence": true,
+              "sample_filter_column": "target_rain_event_H3",
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 6.5248,
+              "delta_RMSE": 7.4683,
+              "delta_R2": -0.2035,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 6.9746,
+              "RMSE": 9.7951,
+              "R2": 0.0508,
+              "bias": 1.2792,
+              "beats_persistence": true,
+              "sample_filter_column": "target_rain_event_H4",
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 6.5247,
+              "delta_RMSE": 7.4681,
+              "delta_R2": -0.2035,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        }
+      }
+    },
+    "stage3_log1p_after_stage1": {
+      "dataset_sample_count": 30769,
+      "metrics_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\model_benchmark_v13\\data_cleaning_and_rain_training\\stage3_log1p_after_stage1\\models\\model_manifest.json",
+      "targets": {
+        "wind_speed": {
+          "H1": {
+            "current": {
+              "MAE": 0.5512,
+              "RMSE": 0.7803,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.5513,
+              "RMSE": 0.7804,
+              "R2": 0.7625,
+              "bias": -0.0488,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0874,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.6786,
+              "RMSE": 0.9669,
+              "R2": 0.6354,
+              "bias": -0.0873,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "wind_gust": {
+          "H1": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9556,
+              "R2": 0.8542,
+              "bias": 0.0725,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.6809,
+              "RMSE": 0.9557,
+              "R2": 0.8542,
+              "bias": 0.0724,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.9457,
+              "RMSE": 1.333,
+              "R2": 0.7163,
+              "bias": 0.0154,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.9458,
+              "RMSE": 1.3331,
+              "R2": 0.7163,
+              "bias": 0.0152,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": null
+            },
+            "delta_vs_previous": {
+              "delta_MAE": 0.0,
+              "delta_RMSE": 0.0,
+              "delta_R2": 0.0,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        },
+        "rain_probability": {
+          "H1": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H2": {
+            "current": {
+              "Brier Score": 0.0183,
+              "AUC": 0.9546,
+              "CSI": 0.5524,
+              "FAR": 0.1754,
+              "POD": 0.6259
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H3": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          },
+          "H4": {
+            "current": {
+              "Brier Score": 0.0263,
+              "AUC": 0.9322,
+              "CSI": 0.3185,
+              "FAR": 0.2647,
+              "POD": 0.3597
+            },
+            "delta_vs_previous": {
+              "delta_MAE": null,
+              "delta_RMSE": null,
+              "delta_R2": null,
+              "delta_AUC": 0.0,
+              "delta_CSI": 0.0
+            }
+          }
+        },
+        "precipitation_amount": {
+          "H1": {
+            "current": {
+              "MAE": 0.2942,
+              "RMSE": 1.9903,
+              "R2": 0.4543,
+              "bias": -0.1573,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": "log1p"
+            },
+            "delta_vs_previous": {
+              "delta_MAE": -0.0581,
+              "delta_RMSE": -0.0059,
+              "delta_R2": 0.0033,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H2": {
+            "current": {
+              "MAE": 0.2942,
+              "RMSE": 1.9905,
+              "R2": 0.4543,
+              "bias": -0.1574,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": "log1p"
+            },
+            "delta_vs_previous": {
+              "delta_MAE": -0.0582,
+              "delta_RMSE": -0.0059,
+              "delta_R2": 0.0033,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H3": {
+            "current": {
+              "MAE": 0.3521,
+              "RMSE": 2.3128,
+              "R2": 0.2632,
+              "bias": -0.2027,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": "log1p"
+            },
+            "delta_vs_previous": {
+              "delta_MAE": -0.0977,
+              "delta_RMSE": -0.014,
+              "delta_R2": 0.0089,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          },
+          "H4": {
+            "current": {
+              "MAE": 0.3521,
+              "RMSE": 2.313,
+              "R2": 0.2632,
+              "bias": -0.2028,
+              "beats_persistence": true,
+              "sample_filter_column": null,
+              "target_transform": "log1p"
+            },
+            "delta_vs_previous": {
+              "delta_MAE": -0.0978,
+              "delta_RMSE": -0.014,
+              "delta_R2": 0.0089,
+              "delta_AUC": null,
+              "delta_CSI": null
+            }
+          }
+        }
+      }
+    }
+  }
+}
