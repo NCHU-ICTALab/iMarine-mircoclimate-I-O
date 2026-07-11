@@ -1,12 +1,12 @@
 # Dispatch Risk API Contract v3.5
 
-版本：`kaohsiung_port_dispatch_risk_v3.5`
+模型版本：`kaohsiung_port_dispatch_risk_v3.5`
 
-## 目的
+## 版本定位
 
-v3.5 是 System Audit + Data/Station/Model Summary Dashboard patch。此版本不重訓 `port_local_model`，不改 model selection engine，不改 KHWD parser，也不改 nearby CWA training pipeline；主要補齊系統盤點、資料來源盤點、測站盤點、資料期間、模型誤差指標與前端 dashboard payload。
+v3.5 是系統盤點與派工風險輸出對齊版。此版本不重訓 `port_local_model`，不改 model selection engine，不改 KHWD parser，也不改 nearby CWA training pipeline；主要補齊系統盤點、資料來源盤點、測站盤點、資料期間、模型誤差指標、前端 dashboard payload，以及 CWA 官方 +3h/+6h 延伸預報視窗。
 
-## Endpoint
+## Endpoints
 
 ```text
 GET /api/v1/dispatch/risk?target_area=KHH
@@ -27,9 +27,69 @@ GET /api/v1/dispatch/system-audit?target_area=KHH
 }
 ```
 
+## Dispatch Risk Response
+
+`GET /api/v1/dispatch/risk?target_area=KHH` 必須保留：
+
+```text
+model_version
+generated_at
+target_area
+prediction_mode
+forecast_anchors
+extended_forecast_windows
+cwa
+data_availability
+reliability
+station_priority_summary
+model_selection_summary
+current_station_usage
+station_display_rows
+trace
+```
+
+### H1-H4 Nowcast
+
+`forecast_anchors` 維持 H1~H4（30/60/90/120 分鐘）短期派工視窗，來源可為 `port_local_postprocess`、`nearby_cwa_historical_model` 或最後備援，不得混入 +3h/+6h 官方預報。
+
+### CWA +3h/+6h Official Windows
+
+`extended_forecast_windows` 是獨立欄位，不屬於 H1~H4 模型外插。
+
+```json
+{
+  "available": true,
+  "source": "cwa_official_forecast",
+  "data_id": "F-D0047-091",
+  "location_name": "前鎮區",
+  "windows": [
+    {
+      "window": "+3h",
+      "offset_minutes": 180,
+      "source": "cwa_official_forecast",
+      "wind_speed": {"available": true, "value_mps": 5.2, "operation_level": "normal"},
+      "rain_probability": {"available": true, "value": 0.4, "level": "watch"},
+      "wind_gust": {"available": false, "reason": "no_official_cwa_gust_product"},
+      "visibility": {"available": false, "reason": "no_official_cwa_visibility_product"}
+    }
+  ]
+}
+```
+
+Frontend 相容簡化欄位 `cwa` 對齊 iMarine-FrontEnd `CwaWindow`：
+
+```json
+[
+  {"window": "+3h", "rainLevel": "小雨", "beaufort": 3},
+  {"window": "+6h", "rainLevel": "豪雨", "beaufort": 6}
+]
+```
+
+CWA API 失敗時，`extended_forecast_windows.available` 必須為 `false`，`cwa` 必須為空陣列，且不得影響 `forecast_anchors`。
+
 ## system-audit Response
 
-`GET /api/v1/dispatch/system-audit?target_area=KHH` 必須回傳：
+`GET /api/v1/dispatch/system-audit?target_area=KHH` 必須保留：
 
 ```text
 model_version
@@ -48,8 +108,6 @@ trace
 ```
 
 ## Reports
-
-v3.5 產出：
 
 ```text
 kaohsiung_microclimate_lstm/results/dispatch_risk_v35/system_audit_report.json
@@ -70,20 +128,8 @@ KHWD = port-local realtime wind/gust source
 nearby CWA historical = fallback historical model training reference
 467441 = fallback baseline only
 CWA PoP = rain prior only
+CWA +3h/+6h = official forecast display only
 ```
-
-## Dataset Duration Rules
-
-- 可讀到 timestamp / obs_time 時才計算 `time_start`、`time_end`、`duration_days`、`total_rows`。
-- 讀不到資料時使用 `status: not_available` 與 `reason`。
-- 不得把未知資料期間偽造成 `0 days`。
-- 不得把未知 row count 偽造成 `0`。
-
-## Model Accuracy Rules
-
-- wind_speed / wind_gust 是 regression，顯示 MAE、RMSE、R2，不稱為 accuracy。
-- rain_probability 顯示 Brier Score、POD、FAR、AUC。
-- 缺 metrics 時使用 `metrics_available: false` 與 `metrics_status: not_available`，不得偽造 metrics。
 
 ## Current Validated State
 
@@ -93,12 +139,4 @@ no_realtime_khwd_mode_selected: nearby_cwa_historical_model
 nearby_cwa_historical_model: trained / available / accepted
 port_local_model: disabled / not trained
 fallback_baseline: available_last_resort_only
-```
-
-目前主要指標（2026-07-11 資料源頭缺值代碼污染清除後重訓，詳見規格書第 15 節）：
-
-```text
-wind_speed H1 MAE: 0.5512 m/s (R2 0.7625)
-wind_gust H1 MAE: 0.6809 m/s (R2 0.8542)
-rain_probability H1 Brier Score: 0.0183
 ```

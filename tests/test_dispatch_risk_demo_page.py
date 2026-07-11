@@ -13,3 +13,5 @@ def test_dispatch_risk_demo_page_contains_frontend_contract():
     assert "/admin/fetch-microclimate-sources" in response.text
     assert "station_priority_summary" in response.text
     assert "forecast_anchors" in response.text
+    assert "CWA +3h/+6h" in response.text
+    assert "extended_forecast_windows" in response.text

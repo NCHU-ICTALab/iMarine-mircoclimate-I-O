@@ -612,6 +612,10 @@ def _render_dispatch_risk_demo_v34() -> str:
       <h2>H1-H4 派工建議</h2>
       <div id="anchor-strip" class="anchor-strip"></div>
     </section>
+    <section class="panel" style="margin-bottom:16px;">
+      <h2>CWA +3h/+6h 官方預報</h2>
+      <div id="cwa-window-strip" class="anchor-strip"></div>
+    </section>
 
     <section class="grid wide">
       <div class="panel">
@@ -736,6 +740,25 @@ def _render_dispatch_risk_demo_v34() -> str:
       }).join("");
     }
 
+    function renderCwaWindows(extended) {
+      const holder = $("cwa-window-strip");
+      if (!extended || !extended.available) {
+        holder.innerHTML = `<div class="trigger-note">CWA 官方 +3h/+6h 預報目前不可用：${text(extended?.reason, "無資料")}</div>`;
+        return;
+      }
+      holder.innerHTML = (extended.windows || []).map(item => `
+        <div class="anchor-card ${levelClass(item.wind_speed?.operation_level || item.rain_probability?.level)}">
+          <div>
+            <div class="h-label">${text(item.window)} · CWA 官方預報</div>
+            <div class="h-time num">${text(item.data_id)}</div>
+          </div>
+          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${item.wind_speed?.available ? `${number(item.wind_speed.value_mps)} m/s` : "-"} ${pill(item.wind_speed?.operation_level || "unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${item.rain_probability?.available ? percent(item.rain_probability.value) : "-"} ${pill(item.rain_probability?.level || "unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${pill("unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">能見度</span><span class="var-val">${pill("unavailable")}</span></div>
+        </div>`).join("");
+    }
+
     function render(payload, audit) {
       const trace = payload.trace || {};
       const training = payload.model_training_status || {};
@@ -772,6 +795,7 @@ def _render_dispatch_risk_demo_v34() -> str:
           <td>${item.is_port_local_core ? "是" : "否"}</td><td>${item.is_fallback_reference ? "是" : "否"}</td>
         </tr>`).join("");
       renderAnchorCards(anchors);
+      renderCwaWindows(payload.extended_forecast_windows);
       $("raw-json").textContent = JSON.stringify(payload, null, 2);
       $("status").textContent = `已更新：${text(payload.generated_at)}`;
       if (audit) renderAudit(audit);

@@ -14,6 +14,7 @@
 - 預測端已支援 `target_transform=log1p` 時用 `expm1()` 還原雨量輸出，避免線上輸出停留在 log 尺度。
 - KHWD08 metadata 語意已對齊規格書：已確認非公開、不再追蹤；KHWD08 僅作即時校核，不用於需要座標的空間特徵。
 - 第 17 項已完成：`data/raw/observed_hourly/467441.csv` 的 159 筆負雨量缺值碼已依 `PHYSICAL_RANGE_LIMITS` 轉為空值，清理後負雨量筆數為 0。
+- 第 18 項已完成：v3.5 派工風險回應新增 `extended_forecast_windows` 與 frontend 相容 `cwa` 欄位，直接呈現 CWA 官方 +3h/+6h 風速與降雨機率；陣風與能見度明確標記不可用，不做模型外插。
 
 ## 正式評估
 
@@ -49,10 +50,11 @@
 - 自動排程基礎建設已完成，預設關閉。
 - 上下游領先特徵、氣壓/濕度/氣溫特徵皆已完成正式評估，結論是不預設啟用。
 - H1-H3 三小時累積雨量估計與潮汐增水殘差模型已完成初版。
+- dispatch-risk-demo 已新增「CWA +3h/+6h 官方預報」區塊。
 
 ## 驗證
 
-- 完整測試：`214 passed`
+- 完整測試：`218 passed`
 - 目前僅剩 FastAPI `@app.on_event` deprecation warning，非本輪功能錯誤。
 
 ## 仍需時間累積的項目
