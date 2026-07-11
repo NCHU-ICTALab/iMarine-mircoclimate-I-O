@@ -1,0 +1,46 @@
+# Coverage is scoped to code that ships and is meant to be exercised by the test
+# suite. Excluded paths below are one-off/manual CLI tools, diagnostic scripts, or
+# legacy v2.0-era modules superseded by the current dispatch-risk pipeline (verified
+# by grepping for real importers, not just references in app/contracts.py's spec
+# listing strings) -- see docs/dataset_guide.md and the v1.3 spec for the pipeline
+# that's actually active. This list should shrink, not grow: if new production code
+# lands untested, add a real test instead of adding another omit entry.
+#
+# kaohsiung_microclimate_lstm/run_all.py                          manual "run everything" entry point
+# kaohsiung_microclimate_lstm/src/plot_training.py                manual plotting tool
+# kaohsiung_microclimate_lstm/src/cli.py                          legacy v2.0 CLI wrapper, superseded by src/tools/*
+# kaohsiung_microclimate_lstm/src/train.py                        legacy LSTM baseline trainer, superseded by training/train_nearby_cwa_historical_model.py
+# kaohsiung_microclimate_lstm/src/data/api.py                     only imported by the legacy src/cli.py
+# kaohsiung_microclimate_lstm/src/data/label_builder.py           unused, zero importers anywhere
+# kaohsiung_microclimate_lstm/src/data/feature_engineering.py     only imported by the unused src/features/api.py
+# kaohsiung_microclimate_lstm/src/data/fetch_codis_10min.py       O-A0003-001 confirmed non-viable, see spec section 1.2
+# kaohsiung_microclimate_lstm/src/data/diagnose_codis_stations.py one-off diagnostic script
+# kaohsiung_microclimate_lstm/src/features/*                      unused v2.0 placeholder package
+# kaohsiung_microclimate_lstm/src/models/*                        unused v2.0 placeholder package
+# kaohsiung_microclimate_lstm/src/tune/threshold_sweep.py         manual hyperparameter sweep script
+# kaohsiung_microclimate_lstm/src/transfer/finetune.py            legacy LSTM fine-tuning script
+# kaohsiung_microclimate_lstm/src/evaluation/report_generator.py  only referenced in contracts.py spec listing, never called
+# kaohsiung_microclimate_lstm/src/evaluation/comparators.py       written but not yet runnable; blocked on 14-day CWA forecast accumulation (spec item 8)
+[run]
+omit =
+    setup.py
+    */__pycache__/*
+    */.venv/*
+    kaohsiung_microclimate_lstm/run_all.py
+    kaohsiung_microclimate_lstm/src/plot_training.py
+    kaohsiung_microclimate_lstm/src/cli.py
+    kaohsiung_microclimate_lstm/src/train.py
+    kaohsiung_microclimate_lstm/src/data/api.py
+    kaohsiung_microclimate_lstm/src/data/label_builder.py
+    kaohsiung_microclimate_lstm/src/data/feature_engineering.py
+    kaohsiung_microclimate_lstm/src/data/fetch_codis_10min.py
+    kaohsiung_microclimate_lstm/src/data/diagnose_codis_stations.py
+    kaohsiung_microclimate_lstm/src/features/*
+    kaohsiung_microclimate_lstm/src/models/*
+    kaohsiung_microclimate_lstm/src/tune/threshold_sweep.py
+    kaohsiung_microclimate_lstm/src/transfer/finetune.py
+    kaohsiung_microclimate_lstm/src/evaluation/report_generator.py
+    kaohsiung_microclimate_lstm/src/evaluation/comparators.py
+
+[report]
+show_missing = True

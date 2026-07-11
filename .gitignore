@@ -7,6 +7,8 @@ __pycache__/
 *.sqlite3
 .pytest_cache/
 .tmp_pytest*/
+.coverage
+coverage.xml
 kaohsiung_microclimate_lstm/data/cache/
 kaohsiung_microclimate_lstm/data/raw/historical_weather/
 kaohsiung_microclimate_lstm/data/processed/
