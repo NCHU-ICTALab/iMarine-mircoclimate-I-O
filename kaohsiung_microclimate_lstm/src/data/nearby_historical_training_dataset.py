@@ -40,9 +40,13 @@ def build_nearby_historical_training_dataset(
             "dataset_report": _report(dataset, selected, [], []),
         }
     raw = pd.concat(rows, ignore_index=True).sort_values(["obs_time", "station_id"])
-    aggregate = _aggregate(raw)
+    training_cfg = config.get("nearby_cwa_historical_training", {})
+    aggregate = _aggregate(
+        raw,
+        enable_pressure_humidity_features=bool(training_cfg.get("enable_pressure_humidity_features", False)),
+    )
     enable_upstream_features = bool(
-        config.get("nearby_cwa_historical_training", {}).get("enable_upstream_lead_features", False)
+        training_cfg.get("enable_upstream_lead_features", False)
     )
     if enable_upstream_features:
         zoning = load_zoning_config(config.get("zoning_config_path"))
@@ -62,7 +66,7 @@ def build_nearby_historical_training_dataset(
     }
 
 
-def _aggregate(raw: pd.DataFrame) -> pd.DataFrame:
+def _aggregate(raw: pd.DataFrame, enable_pressure_humidity_features: bool = False) -> pd.DataFrame:
     grouped = raw.groupby("obs_time", sort=True)
     out = pd.DataFrame(index=grouped.size().index)
     out["nearby_cwa_station_count"] = grouped["station_id"].nunique()
@@ -80,6 +84,8 @@ def _aggregate(raw: pd.DataFrame) -> pd.DataFrame:
         out["nearby_cwa_precipitation_1hr_max"] = precip.max()
         out["nearby_cwa_rainy_station_count"] = precip.apply(lambda s: int((pd.to_numeric(s, errors="coerce").fillna(0.0) > 0.5).sum()))
         out["nearby_cwa_rainy_station_ratio"] = out["nearby_cwa_rainy_station_count"] / out["nearby_cwa_station_count"].replace(0, np.nan)
+    if enable_pressure_humidity_features:
+        _add_pressure_humidity_aggregates(raw, grouped, out)
     out["nearby_cwa_wind_direction_sin_mean"] = _direction(raw, "wind_direction", np.sin)
     out["nearby_cwa_wind_direction_cos_mean"] = _direction(raw, "wind_direction", np.cos)
     out["nearby_cwa_gust_direction_sin_mean"] = _direction(raw, "wind_gust_direction", np.sin)
@@ -92,6 +98,36 @@ def _aggregate(raw: pd.DataFrame) -> pd.DataFrame:
         if value_col in raw.columns:
             out[out_col] = raw.groupby("obs_time").apply(lambda g: _weighted_average(g, value_col), include_groups=False)
     return out.reset_index().rename(columns={"index": "obs_time"})
+
+
+def _add_pressure_humidity_aggregates(raw: pd.DataFrame, grouped, out: pd.DataFrame) -> None:
+    for src, prefix in [
+        ("station_pressure", "nearby_cwa_pressure"),
+        ("relative_humidity", "nearby_cwa_relative_humidity"),
+        ("temperature", "nearby_cwa_temperature"),
+    ]:
+        if src in raw.columns:
+            values = grouped[src]
+            out[f"{prefix}_mean"] = values.mean()
+            out[f"{prefix}_max"] = values.max()
+            out[f"{prefix}_min"] = values.min()
+            out[f"{prefix}_std"] = values.std(ddof=0).fillna(0.0)
+    if {"nearby_cwa_pressure_max", "nearby_cwa_pressure_min"}.issubset(out.columns):
+        out["nearby_cwa_pressure_gradient"] = out["nearby_cwa_pressure_max"] - out["nearby_cwa_pressure_min"]
+    if {"nearby_cwa_temperature_mean", "nearby_cwa_relative_humidity_mean"}.issubset(out.columns):
+        dew_point = _dew_point_c(out["nearby_cwa_temperature_mean"], out["nearby_cwa_relative_humidity_mean"])
+        out["nearby_cwa_dew_point_mean"] = dew_point
+        out["nearby_cwa_dew_point_spread_mean"] = out["nearby_cwa_temperature_mean"] - dew_point
+
+
+def _dew_point_c(temperature_c, relative_humidity_pct):
+    """Magnus-Tetens approximation using a=17.625 and b=243.04 degC."""
+    temp = pd.to_numeric(temperature_c, errors="coerce")
+    rh = pd.to_numeric(relative_humidity_pct, errors="coerce").clip(lower=1e-6, upper=100.0)
+    a = 17.625
+    b = 243.04
+    gamma = np.log(rh / 100.0) + (a * temp) / (b + temp)
+    return (b * gamma) / (a - gamma)
 
 
 def _direction(raw: pd.DataFrame, column: str, fn) -> pd.Series:
@@ -131,6 +167,7 @@ def _add_lag_roll(frame: pd.DataFrame) -> pd.DataFrame:
         "nearby_cwa_wind_speed_max",
         "nearby_cwa_wind_gust_max",
         "nearby_cwa_precipitation_1hr_max",
+        "nearby_cwa_pressure_mean",
         "upstream_subset_wind_speed_max",
         "upstream_subset_wind_gust_max",
         "upstream_subset_precipitation_1hr_max",
@@ -144,6 +181,8 @@ def _add_lag_roll(frame: pd.DataFrame) -> pd.DataFrame:
             if col == "upstream_subset_precipitation_1hr_max":
                 out["upstream_subset_precipitation_roll3"] = out[col].rolling(3, min_periods=1).mean()
                 out["upstream_subset_precipitation_roll6"] = out[col].rolling(6, min_periods=1).mean()
+            if col == "nearby_cwa_pressure_mean":
+                out["nearby_cwa_pressure_mean_trend_3h"] = out[col] - out[col].shift(3)
     return out
 
 

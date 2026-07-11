@@ -234,6 +234,7 @@ nearby_cwa_historical_training:
   # upstream lead features 對 wind_speed 反而略變差（H1 R² 0.3698->0.3658），對 wind_gust/precipitation_amount
   # 幾乎持平，未達規格書 §13.3 要求的「確實優於baseline」門檻，故預設關閉，不進正式模型。
   enable_upstream_lead_features: false
+  enable_pressure_humidity_features: false
   training_thresholds:
     min_total_samples: 1000
     min_training_days: 30

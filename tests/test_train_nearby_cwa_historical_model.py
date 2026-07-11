@@ -29,6 +29,24 @@ def _dataset(periods=120):
         "upstream_subset_precipitation_roll6": [0, 0.25] * (periods // 2),
         "upstream_subset_station_count": 1,
         "upstream_subset_season_code": 2,
+        "nearby_cwa_pressure_mean": [1000, 1001] * (periods // 2),
+        "nearby_cwa_pressure_min": [999, 1000] * (periods // 2),
+        "nearby_cwa_pressure_max": [1002, 1003] * (periods // 2),
+        "nearby_cwa_pressure_std": [1, 1] * (periods // 2),
+        "nearby_cwa_pressure_gradient": [3, 3] * (periods // 2),
+        "nearby_cwa_pressure_mean_lag1": [999, 1000] * (periods // 2),
+        "nearby_cwa_pressure_mean_roll3": [1000, 1000.5] * (periods // 2),
+        "nearby_cwa_pressure_mean_trend_3h": [0, -1] * (periods // 2),
+        "nearby_cwa_relative_humidity_mean": [80, 85] * (periods // 2),
+        "nearby_cwa_relative_humidity_min": [75, 80] * (periods // 2),
+        "nearby_cwa_relative_humidity_max": [85, 90] * (periods // 2),
+        "nearby_cwa_relative_humidity_std": [2, 2] * (periods // 2),
+        "nearby_cwa_temperature_mean": [28, 29] * (periods // 2),
+        "nearby_cwa_temperature_min": [27, 28] * (periods // 2),
+        "nearby_cwa_temperature_max": [29, 30] * (periods // 2),
+        "nearby_cwa_temperature_std": [1, 1] * (periods // 2),
+        "nearby_cwa_dew_point_mean": [24, 25] * (periods // 2),
+        "nearby_cwa_dew_point_spread_mean": [4, 4] * (periods // 2),
         "hour_sin": 0.0,
         "hour_cos": 1.0,
         "doy_sin": 0.0,
@@ -53,6 +71,7 @@ def test_train_nearby_cwa_historical_model_trains_models(tmp_path):
     assert "H1" in result["metrics"]["rain_probability"]
     assert "H1" in result["metrics"]["precipitation_amount"]
     assert "upstream_subset_precipitation_1hr_max" in result["metrics"]["upstream_lead_feature_columns"]
+    assert "nearby_cwa_pressure_mean" in result["metrics"]["pressure_humidity_feature_columns"]
     assert (tmp_path / "models" / "precipitation_amount_H1.joblib").exists()
     assert (tmp_path / "reports" / "nearby_cwa_model_metrics.json").exists()
 

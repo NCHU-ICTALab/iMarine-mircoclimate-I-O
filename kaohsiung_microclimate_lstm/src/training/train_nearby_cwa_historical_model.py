@@ -50,6 +50,11 @@ def train_nearby_cwa_historical_model(
         "nearby_cwa_historical_model_trained": True,
         "feature_columns": features,
         "upstream_lead_feature_columns": [col for col in features if col.startswith("upstream_subset_")],
+        "pressure_humidity_feature_columns": [
+            col
+            for col in features
+            if col.startswith(("nearby_cwa_pressure", "nearby_cwa_relative_humidity", "nearby_cwa_temperature", "nearby_cwa_dew_point"))
+        ],
         "wind_speed": {},
         "wind_gust": {},
         "rain_probability": {},
@@ -60,6 +65,11 @@ def train_nearby_cwa_historical_model(
         "model_version": "nearby_cwa_v32",
         "feature_columns": features,
         "upstream_lead_feature_columns": [col for col in features if col.startswith("upstream_subset_")],
+        "pressure_humidity_feature_columns": [
+            col
+            for col in features
+            if col.startswith(("nearby_cwa_pressure", "nearby_cwa_relative_humidity", "nearby_cwa_temperature", "nearby_cwa_dew_point"))
+        ],
         "models": {},
     }
     algorithm_config = config.get("nearby_cwa_historical_training", {}).get("model_algorithms", {})
@@ -218,6 +228,24 @@ def _rain_amount_feature_columns(features: list[str]) -> list[str]:
         "upstream_subset_precipitation_roll6",
         "upstream_subset_station_count",
         "upstream_subset_season_code",
+        "nearby_cwa_pressure_mean",
+        "nearby_cwa_pressure_min",
+        "nearby_cwa_pressure_max",
+        "nearby_cwa_pressure_std",
+        "nearby_cwa_pressure_gradient",
+        "nearby_cwa_pressure_mean_lag1",
+        "nearby_cwa_pressure_mean_roll3",
+        "nearby_cwa_pressure_mean_trend_3h",
+        "nearby_cwa_relative_humidity_mean",
+        "nearby_cwa_relative_humidity_min",
+        "nearby_cwa_relative_humidity_max",
+        "nearby_cwa_relative_humidity_std",
+        "nearby_cwa_temperature_mean",
+        "nearby_cwa_temperature_min",
+        "nearby_cwa_temperature_max",
+        "nearby_cwa_temperature_std",
+        "nearby_cwa_dew_point_mean",
+        "nearby_cwa_dew_point_spread_mean",
         "hour_sin",
         "hour_cos",
         "doy_sin",
