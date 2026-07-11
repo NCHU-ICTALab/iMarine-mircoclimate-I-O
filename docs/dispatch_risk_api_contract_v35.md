@@ -54,21 +54,29 @@ trace
 
 ### CWA +3h/+6h Official Windows
 
-`extended_forecast_windows` 是獨立欄位，不屬於 H1~H4 模型外插。
+`extended_forecast_windows` 是獨立欄位，不屬於 H1~H4 模型外插。資料來源為 CWA `F-D0047-065`，降雨機率使用 `3小時降雨機率`，風速以官方蒲福風級區間呈現，不提供精確 m/s。
 
 ```json
 {
   "available": true,
   "source": "cwa_official_forecast",
-  "data_id": "F-D0047-091",
+  "data_id": "F-D0047-065",
   "location_name": "前鎮區",
   "windows": [
     {
       "window": "+3h",
       "offset_minutes": 180,
       "source": "cwa_official_forecast",
-      "wind_speed": {"available": true, "value_mps": 5.2, "operation_level": "normal"},
-      "rain_probability": {"available": true, "value": 0.4, "level": "watch"},
+      "wind_speed": {
+        "available": true,
+        "value_mps": null,
+        "beaufort_scale_min": 6,
+        "beaufort_scale_text": ">= 6",
+        "wind_speed_text": ">= 11",
+        "operation_level": null,
+        "basis": "cwa_beaufort_scale_range_not_precise_value"
+      },
+      "rain_probability": {"available": true, "value": 0.1, "level": "normal"},
       "wind_gust": {"available": false, "reason": "no_official_cwa_gust_product"},
       "visibility": {"available": false, "reason": "no_official_cwa_visibility_product"}
     }
@@ -80,12 +88,28 @@ Frontend 相容簡化欄位 `cwa` 對齊 iMarine-FrontEnd `CwaWindow`：
 
 ```json
 [
-  {"window": "+3h", "rainLevel": "小雨", "beaufort": 3},
-  {"window": "+6h", "rainLevel": "豪雨", "beaufort": 6}
+  {"window": "+3h", "rainLevel": "無", "beaufort": 6},
+  {"window": "+6h", "rainLevel": "無", "beaufort": 6}
 ]
 ```
 
 CWA API 失敗時，`extended_forecast_windows.available` 必須為 `false`，`cwa` 必須為空陣列，且不得影響 `forecast_anchors`。
+
+## Live Verification
+
+已用 `scripts/verify_cwa_extended_forecast_live.py` 實際呼叫 CWA API 驗證：
+
+```text
+data_id: F-D0047-065
+location_name: 前鎮區
+current_rain_probability: 0.1
+next_rain_probability: 0.1
+current_wind: wind_speed_text >= 11, beaufort_scale_min 6
+next_wind: wind_speed_text >= 11, beaufort_scale_min 6
+passed: true
+```
+
+報告：`kaohsiung_microclimate_lstm/results/dispatch_risk_v35/cwa_extended_forecast_live_verification.json`
 
 ## system-audit Response
 

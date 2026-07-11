@@ -752,7 +752,7 @@ def _render_dispatch_risk_demo_v34() -> str:
             <div class="h-label">${text(item.window)} · CWA 官方預報</div>
             <div class="h-time num">${text(item.data_id)}</div>
           </div>
-          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${item.wind_speed?.available ? `${number(item.wind_speed.value_mps)} m/s` : "-"} ${pill(item.wind_speed?.operation_level || "unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${item.wind_speed?.available ? `蒲福 ${text(item.wind_speed.beaufort_scale_min)}+（${text(item.wind_speed.wind_speed_text)}）` : "-"} ${pill(item.wind_speed?.operation_level || "unavailable")}</span></div>
           <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${item.rain_probability?.available ? percent(item.rain_probability.value) : "-"} ${pill(item.rain_probability?.level || "unavailable")}</span></div>
           <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${pill("unavailable")}</span></div>
           <div class="var-row"><span class="var-name">能見度</span><span class="var-val">${pill("unavailable")}</span></div>

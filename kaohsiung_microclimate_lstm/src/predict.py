@@ -22,7 +22,7 @@ try:
     from .cwa.cwa_open_data_client import align_cwa_pop_to_anchors, load_cwa_api_key
     from .cwa.cwa_pop_quality import align_cwa_pop_quality_to_anchors
     from .cwa.location_resolver import resolve_cwa_forecast_source
-    from .cwa.pop3h_client import EXTENDED_DATAID, fetch_pop3h
+    from .cwa.pop3h_client import DATAID, EXTENDED_DATAID, fetch_pop3h
     from .data.multi_station_loader import load_multi_station_observations, load_priority_station_pool_observations
     from .data.nearby_aggregation import build_nearby_aggregated_features
     from .data.station_pool import enabled_input_stations, load_station_pool_config, resolve_station_pool_path
@@ -66,7 +66,7 @@ except ImportError:  # pragma: no cover
     from cwa.cwa_open_data_client import align_cwa_pop_to_anchors, load_cwa_api_key
     from cwa.cwa_pop_quality import align_cwa_pop_quality_to_anchors
     from cwa.location_resolver import resolve_cwa_forecast_source
-    from cwa.pop3h_client import EXTENDED_DATAID, fetch_pop3h
+    from cwa.pop3h_client import DATAID, EXTENDED_DATAID, fetch_pop3h
     from data.multi_station_loader import load_multi_station_observations, load_priority_station_pool_observations
     from data.nearby_aggregation import build_nearby_aggregated_features
     from data.station_pool import enabled_input_stations, load_station_pool_config, resolve_station_pool_path
@@ -2695,7 +2695,7 @@ def _fetch_resolved_cwa_pop(cfg: dict[str, Any], project: Path) -> dict[str, Any
 def _build_extended_cwa_forecast_windows(cfg: dict[str, Any], project: Path, generated_at: str | None = None) -> dict[str, Any]:
     cwa_cfg = cfg.get("extended_forecast_windows", {})
     if cwa_cfg.get("enabled", True) is False:
-        return {"available": False, "source": "cwa_official_forecast", "data_id": EXTENDED_DATAID, "windows": [], "reason": "disabled"}
+        return {"available": False, "source": "cwa_official_forecast", "data_id": DATAID, "windows": [], "reason": "disabled"}
     pop_cfg = cfg.get("rain_postprocess", {}).get("cwa_pop3h", {})
     location = str(cwa_cfg.get("location_name") or pop_cfg.get("fallback_location", "前鎮區"))
     cache_minutes = int(cwa_cfg.get("cache_minutes", pop_cfg.get("cache_minutes", 30)))
@@ -2706,14 +2706,14 @@ def _build_extended_cwa_forecast_windows(cfg: dict[str, Any], project: Path, gen
             now=now,
             cache_minutes=cache_minutes,
             project_root=project,
-            data_id=str(cwa_cfg.get("data_id", EXTENDED_DATAID)),
+            data_id=str(cwa_cfg.get("data_id", DATAID)),
             include_wind_speed=True,
         )
     except Exception as exc:
         return {
             "available": False,
             "source": "cwa_official_forecast",
-            "data_id": str(cwa_cfg.get("data_id", EXTENDED_DATAID)),
+            "data_id": str(cwa_cfg.get("data_id", DATAID)),
             "location_name": location,
             "windows": [],
             "reason": str(exc),
@@ -2722,20 +2722,20 @@ def _build_extended_cwa_forecast_windows(cfg: dict[str, Any], project: Path, gen
         return {
             "available": False,
             "source": "cwa_official_forecast",
-            "data_id": cwa.get("data_id") or str(cwa_cfg.get("data_id", EXTENDED_DATAID)),
+            "data_id": cwa.get("data_id") or str(cwa_cfg.get("data_id", DATAID)),
             "location_name": cwa.get("location_name", location),
             "fetched_at": cwa.get("fetched_at"),
             "windows": [],
             "reason": cwa.get("reason", "cwa forecast unavailable"),
-        }
+    }
     windows = [
-        _build_extended_cwa_window("+3h", 180, cwa.get("current_wind_speed_mps"), cwa.get("current"), cwa, cfg),
-        _build_extended_cwa_window("+6h", 360, cwa.get("next_wind_speed_mps"), cwa.get("next"), cwa, cfg),
+        _build_extended_cwa_window("+3h", 180, cwa.get("current_wind"), cwa.get("current"), cwa, cfg),
+        _build_extended_cwa_window("+6h", 360, cwa.get("next_wind"), cwa.get("next"), cwa, cfg),
     ]
     return {
         "available": True,
         "source": "cwa_official_forecast",
-        "data_id": cwa.get("data_id") or str(cwa_cfg.get("data_id", EXTENDED_DATAID)),
+        "data_id": cwa.get("data_id") or str(cwa_cfg.get("data_id", DATAID)),
         "location_name": cwa.get("location_name", location),
         "fetched_at": cwa.get("fetched_at"),
         "windows": windows,
@@ -2745,30 +2745,33 @@ def _build_extended_cwa_forecast_windows(cfg: dict[str, Any], project: Path, gen
 def _build_extended_cwa_window(
     label: str,
     offset_minutes: int,
-    wind_speed_mps: Any,
+    wind: Any,
     rain_probability: Any,
     cwa: dict[str, Any],
     cfg: dict[str, Any],
 ) -> dict[str, Any]:
-    wind_value = _safe_float(wind_speed_mps)
+    wind_data = wind if isinstance(wind, dict) else {}
+    beaufort_min = _safe_int(wind_data.get("beaufort_scale_min"))
     rain_value = _safe_float(rain_probability)
-    wind_detail = map_wind_speed_to_operation_level(wind_value, cfg) if wind_value is not None else None
     rain_level = map_rain_probability_to_level(rain_value, cfg) if rain_value is not None else None
     return {
         "label": label,
         "window": label,
         "offset_minutes": offset_minutes,
         "source": "cwa_official_forecast",
-        "data_id": cwa.get("data_id") or EXTENDED_DATAID,
+        "data_id": cwa.get("data_id") or DATAID,
         "wind_speed": (
             {
                 "available": True,
-                "value_mps": round(wind_value, 3),
-                "operation_level": wind_detail["operation_level"],
-                "operation_label": wind_detail["operation_label"],
-                "beaufort": wind_detail["beaufort"],
+                "value_mps": None,
+                "beaufort_scale_min": beaufort_min,
+                "beaufort_scale_text": wind_data.get("beaufort_scale_text"),
+                "wind_speed_text": wind_data.get("wind_speed_text"),
+                "operation_level": None,
+                "operation_label": None,
+                "basis": "cwa_beaufort_scale_range_not_precise_value",
             }
-            if wind_detail
+            if beaufort_min is not None
             else {"available": False, "reason": "cwa_wind_speed_unavailable"}
         ),
         "rain_probability": (
@@ -2797,7 +2800,7 @@ def _frontend_cwa_windows(extended: dict[str, Any]) -> list[dict[str, Any]]:
             {
                 "window": window.get("window"),
                 "rainLevel": rain.get("rain_level_label", "無") if rain.get("available") else "無",
-                "beaufort": int((wind.get("beaufort") or {}).get("scale", 0)) if wind.get("available") else 0,
+                "beaufort": int(wind.get("beaufort_scale_min", 0) or 0) if wind.get("available") else 0,
             }
         )
     return rows
@@ -2818,5 +2821,14 @@ def _safe_float(value: Any) -> float | None:
         if value is None:
             return None
         return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_int(value: Any) -> int | None:
+    try:
+        if value is None:
+            return None
+        return int(value)
     except (TypeError, ValueError):
         return None

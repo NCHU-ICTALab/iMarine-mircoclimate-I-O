@@ -2,10 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from kaohsiung_microclimate_lstm.src import predict as predict_module
-from kaohsiung_microclimate_lstm.src.cwa.pop3h_client import _current_next, _parse_records
+from kaohsiung_microclimate_lstm.src.cwa.pop3h_client import DATAID, _current_next, _parse_records, parse_beaufort_scale_min
 
 
-def _body():
+def _realistic_body():
     return {
         "records": {
             "Locations": [
@@ -15,7 +15,7 @@ def _body():
                             "LocationName": "前鎮區",
                             "WeatherElement": [
                                 {
-                                    "ElementName": "PoP3h",
+                                    "ElementName": "3小時降雨機率",
                                     "Time": [
                                         {
                                             "StartTime": "2026-07-11T18:00:00+08:00",
@@ -30,17 +30,17 @@ def _body():
                                     ],
                                 },
                                 {
-                                    "ElementName": "WindSpeed",
+                                    "ElementName": "風速",
                                     "Time": [
                                         {
                                             "StartTime": "2026-07-11T18:00:00+08:00",
                                             "EndTime": "2026-07-11T21:00:00+08:00",
-                                            "ElementValue": [{"WindSpeed": "5.2"}],
+                                            "ElementValue": [{"WindSpeed": ">= 11", "BeaufortScale": ">= 6"}],
                                         },
                                         {
                                             "StartTime": "2026-07-11T21:00:00+08:00",
                                             "EndTime": "2026-07-12T00:00:00+08:00",
-                                            "ElementValue": [{"WindSpeed": "12.0"}],
+                                            "ElementValue": [{"WindSpeed": "4-5", "BeaufortScale": "3-4"}],
                                         },
                                     ],
                                 },
@@ -53,16 +53,25 @@ def _body():
     }
 
 
-def test_cwa_pop3h_parser_merges_rain_probability_and_wind_speed():
-    records = _parse_records(_body(), "前鎮區")
-    now = datetime(2026, 7, 11, 19, 0, tzinfo=ZoneInfo("Asia/Taipei"))
-    result = _current_next({"available": True, "data_id": "F-D0047-091", "location_name": "前鎮區", "records": records}, now)
+def test_parse_beaufort_scale_min_handles_cwa_range_formats():
+    assert parse_beaufort_scale_min(">= 6") == 6
+    assert parse_beaufort_scale_min("3-4") == 3
+    assert parse_beaufort_scale_min("5級") == 5
+
+
+def test_cwa_pop3h_parser_merges_rain_probability_and_beaufort_wind():
+    records = _parse_records(_realistic_body(), "前鎮區")
+    now = datetime(2026, 7, 11, 15, 30, tzinfo=ZoneInfo("Asia/Taipei"))
+    result = _current_next({"available": True, "data_id": DATAID, "location_name": "前鎮區", "records": records}, now)
 
     assert result["available"] is True
     assert result["current"] == 0.4
     assert result["next"] == 0.7
-    assert result["current_wind_speed_mps"] == 5.2
-    assert result["next_wind_speed_mps"] == 12.0
+    assert result["current_wind_speed_mps"] is None
+    assert result["current_wind"]["beaufort_scale_min"] == 6
+    assert result["current_wind"]["beaufort_scale_text"] == ">= 6"
+    assert result["current_wind"]["wind_speed_text"] == ">= 11"
+    assert result["next_wind"]["beaufort_scale_min"] == 3
 
 
 def test_v35_attaches_extended_cwa_windows_and_frontend_cwa(monkeypatch, tmp_path):
@@ -95,15 +104,15 @@ dispatch_thresholds:
 
     def fake_fetch_pop3h(*args, **kwargs):
         assert kwargs["include_wind_speed"] is True
-        assert kwargs["data_id"] == "F-D0047-091"
+        assert kwargs["data_id"] == DATAID
         return {
             "available": True,
-            "data_id": "F-D0047-091",
+            "data_id": DATAID,
             "location_name": "前鎮區",
             "current": 0.4,
             "next": 0.7,
-            "current_wind_speed_mps": 5.2,
-            "next_wind_speed_mps": 12.0,
+            "current_wind": {"wind_speed_text": ">= 11", "beaufort_scale_min": 6, "beaufort_scale_text": ">= 6"},
+            "next_wind": {"wind_speed_text": "4-5", "beaufort_scale_min": 3, "beaufort_scale_text": "3-4"},
             "fetched_at": "2026-07-11T18:00:00+08:00",
         }
 
@@ -114,13 +123,17 @@ dispatch_thresholds:
 
     assert extended["available"] is True
     assert extended["source"] == "cwa_official_forecast"
+    assert extended["data_id"] == DATAID
     assert [item["window"] for item in extended["windows"]] == ["+3h", "+6h"]
-    assert extended["windows"][0]["wind_speed"]["value_mps"] == 5.2
+    assert extended["windows"][0]["wind_speed"]["value_mps"] is None
+    assert extended["windows"][0]["wind_speed"]["beaufort_scale_min"] == 6
+    assert extended["windows"][0]["wind_speed"]["basis"] == "cwa_beaufort_scale_range_not_precise_value"
     assert extended["windows"][0]["rain_probability"]["level"] == "watch"
     assert extended["windows"][0]["wind_gust"]["available"] is False
     assert extended["windows"][0]["visibility"]["available"] is False
     assert result["cwa"][0]["window"] == "+3h"
     assert result["cwa"][0]["rainLevel"] == "小雨"
+    assert result["cwa"][0]["beaufort"] == 6
     assert result["trace"]["extended_cwa_forecast_windows_attached"] is True
 
 
