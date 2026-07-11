@@ -11,20 +11,20 @@ target_heavy_rain_event_H1..H4 = future nearby_cwa_precipitation_1hr_max > 10 mm
 
 目前使用 `RandomForestClassifier` 作為 tree-based baseline。
 
-## 實際成效
+## 實際成效（2026-07-11 資料源頭缺值代碼污染清除後重訓，詳見規格書第 15 節）
 
 ```text
 H1 Brier Score: 0.0183
-H1 AUC: 0.9638
-H1 CSI: 0.5443
-H1 FAR: 0.1810
-H1 POD: 0.6187
+H1 AUC: 0.9546
+H1 CSI: 0.5524
+H1 FAR: 0.1754
+H1 POD: 0.6259
 
-H3 Brier Score: 0.0261
-H3 AUC: 0.9274
-H3 CSI: 0.3291
-H3 FAR: 0.2536
-H3 POD: 0.3705
+H3 Brier Score: 0.0263
+H3 AUC: 0.9322
+H3 CSI: 0.3185
+H3 FAR: 0.2647
+H3 POD: 0.3597
 ```
 
 ## API 使用方式

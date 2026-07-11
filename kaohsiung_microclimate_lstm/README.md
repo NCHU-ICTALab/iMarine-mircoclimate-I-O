@@ -109,17 +109,19 @@ port_local_model: not trained / not accepted
 C0V890, C0V490, C0V840, C0V810, C0V450, C0V900
 ```
 
-主要結果：
+主要結果（2026-07-11 資料源頭缺值代碼污染清除、雨量回歸改採 log1p 目標轉換後重訓）：
 
 ```text
 training_days: 1282
 station_samples: 184614
-wind_speed H1 MAE: 0.5919 m/s
-wind_gust H1 MAE: 0.6835 m/s
+wind_speed H1 MAE: 0.5512 m/s (R2 0.7625)
+wind_gust H1 MAE: 0.6809 m/s (R2 0.8542)
 rain H1 Brier Score: 0.0183
-rain H1 AUC: 0.9638
+rain H1 AUC: 0.9546
 critical_under_warning_count: 0
 ```
+
+詳見 `docs/spec_v13_implementation_summary.md` 與規格書第 15 節的完整清理/評估紀錄。
 
 ## v3.5 報表
 

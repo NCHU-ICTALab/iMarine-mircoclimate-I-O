@@ -95,10 +95,10 @@ port_local_model: disabled / not trained
 fallback_baseline: available_last_resort_only
 ```
 
-目前主要指標：
+目前主要指標（2026-07-11 資料源頭缺值代碼污染清除後重訓，詳見規格書第 15 節）：
 
 ```text
-wind_speed H1 MAE: 0.5919 m/s
-wind_gust H1 MAE: 0.6835 m/s
+wind_speed H1 MAE: 0.5512 m/s (R2 0.7625)
+wind_gust H1 MAE: 0.6809 m/s (R2 0.8542)
 rain_probability H1 Brier Score: 0.0183
 ```

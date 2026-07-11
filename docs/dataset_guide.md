@@ -54,7 +54,9 @@ python -m kaohsiung_microclimate_lstm.src.data.fetch_nearby_cwa_current
 
 ```text
 data/raw/historical_weather/{station}/*.csv
-        │  historical_weather_normalizer.py（欄位正規化：中文/英文欄名統一為 wind_speed、station_pressure 等）
+        │  historical_weather_normalizer.py（欄位正規化：中文/英文欄名統一為 wind_speed、station_pressure 等；
+        │  2026-07-11 起同時依 PHYSICAL_RANGE_LIMITS 過濾各變數的物理合理範圍，把來源 CSV 用的缺值代碼
+        │  如 -99.x（風速）、-999.6（雨量）轉為 NaN，避免污染下游聚合與訓練標籤）
         ▼
 station_frames（正規化後的 per-station DataFrame）
         │  rank_nearby_cwa_stations.py（依與港區距離排序、篩選 Tier 1 候選站）

@@ -52,15 +52,15 @@ C0V890, C0V490, C0V840, C0V810, C0V450, C0V900
 
 nearby CWA historical model 已訓練完成，並通過 v3.2 驗收門檻。
 
-重點指標：
+重點指標（2026-07-11 資料源頭缺值代碼污染清除後重訓，詳見規格書第 15 節）：
 
 ```text
-wind_speed H1 MAE: 0.5919 m/s
-wind_speed H2 MAE: 0.5920 m/s
-wind_gust H1 MAE: 0.6835 m/s
-wind_gust H2 MAE: 0.6835 m/s
+wind_speed H1 MAE: 0.5512 m/s (R2 0.7625)
+wind_speed H2 MAE: 0.5513 m/s (R2 0.7625)
+wind_gust H1 MAE: 0.6809 m/s (R2 0.8542)
+wind_gust H2 MAE: 0.6809 m/s (R2 0.8542)
 rain H1 Brier Score: 0.0183
-rain H1 AUC: 0.9638
+rain H1 AUC: 0.9546
 critical_under_warning_count: 0
 ```
 
