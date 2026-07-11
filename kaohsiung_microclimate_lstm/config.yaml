@@ -13,6 +13,8 @@ project:
   model_version: kaohsiung_port_dispatch_risk_v3.5
   timezone: Asia/Taipei
 
+zoning_config_path: config/zoning.yaml
+
 forecast:
   anchors:
     H1: 30
@@ -228,6 +230,10 @@ nearby_cwa_historical_training:
   max_selected_stations: 6
   candidate_station_ids: [C0V890, C0V490, C0V810, C0V840, C0V450, C0V900, C0V680, C0V610]
   priority_1_station_ids: [C0V890, C0V490, C0V810, C0V840]
+  # 2026-07-11 全量正式訓練驗證（30,769筆聚合資料、n_estimators=80，非簡化版benchmark）：
+  # upstream lead features 對 wind_speed 反而略變差（H1 R² 0.3698->0.3658），對 wind_gust/precipitation_amount
+  # 幾乎持平，未達規格書 §13.3 要求的「確實優於baseline」門檻，故預設關閉，不進正式模型。
+  enable_upstream_lead_features: false
   training_thresholds:
     min_total_samples: 1000
     min_training_days: 30

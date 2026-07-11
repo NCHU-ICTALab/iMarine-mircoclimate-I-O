@@ -21,6 +21,14 @@ def _dataset(periods=120):
         "nearby_cwa_rainy_station_count": [0, 1] * (periods // 2),
         "nearby_cwa_rainy_station_ratio": [0, 0.5] * (periods // 2),
         "distance_weighted_precipitation": [0, 0.75] * (periods // 2),
+        "upstream_subset_precipitation_1hr_mean": [0, 0.25] * (periods // 2),
+        "upstream_subset_precipitation_1hr_max": [0, 0.5] * (periods // 2),
+        "upstream_subset_precipitation_1hr_max_lag1": [0, 0.5] * (periods // 2),
+        "upstream_subset_precipitation_1hr_max_roll3": [0, 0.25] * (periods // 2),
+        "upstream_subset_precipitation_roll3": [0, 0.25] * (periods // 2),
+        "upstream_subset_precipitation_roll6": [0, 0.25] * (periods // 2),
+        "upstream_subset_station_count": 1,
+        "upstream_subset_season_code": 2,
         "hour_sin": 0.0,
         "hour_cos": 1.0,
         "doy_sin": 0.0,
@@ -44,6 +52,7 @@ def test_train_nearby_cwa_historical_model_trains_models(tmp_path):
     assert "H1" in result["metrics"]["wind_speed"]
     assert "H1" in result["metrics"]["rain_probability"]
     assert "H1" in result["metrics"]["precipitation_amount"]
+    assert "upstream_subset_precipitation_1hr_max" in result["metrics"]["upstream_lead_feature_columns"]
     assert (tmp_path / "models" / "precipitation_amount_H1.joblib").exists()
     assert (tmp_path / "reports" / "nearby_cwa_model_metrics.json").exists()
 

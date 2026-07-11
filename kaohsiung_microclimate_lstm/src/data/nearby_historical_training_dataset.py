@@ -6,6 +6,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from .upstream_lead_features import build_upstream_lead_features, load_zoning_config
+
 
 TAIPEI = timezone(timedelta(hours=8))
 
@@ -39,6 +41,14 @@ def build_nearby_historical_training_dataset(
         }
     raw = pd.concat(rows, ignore_index=True).sort_values(["obs_time", "station_id"])
     aggregate = _aggregate(raw)
+    enable_upstream_features = bool(
+        config.get("nearby_cwa_historical_training", {}).get("enable_upstream_lead_features", False)
+    )
+    if enable_upstream_features:
+        zoning = load_zoning_config(config.get("zoning_config_path"))
+        if zoning:
+            upstream = build_upstream_lead_features(raw, zoning, selected)
+            aggregate = aggregate.merge(upstream, on="obs_time", how="left")
     aggregate = _add_time_features(aggregate)
     aggregate = _add_lag_roll(aggregate)
     dataset, labels = _add_labels(aggregate, _horizons(config))
@@ -117,13 +127,23 @@ def _add_time_features(frame: pd.DataFrame) -> pd.DataFrame:
 
 def _add_lag_roll(frame: pd.DataFrame) -> pd.DataFrame:
     out = frame.sort_values("obs_time").reset_index(drop=True).copy()
-    for col in ["nearby_cwa_wind_speed_max", "nearby_cwa_wind_gust_max", "nearby_cwa_precipitation_1hr_max"]:
+    for col in [
+        "nearby_cwa_wind_speed_max",
+        "nearby_cwa_wind_gust_max",
+        "nearby_cwa_precipitation_1hr_max",
+        "upstream_subset_wind_speed_max",
+        "upstream_subset_wind_gust_max",
+        "upstream_subset_precipitation_1hr_max",
+    ]:
         if col in out.columns:
             out[f"{col}_lag1"] = out[col].shift(1)
             out[f"{col}_roll3"] = out[col].rolling(3, min_periods=1).mean()
             if col == "nearby_cwa_precipitation_1hr_max":
                 out["nearby_cwa_precipitation_roll3"] = out[col].rolling(3, min_periods=1).mean()
                 out["nearby_cwa_precipitation_roll6"] = out[col].rolling(6, min_periods=1).mean()
+            if col == "upstream_subset_precipitation_1hr_max":
+                out["upstream_subset_precipitation_roll3"] = out[col].rolling(3, min_periods=1).mean()
+                out["upstream_subset_precipitation_roll6"] = out[col].rolling(6, min_periods=1).mean()
     return out
 
 

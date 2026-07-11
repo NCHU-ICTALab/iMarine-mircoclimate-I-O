@@ -49,13 +49,19 @@ def train_nearby_cwa_historical_model(
         "model_version": "nearby_cwa_v32",
         "nearby_cwa_historical_model_trained": True,
         "feature_columns": features,
+        "upstream_lead_feature_columns": [col for col in features if col.startswith("upstream_subset_")],
         "wind_speed": {},
         "wind_gust": {},
         "rain_probability": {},
         "precipitation_amount": {},
         "risk_level_evaluation": {"critical_under_warning_count": 0, "level_accuracy": None},
     }
-    manifest = {"model_version": "nearby_cwa_v32", "feature_columns": features, "models": {}}
+    manifest = {
+        "model_version": "nearby_cwa_v32",
+        "feature_columns": features,
+        "upstream_lead_feature_columns": [col for col in features if col.startswith("upstream_subset_")],
+        "models": {},
+    }
     algorithm_config = config.get("nearby_cwa_historical_training", {}).get("model_algorithms", {})
     for horizon in ["H1", "H2", "H3", "H4"]:
         for group, label, persistence in [
@@ -204,6 +210,14 @@ def _rain_amount_feature_columns(features: list[str]) -> list[str]:
         "nearby_cwa_rainy_station_count",
         "nearby_cwa_rainy_station_ratio",
         "distance_weighted_precipitation",
+        "upstream_subset_precipitation_1hr_mean",
+        "upstream_subset_precipitation_1hr_max",
+        "upstream_subset_precipitation_1hr_max_lag1",
+        "upstream_subset_precipitation_1hr_max_roll3",
+        "upstream_subset_precipitation_roll3",
+        "upstream_subset_precipitation_roll6",
+        "upstream_subset_station_count",
+        "upstream_subset_season_code",
         "hour_sin",
         "hour_cos",
         "doy_sin",

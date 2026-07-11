@@ -17,6 +17,13 @@ seasonal_prevalent_wind:
     prevalent_direction: W
     representative_stations: [KHWD01, KHWD04, KHWD07]
 
+season_month_ranges:
+  spring: [3, 4, 5]
+  summer: [6, 7, 8]
+  autumn: [9, 10, 11]
+  winter: [12, 1, 2]
+typhoon_season_months: [6, 7, 8, 9, 10]
+
 zones:
   first_harbor:
     reference_point: {lon: 120.283, lat: 22.617}
