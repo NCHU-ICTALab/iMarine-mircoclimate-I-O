@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T09:20:54+08:00",
+  "generated_at": "2026-07-11T09:35:54+08:00",
   "rain_probability_preserved": true,
   "rain_probability_model_used": true,
   "port_local_rain_data_available": false,
@@ -24,7 +24,7 @@
         "cwa_source_resolution": null,
         "cwa_pop_quality": {
           "anchor": "H1",
-          "anchor_time": "2026-07-11T09:50:53.903498+08:00",
+          "anchor_time": "2026-07-11T10:05:53.813374+08:00",
           "available": false,
           "raw_value": null,
           "normalized_value": null,
@@ -62,7 +62,7 @@
         "cwa_source_resolution": null,
         "cwa_pop_quality": {
           "anchor": "H2",
-          "anchor_time": "2026-07-11T10:20:53.903498+08:00",
+          "anchor_time": "2026-07-11T10:35:53.813374+08:00",
           "available": false,
           "raw_value": null,
           "normalized_value": null,
@@ -100,7 +100,7 @@
         "cwa_source_resolution": null,
         "cwa_pop_quality": {
           "anchor": "H3",
-          "anchor_time": "2026-07-11T10:50:53.903498+08:00",
+          "anchor_time": "2026-07-11T11:05:53.813374+08:00",
           "available": false,
           "raw_value": null,
           "normalized_value": null,
@@ -138,7 +138,7 @@
         "cwa_source_resolution": null,
         "cwa_pop_quality": {
           "anchor": "H4",
-          "anchor_time": "2026-07-11T11:20:53.903498+08:00",
+          "anchor_time": "2026-07-11T11:35:53.813374+08:00",
           "available": false,
           "raw_value": null,
           "normalized_value": null,

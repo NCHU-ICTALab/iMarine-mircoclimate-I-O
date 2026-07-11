@@ -7,7 +7,7 @@
     "training_skipped": true,
     "skip_reason": "Existing accepted nearby CWA historical model found.",
     "training_reason": null,
-    "last_training_run_at": "2026-07-11T09:20:53+08:00",
+    "last_training_run_at": "2026-07-11T09:35:52+08:00",
     "available_models": {
       "port_local_model": {
         "trained": false,

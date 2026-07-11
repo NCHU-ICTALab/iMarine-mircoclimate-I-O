@@ -456,50 +456,102 @@ def _render_dispatch_risk_demo_v34() -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>高雄港微氣候派工風險</title>
   <style>
-    :root { --bg:#f5f6f8; --panel:#fff; --line:#d8dde6; --text:#17202a; --muted:#657386; --accent:#1f6feb; }
-    * { box-sizing: border-box; }
-    body { margin:0; background:var(--bg); color:var(--text); font-family:"Segoe UI","Noto Sans TC",Arial,sans-serif; line-height:1.5; }
-    header { background:#fff; border-bottom:1px solid var(--line); }
-    .wrap { width:min(1180px, calc(100% - 32px)); margin:0 auto; }
-    .top { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:18px 0; }
-    h1 { margin:0; font-size:24px; }
-    h2 { margin:0 0 10px; font-size:18px; }
-    h3 { margin:0; font-size:16px; }
-    main { padding:20px 0 40px; }
-    button, a.button { border:0; background:var(--accent); color:#fff; border-radius:6px; min-height:36px; padding:8px 12px; font:inherit; text-decoration:none; cursor:pointer; }
-    button.secondary, a.button.secondary { background:#46566a; }
-    button:disabled { opacity:.65; cursor:wait; }
-    input { min-height:36px; width:160px; border:1px solid var(--line); border-radius:6px; padding:7px 9px; font:inherit; }
-    .toolbar { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin-bottom:16px; }
-    label { display:grid; gap:4px; color:var(--muted); font-size:13px; }
-    .status { min-height:24px; color:var(--muted); margin-bottom:12px; }
-    .grid { display:grid; gap:12px; }
-    .summary { grid-template-columns:repeat(4, minmax(0, 1fr)); margin-bottom:16px; }
-    .wide { grid-template-columns:1fr 1fr; margin-top:16px; }
-    .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; }
-    .metric-label { color:var(--muted); font-size:13px; margin-bottom:6px; }
-    .metric-value { font-size:22px; font-weight:700; overflow-wrap:anywhere; }
-    .muted { color:var(--muted); }
-    .small { font-size:13px; }
-    .rows { display:grid; gap:8px; }
-    .row { display:flex; justify-content:space-between; gap:12px; border-top:1px solid #edf0f4; padding-top:8px; font-size:14px; }
-    .row span:first-child { color:var(--muted); }
-    .row span:last-child { text-align:right; font-weight:600; overflow-wrap:anywhere; }
-    .pill { display:inline-flex; align-items:center; min-height:24px; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:700; background:#e7f5ef; color:#0f7b4f; }
-    .pill.warning, .pill.high_risk, .pill.stop { background:#fff1e8; color:#a43f18; }
-    .pill.watch { background:#fff4ce; color:#8a5a00; }
-    table { width:100%; border-collapse:collapse; min-width:720px; }
-    th, td { border-bottom:1px solid var(--line); padding:9px 10px; text-align:left; font-size:14px; vertical-align:top; }
-    th { color:var(--muted); background:#fafbfc; font-weight:700; }
-    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:#fff; }
-    pre { margin:0; max-height:360px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:12px; background:#101828; color:#e6edf3; font-size:12px; }
-    @media (max-width: 900px) { .summary, .wide { grid-template-columns:1fr; } .top { align-items:flex-start; flex-direction:column; } }
+    :root{
+      --bg:#f3f6f5; --panel:#ffffff; --panel-2:#f8faf9;
+      --ink:#1e2b31; --ink-soft:#5a6b70; --hairline:#dbe3e0;
+      --accent:#b5652e;
+      --lvl-normal:#2e7d5b; --lvl-normal-bg:#e3efe8;
+      --lvl-watch:#a8792a; --lvl-watch-bg:#f3ead4;
+      --lvl-warning:#c06a2b; --lvl-warning-bg:#f5e3d2;
+      --lvl-high:#c14b3a; --lvl-high-bg:#f6dcd7;
+      --lvl-stop:#a5292a; --lvl-stop-bg:#f4d6d5;
+      --lvl-unavailable:#8b969a; --lvl-unavailable-bg:#e9edec;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0e1719; --panel:#16211f; --panel-2:#101b19;
+        --ink:#e9efee; --ink-soft:#9caeae; --hairline:#28393a;
+        --accent:#d98a52;
+        --lvl-normal:#5fbf93; --lvl-normal-bg:#16332a;
+        --lvl-watch:#d9b463; --lvl-watch-bg:#3a3220;
+        --lvl-warning:#e3934f; --lvl-warning-bg:#40291b;
+        --lvl-high:#e2756a; --lvl-high-bg:#3f231f;
+        --lvl-stop:#ea6b6b; --lvl-stop-bg:#3f1e1e;
+        --lvl-unavailable:#7c8a8a; --lvl-unavailable-bg:#20302f;
+      }
+      pre{ background:#0a1213 !important; }
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Segoe UI","Noto Sans TC",system-ui,sans-serif; line-height:1.5; }
+    header{ background:var(--panel); border-bottom:1px solid var(--hairline); }
+    .wrap{ width:min(1180px, calc(100% - 32px)); margin:0 auto; }
+    .top{ display:flex; justify-content:space-between; gap:16px; align-items:flex-end; padding:18px 0; flex-wrap:wrap; }
+    h1,h2{ font-family:Georgia,"Iowan Old Style","Noto Serif TC",serif; text-wrap:balance; margin:0; }
+    h1{ font-size:1.6rem; font-weight:600; }
+    h2{ font-size:1.05rem; font-weight:600; margin-bottom:10px; }
+    .eyebrow{ font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:0.3rem; }
+    main{ padding:20px 0 40px; }
+    .num{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; }
+    button, a.button{ border:0; background:var(--accent); color:#fff; border-radius:6px; min-height:36px; padding:8px 14px; font:inherit; font-weight:600; text-decoration:none; cursor:pointer; }
+    button.secondary, a.button.secondary{ background:transparent; color:var(--ink-soft); border:1px solid var(--hairline); }
+    button:disabled{ opacity:.6; cursor:wait; }
+    input{ min-height:36px; width:160px; border:1px solid var(--hairline); border-radius:6px; padding:7px 9px; font:inherit; background:var(--panel); color:var(--ink); }
+    .toolbar{ display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin-bottom:16px; }
+    label{ display:grid; gap:4px; color:var(--ink-soft); font-size:13px; }
+    .status{ min-height:24px; color:var(--ink-soft); margin-bottom:16px; font-size:0.85rem; }
+    .grid{ display:grid; gap:12px; }
+    .summary{ grid-template-columns:repeat(4, minmax(0, 1fr)); margin-bottom:16px; }
+    .wide{ grid-template-columns:1fr 1fr; margin-top:16px; }
+    .panel{ background:var(--panel); border:1px solid var(--hairline); border-radius:8px; padding:14px; }
+    .metric-label{ color:var(--ink-soft); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px; }
+    .metric-value{ font-family:Georgia,serif; font-size:1.3rem; font-weight:600; overflow-wrap:anywhere; }
+    .muted{ color:var(--ink-soft); }
+    .small{ font-size:13px; }
+    .rows{ display:grid; gap:8px; }
+    .row{ display:flex; justify-content:space-between; gap:12px; border-top:1px solid var(--hairline); padding-top:8px; font-size:14px; }
+    .row span:first-child{ color:var(--ink-soft); }
+    .row span:last-child{ text-align:right; font-weight:600; overflow-wrap:anywhere; font-family:ui-monospace,"SF Mono",Consolas,monospace; }
+    .pill{ display:inline-flex; align-items:center; min-height:22px; border-radius:999px; padding:2px 9px; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em; background:var(--lvl-normal-bg); color:var(--lvl-normal); }
+    .pill.watch{ background:var(--lvl-watch-bg); color:var(--lvl-watch); }
+    .pill.warning{ background:var(--lvl-warning-bg); color:var(--lvl-warning); }
+    .pill.high_risk{ background:var(--lvl-high-bg); color:var(--lvl-high); }
+    .pill.stop{ background:var(--lvl-stop-bg); color:var(--lvl-stop); }
+    .pill.unavailable, .pill.none{ background:var(--lvl-unavailable-bg); color:var(--lvl-unavailable); }
+    table{ width:100%; border-collapse:collapse; min-width:720px; }
+    th, td{ border-bottom:1px solid var(--hairline); padding:9px 10px; text-align:left; font-size:14px; vertical-align:top; }
+    th{ color:var(--ink-soft); background:var(--panel-2); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.02em; }
+    .table-wrap{ overflow-x:auto; border:1px solid var(--hairline); border-radius:8px; background:var(--panel); }
+    pre{ margin:0; max-height:360px; overflow:auto; border:1px solid var(--hairline); border-radius:8px; padding:12px; background:#101828; color:#e6edf3; font-size:12px; }
+
+    /* H1-H4 dispatch cards */
+    .anchor-strip{ display:grid; grid-template-columns:repeat(4, 1fr); gap:0.9rem; }
+    .anchor-card{ background:var(--panel); border:1px solid var(--hairline); border-radius:10px; padding:1.1rem; display:flex; flex-direction:column; gap:0.8rem; border-top:4px solid var(--lvl-normal); }
+    .anchor-card.watch{ border-top-color:var(--lvl-watch); }
+    .anchor-card.warning{ border-top-color:var(--lvl-warning); }
+    .anchor-card.high_risk{ border-top-color:var(--lvl-high); }
+    .anchor-card.stop{ border-top-color:var(--lvl-stop); }
+    .h-label{ font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-weight:600; }
+    .h-time{ font-size:0.76rem; color:var(--ink-soft); margin-top:0.1rem; }
+    .action-badge{ padding:0.6rem 0.7rem; border-radius:8px; font-weight:700; font-size:1rem; background:var(--lvl-normal-bg); color:var(--lvl-normal); }
+    .anchor-card.watch .action-badge{ background:var(--lvl-watch-bg); color:var(--lvl-watch); }
+    .anchor-card.warning .action-badge{ background:var(--lvl-warning-bg); color:var(--lvl-warning); }
+    .anchor-card.high_risk .action-badge{ background:var(--lvl-high-bg); color:var(--lvl-high); }
+    .anchor-card.stop .action-badge{ background:var(--lvl-stop-bg); color:var(--lvl-stop); }
+    .var-row{ display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; padding:0.35rem 0; border-top:1px solid var(--hairline); }
+    .var-row .var-name{ color:var(--ink-soft); }
+    .var-row .var-val{ display:flex; align-items:center; gap:0.4rem; font-family:ui-monospace,"SF Mono",Consolas,monospace; }
+    .trigger-note{ font-size:0.74rem; color:var(--ink-soft); background:var(--panel-2); border-radius:6px; padding:0.5rem 0.6rem; }
+    .trigger-note strong{ color:var(--ink); }
+
+    @media (max-width: 900px) { .summary, .wide { grid-template-columns:1fr; } .top { align-items:flex-start; flex-direction:column; } .anchor-strip{ grid-template-columns:1fr 1fr; } }
+    @media (max-width: 560px) { .anchor-strip{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <header>
     <div class="wrap top">
       <div>
+        <div class="eyebrow">Kaohsiung Port · Dispatch Decision Console</div>
         <h1>高雄港微氣候派工風險</h1>
         <div class="muted small">v3.5 system audit、data source、station、dataset、model summary、station_priority_summary</div>
       </div>
@@ -519,6 +571,12 @@ def _render_dispatch_risk_demo_v34() -> str:
     </div>
     <div id="status" class="status">載入中...</div>
     <section id="overview" class="grid summary"></section>
+
+    <section class="panel" style="margin-bottom:16px;">
+      <h2>H1-H4 派工建議</h2>
+      <div id="anchor-strip" class="anchor-strip"></div>
+    </section>
+
     <section class="grid wide">
       <div class="panel">
         <h2>模型狀態</h2>
@@ -548,15 +606,6 @@ def _render_dispatch_risk_demo_v34() -> str:
         <table>
           <thead><tr><th>Station ID</th><th>Name</th><th>Group</th><th>Role</th><th>Data Type</th><th>Used</th><th>Core</th><th>Fallback</th></tr></thead>
           <tbody id="station-rows"></tbody>
-        </table>
-      </div>
-    </section>
-    <section class="panel">
-      <h2>H1-H4 風險</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Anchor</th><th>Rain %</th><th>Rain mm</th><th>3hr 累積估計</th><th>Wind</th><th>Gust</th><th>Risk</th><th>Action</th></tr></thead>
-          <tbody id="anchor-rows"></tbody>
         </table>
       </div>
     </section>
@@ -592,7 +641,9 @@ def _render_dispatch_risk_demo_v34() -> str:
     const number = value => value === null || value === undefined || Number.isNaN(Number(value)) ? "-" : Number(value).toFixed(1);
     const row = (label, value) => `<div class="row"><span>${label}</span><span>${value}</span></div>`;
     const metric = (label, value, sub = "") => `<div class="panel"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="muted small">${sub}</div></div>`;
-    const pill = level => `<span class="pill ${text(level, "normal")}">${text(level)}</span>`;
+    const levelClass = level => (text(level, "normal")).toLowerCase();
+    const pill = level => `<span class="pill ${levelClass(level)}">${text(level)}</span>`;
+    const actionLabels = { normal_dispatch: "正常派工", observe_only: "觀察", restrict_sensitive: "限制敏感作業", high_risk_restriction: "限制敏感作業", stop_dispatch: "停止作業" };
 
     function renderAudit(audit) {
       const cards = audit.dashboard_cards || [];
@@ -618,6 +669,33 @@ def _render_dispatch_risk_demo_v34() -> str:
           <td>${text(item.metrics?.rain_probability?.H1?.brier_score, "N/A")}</td>
           <td>${item.accepted ? "true" : "false"}</td>
         </tr>`).join("");
+    }
+
+    function renderAnchorCards(anchors) {
+      $("anchor-strip").innerHTML = anchors.map(anchor => {
+        const level = levelClass(anchor.dispatch_risk_level);
+        const threeHour = anchor.rain?.three_hour_accumulation_estimate;
+        const amount = anchor.rain?.predicted_amount_mm;
+        const trigger = anchor.risk_trigger_detail || {};
+        const actionLabel = actionLabels[anchor.dispatch_action_level] || text(anchor.dispatch_action_level);
+        const triggerText = trigger.primary_trigger && trigger.primary_trigger !== "none"
+          ? `<strong>觸發來源：${text(trigger.primary_trigger)}</strong>（${text(trigger.primary_trigger_level)}）${trigger.is_low_reliability_trigger ? "，可靠度較低，建議觀察" : ""}`
+          : "五項風險皆為 normal，無觸發項目。";
+        return `
+        <div class="anchor-card ${level}">
+          <div>
+            <div class="h-label">${text(anchor.label)} · +${text(anchor.offset_minutes)} min</div>
+            <div class="h-time num">${text(anchor.timestamp, "")}</div>
+          </div>
+          <div class="action-badge">${actionLabel}</div>
+          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${percent(anchor.rain?.final_probability)} ${pill(anchor.rain?.level)}</span></div>
+          <div class="var-row"><span class="var-name">降雨量</span><span class="var-val">${amount === null || amount === undefined ? "-" : `${number(amount)} mm`} ${pill(anchor.rain?.amount_level)}</span></div>
+          <div class="var-row"><span class="var-name">3小時累積估計</span><span class="var-val">${threeHour ? `${number(threeHour.predicted_amount_mm)} mm（推算）` : "-"}</span></div>
+          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${number(anchor.wind_speed?.predicted_mps)} m/s ${pill(anchor.wind_speed?.operation_level)}</span></div>
+          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${number(anchor.wind_gust?.predicted_mps)} m/s ${pill(anchor.wind_gust?.operation_level)}</span></div>
+          <div class="trigger-note">${triggerText}</div>
+        </div>`;
+      }).join("");
     }
 
     function render(payload, audit) {
@@ -655,21 +733,7 @@ def _render_dispatch_risk_demo_v34() -> str:
           <td>${(item.data_type || []).join(", ")}</td><td>${item.used_for_current_prediction ? "true" : "false"}</td>
           <td>${item.is_port_local_core ? "true" : "false"}</td><td>${item.is_fallback_reference ? "true" : "false"}</td>
         </tr>`).join("");
-      $("anchor-rows").innerHTML = anchors.map(anchor => {
-        const threeHour = anchor.rain?.three_hour_accumulation_estimate;
-        const amount = anchor.rain?.predicted_amount_mm;
-        return `
-        <tr>
-          <td>${text(anchor.label)}<div class="muted small">+${text(anchor.offset_minutes)} min · ${text(anchor.timestamp, "")}</div></td>
-          <td>${percent(anchor.rain?.final_probability)} ${pill(anchor.rain?.level)}</td>
-          <td>${amount === null || amount === undefined ? "-" : `${number(amount)} mm`} ${pill(anchor.rain?.amount_level)}<div class="muted small">${text(anchor.rain?.amount_source, "")}</div></td>
-          <td>${threeHour ? `${number(threeHour.predicted_amount_mm)} mm ${pill(threeHour.amount_level)}<div class="muted small">推算值，非觀測累積</div>` : "-"}</td>
-          <td>${number(anchor.wind_speed?.predicted_mps)} m/s ${pill(anchor.wind_speed?.operation_level)}</td>
-          <td>${number(anchor.wind_gust?.predicted_mps)} m/s ${pill(anchor.wind_gust?.operation_level)}</td>
-          <td>${pill(anchor.dispatch_risk_level)}</td>
-          <td>${text(anchor.dispatch_action_level)}</td>
-        </tr>`;
-      }).join("");
+      renderAnchorCards(anchors);
       $("raw-json").textContent = JSON.stringify(payload, null, 2);
       $("status").textContent = `已更新：${text(payload.generated_at)}`;
       if (audit) renderAudit(audit);
@@ -706,474 +770,7 @@ def _render_dispatch_risk_demo_v34() -> str:
 </body>
 </html>"""
 
-    return """<!doctype html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>高雄港微氣候派工風險</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f5f6f8;
-      --panel: #ffffff;
-      --line: #d8dde6;
-      --text: #17202a;
-      --muted: #647082;
-      --accent: #1f6feb;
-      --normal: #0f7b4f;
-      --normal-bg: #e7f5ef;
-      --watch: #8a5a00;
-      --watch-bg: #fff4ce;
-      --warning: #a43f18;
-      --warning-bg: #fff1e8;
-      --risk: #8f1d2c;
-      --risk-bg: #ffe8ed;
-      --stop: #5b1b8a;
-      --stop-bg: #f2e8ff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Segoe UI", "Noto Sans TC", Arial, sans-serif;
-      line-height: 1.5;
-    }
-    header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--line);
-    }
-    .wrap {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 0;
-    }
-    h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 0;
-    }
-    h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      letter-spacing: 0;
-    }
-    h3 {
-      margin: 0;
-      font-size: 16px;
-      letter-spacing: 0;
-    }
-    main { padding: 20px 0 40px; }
-    button, a.button {
-      border: 0;
-      background: var(--accent);
-      color: #ffffff;
-      border-radius: 6px;
-      min-height: 36px;
-      padding: 8px 12px;
-      font: inherit;
-      cursor: pointer;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    button.secondary, a.button.secondary { background: #46566a; }
-    button:disabled { opacity: 0.65; cursor: wait; }
-    .toolbar {
-      display: flex;
-      align-items: end;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    label {
-      display: grid;
-      gap: 4px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    input {
-      min-height: 36px;
-      width: 160px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 7px 9px;
-      font: inherit;
-      color: var(--text);
-      background: #ffffff;
-    }
-    .banner {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-    }
-    .status {
-      color: var(--muted);
-      min-height: 24px;
-      margin-bottom: 12px;
-    }
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
-    .summary {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin-bottom: 16px;
-    }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-    }
-    .metric-label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .metric-value {
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1.2;
-      overflow-wrap: anywhere;
-    }
-    .muted { color: var(--muted); }
-    .small { font-size: 13px; }
-    .anchors {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      align-items: stretch;
-    }
-    .anchor-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .normal { background: var(--normal-bg); color: var(--normal); }
-    .watch { background: var(--watch-bg); color: var(--watch); }
-    .warning { background: var(--warning-bg); color: var(--warning); }
-    .high_risk { background: var(--risk-bg); color: var(--risk); }
-    .stop { background: var(--stop-bg); color: var(--stop); }
-    .rows {
-      display: grid;
-      gap: 8px;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      border-top: 1px solid #edf0f4;
-      padding-top: 8px;
-      font-size: 14px;
-    }
-    .row span:first-child { color: var(--muted); }
-    .row span:last-child {
-      text-align: right;
-      font-weight: 600;
-      overflow-wrap: anywhere;
-    }
-    .wide {
-      grid-template-columns: 1fr 1fr;
-      margin-top: 16px;
-    }
-    .station-list {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .station {
-      border: 1px solid var(--line);
-      background: #f9fafb;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 520px;
-    }
-    th, td {
-      border-bottom: 1px solid var(--line);
-      padding: 9px 10px;
-      text-align: left;
-      font-size: 14px;
-      vertical-align: top;
-    }
-    th {
-      color: var(--muted);
-      background: #fafbfc;
-      font-weight: 700;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #ffffff;
-    }
-    pre {
-      margin: 0;
-      max-height: 360px;
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #101828;
-      color: #e6edf3;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    @media (max-width: 980px) {
-      .summary, .anchors, .wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 620px) {
-      .wrap { width: min(100% - 20px, 1180px); }
-      .top { align-items: flex-start; flex-direction: column; }
-      .summary, .anchors, .wide { grid-template-columns: 1fr; }
-      h1 { font-size: 20px; }
-      input { width: 100%; }
-      .toolbar { align-items: stretch; }
-      .toolbar label { flex: 1 1 160px; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="wrap top">
-      <div>
-        <h1>高雄港微氣候派工風險</h1>
-        <div class="muted small">v2.6 多測站輸入，單一港區 proxy 輸出</div>
-      </div>
-      <nav>
-        <a class="button secondary" href="/api/v1/dispatch/risk?target_area=KHH" target="_blank">JSON</a>
-        <a class="button secondary" href="/docs" target="_blank">API Docs</a>
-      </nav>
-    </div>
-  </header>
-  <main class="wrap">
-    <div class="toolbar">
-      <label>
-        目標測站
-        <input id="station-input" value="KHH">
-      </label>
-      <button id="refresh-button" type="button">更新預測</button>
-    </div>
-    <div id="status" class="status">尚未載入資料</div>
-    <section id="overview" class="grid summary"></section>
-    <section id="anchors" class="grid anchors"></section>
-    <section class="grid wide">
-      <div class="panel">
-        <h2>測站輸入</h2>
-        <div id="station-summary"></div>
-      </div>
-      <div class="panel">
-        <h2>CWA 與資料流</h2>
-        <div id="trace-summary"></div>
-      </div>
-    </section>
-    <section class="grid wide">
-      <div class="panel">
-        <h2>H1-H4 明細</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>時間</th>
-                <th>雨機率</th>
-                <th>風速</th>
-                <th>陣風</th>
-                <th>觸發</th>
-                <th>建議</th>
-              </tr>
-            </thead>
-            <tbody id="detail-table"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="panel">
-        <h2>原始 Payload</h2>
-        <pre id="raw-json">{}</pre>
-      </div>
-    </section>
-  </main>
-  <script>
-    const stationInput = document.getElementById("station-input");
-    const refreshButton = document.getElementById("refresh-button");
-    const statusEl = document.getElementById("status");
-    const overviewEl = document.getElementById("overview");
-    const anchorsEl = document.getElementById("anchors");
-    const stationSummaryEl = document.getElementById("station-summary");
-    const traceSummaryEl = document.getElementById("trace-summary");
-    const detailTableEl = document.getElementById("detail-table");
-    const rawJsonEl = document.getElementById("raw-json");
 
-    const labels = {
-      normal: "正常",
-      watch: "注意",
-      warning: "警戒",
-      high_risk: "高風險",
-      stop: "停止",
-      normal_dispatch: "正常派工",
-      observe_only: "觀察",
-      monitor: "監控",
-      restrict_sensitive_tasks: "限制敏感作業",
-      delay_high_risk_tasks: "延後高風險作業",
-      suspend_exposed_tasks: "暫停暴露作業",
-      rain_probability: "降雨機率",
-      wind_speed: "風速",
-      wind_gust: "陣風",
-      none: "無"
-    };
-
-    function text(value, fallback = "-") {
-      return value === null || value === undefined || value === "" ? fallback : String(value);
-    }
-
-    function levelLabel(level) {
-      return labels[level] || text(level);
-    }
-
-    function percent(value) {
-      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
-      return `${Math.round(Number(value) * 100)}%`;
-    }
-
-    function number(value, digits = 1) {
-      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
-      return Number(value).toFixed(digits);
-    }
-
-    function pill(level) {
-      return `<span class="pill ${text(level, "normal")}">${levelLabel(level)}</span>`;
-    }
-
-    function metric(label, value, sub = "") {
-      return `<div class="panel"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="muted small">${sub}</div></div>`;
-    }
-
-    function row(label, value) {
-      return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
-    }
-
-    function render(payload) {
-      const anchors = payload.forecast_anchors || [];
-      const firstRisk = anchors[0]?.dispatch_risk_level || "normal";
-      const stationSummary = payload.station_priority_summary || {};
-      const trace = payload.trace || {};
-      const cwa = payload.cwa_forecast || {};
-
-      overviewEl.innerHTML = [
-        metric("目前風險", pill(firstRisk), `H1 ${anchors[0]?.offset_minutes || 30} 分鐘`),
-        metric("派工建議", levelLabel(anchors[0]?.dispatch_action_level), text(anchors[0]?.risk_trigger_detail?.primary_trigger, "none") === "none" ? "無主要觸發因子" : `${levelLabel(anchors[0]?.risk_trigger_detail?.primary_trigger)} 觸發`),
-        metric("港區測站", text(stationSummary.port_local_station_count, "0"), stationSummary.using_port_local_station ? "港區測站" : "fallback"),
-        metric("模型版本", text(payload.model_version), text(payload.generated_at))
-      ].join("");
-
-      anchorsEl.innerHTML = anchors.map(anchor => `
-        <article class="panel">
-          <div class="anchor-head">
-            <h3>${anchor.label} <span class="muted small">+${anchor.offset_minutes} 分</span></h3>
-            ${pill(anchor.dispatch_risk_level)}
-          </div>
-          <div class="rows">
-            ${row("派工建議", levelLabel(anchor.dispatch_action_level))}
-            ${row("降雨機率", `${percent(anchor.rain?.final_probability)} ${pill(anchor.rain?.level)}`)}
-            ${row("風速", `${number(anchor.wind_speed?.predicted_mps)} m/s ${pill(anchor.wind_speed?.operation_level)}`)}
-            ${row("陣風", `${number(anchor.wind_gust?.predicted_mps)} m/s ${pill(anchor.wind_gust?.operation_level)}`)}
-            ${row("主要觸發", levelLabel(anchor.risk_trigger_detail?.primary_trigger))}
-            ${row("港區修正", anchor.port_local_postprocess?.port_local_rain_postprocess_applied || anchor.port_local_postprocess?.port_local_wind_postprocess_applied || anchor.port_local_postprocess?.port_local_gust_postprocess_applied ? "有" : "無")}
-          </div>
-        </article>
-      `).join("");
-
-      stationSummaryEl.innerHTML = `
-        <div class="rows">
-          ${row("Target Area", text(stationSummary.target_area))}
-          ${row("Prediction Mode", text(stationSummary.prediction_mode))}
-          ${row("Port-local", stationSummary.using_port_local_station ? "是" : "否")}
-          ${row("Fallback 467441", stationSummary.fallback_to_467441 ? "是" : "否")}
-          ${row("缺少港區測站", (stationSummary.missing_port_local_station_ids || []).length ? stationSummary.missing_port_local_station_ids.join(", ") : "無")}
-        </div>
-        <div class="station-list">
-          ${(stationSummary.port_local_station_ids || []).map(id => `<span class="station">${id}</span>`).join("")}
-        </div>
-      `;
-
-      traceSummaryEl.innerHTML = `
-        <div class="rows">
-          ${row("CWA PoP", cwa.available ? "可用" : "不可用")}
-          ${row("CWA dataset", text(cwa.dataset_id))}
-          ${row("CWA location", text(cwa.location_name))}
-          ${row("CWA quality gate", trace.cwa_pop_quality_gate_enabled ? "啟用" : "未啟用")}
-          ${row("Station priority", text(trace.station_priority_policy))}
-          ${row("467441 core", trace["467441_used_as_core_station"] ? "是" : "否")}
-        </div>
-      `;
-
-      detailTableEl.innerHTML = anchors.map(anchor => `
-        <tr>
-          <td>${anchor.label}<div class="muted small">+${anchor.offset_minutes} 分</div></td>
-          <td>${percent(anchor.rain?.final_probability)}<div>${pill(anchor.rain?.level)}</div></td>
-          <td>${number(anchor.wind_speed?.predicted_mps)} m/s<div>${pill(anchor.wind_speed?.operation_level)}</div></td>
-          <td>${number(anchor.wind_gust?.predicted_mps)} m/s<div>${pill(anchor.wind_gust?.operation_level)}</div></td>
-          <td>${levelLabel(anchor.risk_trigger_detail?.primary_trigger)}<div class="muted small">${text(anchor.risk_trigger_detail?.primary_trigger_reliability)}</div></td>
-          <td>${levelLabel(anchor.dispatch_action_level)}</td>
-        </tr>
-      `).join("");
-
-      rawJsonEl.textContent = JSON.stringify(payload, null, 2);
-      statusEl.textContent = `已載入 ${payload.generated_at || ""}`;
-    }
-
-    async function loadRisk() {
-      const station = stationInput.value.trim() || "KHH";
-      refreshButton.disabled = true;
-      statusEl.textContent = "載入中...";
-      try {
-        const response = await fetch(`/api/v1/dispatch/risk?target_area=${encodeURIComponent(station)}`);
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.detail || `HTTP ${response.status}`);
-        render(payload);
-      } catch (error) {
-        statusEl.textContent = `載入失敗：${error.message}`;
-      } finally {
-        refreshButton.disabled = false;
-      }
-    }
-
-    refreshButton.addEventListener("click", loadRisk);
-    stationInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") loadRisk();
-    });
-    loadRisk();
-  </script>
-</body>
-</html>"""
 
 
 def render_dashboard(status_data: dict) -> str:

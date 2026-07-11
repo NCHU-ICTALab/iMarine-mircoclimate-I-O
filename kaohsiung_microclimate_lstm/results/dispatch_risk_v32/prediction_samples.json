@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-11T09:20:53+08:00",
+  "generated_at": "2026-07-11T09:35:53+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -33,7 +33,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-11T09:50:53.903498+08:00",
+            "anchor_time": "2026-07-11T10:05:53.813374+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -169,7 +169,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 710
+      "anchor_time_staleness_minutes": 725
     },
     {
       "label": "H2",
@@ -197,7 +197,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-11T10:20:53.903498+08:00",
+            "anchor_time": "2026-07-11T10:35:53.813374+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -333,7 +333,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 710
+      "anchor_time_staleness_minutes": 725
     },
     {
       "label": "H3",
@@ -361,7 +361,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-11T10:50:53.903498+08:00",
+            "anchor_time": "2026-07-11T11:05:53.813374+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -469,7 +469,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 710
+      "anchor_time_staleness_minutes": 725
     },
     {
       "label": "H4",
@@ -497,7 +497,7 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-11T11:20:53.903498+08:00",
+            "anchor_time": "2026-07-11T11:35:53.813374+08:00",
             "available": false,
             "raw_value": null,
             "normalized_value": null,
@@ -599,7 +599,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 710
+      "anchor_time_staleness_minutes": 725
     }
   ],
   "cwa_forecast": {
@@ -618,7 +618,7 @@
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-11T09:50:53.903498+08:00",
+        "anchor_time": "2026-07-11T10:05:53.813374+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -635,7 +635,7 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-11T10:20:53.903498+08:00",
+        "anchor_time": "2026-07-11T10:35:53.813374+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -652,7 +652,7 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-11T10:50:53.903498+08:00",
+        "anchor_time": "2026-07-11T11:05:53.813374+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -669,7 +669,7 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-11T11:20:53.903498+08:00",
+        "anchor_time": "2026-07-11T11:35:53.813374+08:00",
         "available": false,
         "raw_value": null,
         "normalized_value": null,
@@ -754,7 +754,7 @@
       "prediction_mode": "port_local_model",
       "anchor_time_source": "port_local_khwd",
       "anchor_base_time": "2026-07-10T21:30:00+08:00",
-      "staleness_minutes": 710
+      "staleness_minutes": 725
     },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
@@ -891,7 +891,7 @@
     ]
   },
   "anchor_time_source": "port_local_khwd",
-  "anchor_time_staleness_minutes": 710,
+  "anchor_time_staleness_minutes": 725,
   "prediction_mode": "port_local_postprocess",
   "model_selection_summary": {
     "selected_mode": "port_local_postprocess",
