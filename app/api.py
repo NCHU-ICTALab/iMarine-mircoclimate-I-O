@@ -555,7 +555,7 @@ def _render_dispatch_risk_demo_v34() -> str:
       <h2>H1-H4 風險</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Anchor</th><th>Rain</th><th>Wind</th><th>Gust</th><th>Risk</th><th>Action</th></tr></thead>
+          <thead><tr><th>Anchor</th><th>Rain %</th><th>Rain mm</th><th>3hr 累積估計</th><th>Wind</th><th>Gust</th><th>Risk</th><th>Action</th></tr></thead>
           <tbody id="anchor-rows"></tbody>
         </table>
       </div>
@@ -631,7 +631,7 @@ def _render_dispatch_risk_demo_v34() -> str:
       $("overview").innerHTML = [
         metric("Model Version", text(payload.model_version), text(payload.generated_at)),
         metric("Prediction Mode", text(payload.prediction_mode), text(trace.selection_case_id)),
-        metric("Training", training.training_skipped ? "Skipped" : (training.training_required ? "Required" : "Checked"), text(training.skip_reason || training.training_reason)),
+        metric("時間基準", text(payload.anchor_time_source), `誤差 ${text(payload.anchor_time_staleness_minutes, "?")} 分鐘`),
         metric("Fallback 467441", trace.fallback_to_467441 ? "true" : "false", `core=${trace["467441_used_as_core_station"] ? "true" : "false"}`)
       ].join("");
       $("model-status").innerHTML = [
@@ -655,15 +655,21 @@ def _render_dispatch_risk_demo_v34() -> str:
           <td>${(item.data_type || []).join(", ")}</td><td>${item.used_for_current_prediction ? "true" : "false"}</td>
           <td>${item.is_port_local_core ? "true" : "false"}</td><td>${item.is_fallback_reference ? "true" : "false"}</td>
         </tr>`).join("");
-      $("anchor-rows").innerHTML = anchors.map(anchor => `
+      $("anchor-rows").innerHTML = anchors.map(anchor => {
+        const threeHour = anchor.rain?.three_hour_accumulation_estimate;
+        const amount = anchor.rain?.predicted_amount_mm;
+        return `
         <tr>
-          <td>${text(anchor.label)}<div class="muted small">+${text(anchor.offset_minutes)} min</div></td>
+          <td>${text(anchor.label)}<div class="muted small">+${text(anchor.offset_minutes)} min · ${text(anchor.timestamp, "")}</div></td>
           <td>${percent(anchor.rain?.final_probability)} ${pill(anchor.rain?.level)}</td>
+          <td>${amount === null || amount === undefined ? "-" : `${number(amount)} mm`} ${pill(anchor.rain?.amount_level)}<div class="muted small">${text(anchor.rain?.amount_source, "")}</div></td>
+          <td>${threeHour ? `${number(threeHour.predicted_amount_mm)} mm ${pill(threeHour.amount_level)}<div class="muted small">推算值，非觀測累積</div>` : "-"}</td>
           <td>${number(anchor.wind_speed?.predicted_mps)} m/s ${pill(anchor.wind_speed?.operation_level)}</td>
           <td>${number(anchor.wind_gust?.predicted_mps)} m/s ${pill(anchor.wind_gust?.operation_level)}</td>
           <td>${pill(anchor.dispatch_risk_level)}</td>
           <td>${text(anchor.dispatch_action_level)}</td>
-        </tr>`).join("");
+        </tr>`;
+      }).join("");
       $("raw-json").textContent = JSON.stringify(payload, null, 2);
       $("status").textContent = `已更新：${text(payload.generated_at)}`;
       if (audit) renderAudit(audit);

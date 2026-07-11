@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-10T23:01:36+08:00",
+  "generated_at": "2026-07-11T09:20:53+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -33,14 +33,14 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-10T23:31:36.017088+08:00",
-            "available": true,
-            "raw_value": "40",
-            "normalized_value": 0.4,
-            "parse_status": "ok",
-            "quality_status": "valid",
-            "reason": null,
-            "alignment_status": "matched_forecast_period",
+            "anchor_time": "2026-07-11T09:50:53.903498+08:00",
+            "available": false,
+            "raw_value": null,
+            "normalized_value": null,
+            "parse_status": "not_available",
+            "quality_status": "invalid",
+            "reason": "No CWA forecast period matched this anchor time.",
+            "alignment_status": "no_matching_forecast_period",
             "source": {
               "dataset_id": "F-D0047-091",
               "location_name": "前鎮區",
@@ -169,7 +169,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 91
+      "anchor_time_staleness_minutes": 710
     },
     {
       "label": "H2",
@@ -197,14 +197,14 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-11T00:01:36.017088+08:00",
-            "available": true,
-            "raw_value": "40",
-            "normalized_value": 0.4,
-            "parse_status": "ok",
-            "quality_status": "valid",
-            "reason": null,
-            "alignment_status": "matched_forecast_period",
+            "anchor_time": "2026-07-11T10:20:53.903498+08:00",
+            "available": false,
+            "raw_value": null,
+            "normalized_value": null,
+            "parse_status": "not_available",
+            "quality_status": "invalid",
+            "reason": "No CWA forecast period matched this anchor time.",
+            "alignment_status": "no_matching_forecast_period",
             "source": {
               "dataset_id": "F-D0047-091",
               "location_name": "前鎮區",
@@ -333,7 +333,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 91
+      "anchor_time_staleness_minutes": 710
     },
     {
       "label": "H3",
@@ -342,8 +342,8 @@
       "rain": {
         "raw_model_probability": 0.1843,
         "nearby_adjusted_probability": 0.1843,
-        "cwa_adjusted_probability": 0.2274,
-        "final_probability": 0.2274,
+        "cwa_adjusted_probability": null,
+        "final_probability": 0.1843,
         "level": "normal",
         "predicted_amount_mm": 0.0,
         "amount_level": "normal",
@@ -353,22 +353,22 @@
         "source_detail": {
           "model_used": true,
           "nearby_postprocess_applied": false,
-          "cwa_prior_applied": true,
-          "cwa_weight": 0.2,
-          "cwa_dataset_id": "F-D0047-091",
-          "cwa_location_name": "前鎮區",
+          "cwa_prior_applied": false,
+          "cwa_weight": 0.0,
+          "cwa_dataset_id": null,
+          "cwa_location_name": null,
           "cwa_element_name": "3小時降雨機率",
-          "cwa_source_resolution": "3h",
+          "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-11T00:31:36.017088+08:00",
-            "available": true,
-            "raw_value": "40",
-            "normalized_value": 0.4,
-            "parse_status": "ok",
-            "quality_status": "valid",
-            "reason": null,
-            "alignment_status": "matched_forecast_period",
+            "anchor_time": "2026-07-11T10:50:53.903498+08:00",
+            "available": false,
+            "raw_value": null,
+            "normalized_value": null,
+            "parse_status": "not_available",
+            "quality_status": "invalid",
+            "reason": "No CWA forecast period matched this anchor time.",
+            "alignment_status": "no_matching_forecast_period",
             "source": {
               "dataset_id": "F-D0047-091",
               "location_name": "前鎮區",
@@ -469,7 +469,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 91
+      "anchor_time_staleness_minutes": 710
     },
     {
       "label": "H4",
@@ -478,8 +478,8 @@
       "rain": {
         "raw_model_probability": 0.2374,
         "nearby_adjusted_probability": 0.2374,
-        "cwa_adjusted_probability": 0.2699,
-        "final_probability": 0.2699,
+        "cwa_adjusted_probability": null,
+        "final_probability": 0.2374,
         "level": "normal",
         "predicted_amount_mm": 0.0,
         "amount_level": "normal",
@@ -489,22 +489,22 @@
         "source_detail": {
           "model_used": true,
           "nearby_postprocess_applied": false,
-          "cwa_prior_applied": true,
-          "cwa_weight": 0.2,
-          "cwa_dataset_id": "F-D0047-091",
-          "cwa_location_name": "前鎮區",
+          "cwa_prior_applied": false,
+          "cwa_weight": 0.0,
+          "cwa_dataset_id": null,
+          "cwa_location_name": null,
           "cwa_element_name": "3小時降雨機率",
-          "cwa_source_resolution": "3h",
+          "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-11T01:01:36.017088+08:00",
-            "available": true,
-            "raw_value": "40",
-            "normalized_value": 0.4,
-            "parse_status": "ok",
-            "quality_status": "valid",
-            "reason": null,
-            "alignment_status": "matched_forecast_period",
+            "anchor_time": "2026-07-11T11:20:53.903498+08:00",
+            "available": false,
+            "raw_value": null,
+            "normalized_value": null,
+            "parse_status": "not_available",
+            "quality_status": "invalid",
+            "reason": "No CWA forecast period matched this anchor time.",
+            "alignment_status": "no_matching_forecast_period",
             "source": {
               "dataset_id": "F-D0047-091",
               "location_name": "前鎮區",
@@ -599,7 +599,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 91
+      "anchor_time_staleness_minutes": 710
     }
   ],
   "cwa_forecast": {
@@ -610,22 +610,22 @@
     "source_resolution": "3h",
     "fetched_at": "2026-07-08T00:09:14+08:00",
     "anchor_pop": {
-      "H1": 0.4,
-      "H2": 0.4,
-      "H3": 0.4,
-      "H4": 0.4
+      "H1": null,
+      "H2": null,
+      "H3": null,
+      "H4": null
     },
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-10T23:31:36.017088+08:00",
-        "available": true,
-        "raw_value": "40",
-        "normalized_value": 0.4,
-        "parse_status": "ok",
-        "quality_status": "valid",
-        "reason": null,
-        "alignment_status": "matched_forecast_period",
+        "anchor_time": "2026-07-11T09:50:53.903498+08:00",
+        "available": false,
+        "raw_value": null,
+        "normalized_value": null,
+        "parse_status": "not_available",
+        "quality_status": "invalid",
+        "reason": "No CWA forecast period matched this anchor time.",
+        "alignment_status": "no_matching_forecast_period",
         "source": {
           "dataset_id": "F-D0047-091",
           "location_name": "前鎮區",
@@ -635,14 +635,14 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-11T00:01:36.017088+08:00",
-        "available": true,
-        "raw_value": "40",
-        "normalized_value": 0.4,
-        "parse_status": "ok",
-        "quality_status": "valid",
-        "reason": null,
-        "alignment_status": "matched_forecast_period",
+        "anchor_time": "2026-07-11T10:20:53.903498+08:00",
+        "available": false,
+        "raw_value": null,
+        "normalized_value": null,
+        "parse_status": "not_available",
+        "quality_status": "invalid",
+        "reason": "No CWA forecast period matched this anchor time.",
+        "alignment_status": "no_matching_forecast_period",
         "source": {
           "dataset_id": "F-D0047-091",
           "location_name": "前鎮區",
@@ -652,14 +652,14 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-11T00:31:36.017088+08:00",
-        "available": true,
-        "raw_value": "40",
-        "normalized_value": 0.4,
-        "parse_status": "ok",
-        "quality_status": "valid",
-        "reason": null,
-        "alignment_status": "matched_forecast_period",
+        "anchor_time": "2026-07-11T10:50:53.903498+08:00",
+        "available": false,
+        "raw_value": null,
+        "normalized_value": null,
+        "parse_status": "not_available",
+        "quality_status": "invalid",
+        "reason": "No CWA forecast period matched this anchor time.",
+        "alignment_status": "no_matching_forecast_period",
         "source": {
           "dataset_id": "F-D0047-091",
           "location_name": "前鎮區",
@@ -669,14 +669,14 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-11T01:01:36.017088+08:00",
-        "available": true,
-        "raw_value": "40",
-        "normalized_value": 0.4,
-        "parse_status": "ok",
-        "quality_status": "valid",
-        "reason": null,
-        "alignment_status": "matched_forecast_period",
+        "anchor_time": "2026-07-11T11:20:53.903498+08:00",
+        "available": false,
+        "raw_value": null,
+        "normalized_value": null,
+        "parse_status": "not_available",
+        "quality_status": "invalid",
+        "reason": "No CWA forecast period matched this anchor time.",
+        "alignment_status": "no_matching_forecast_period",
         "source": {
           "dataset_id": "F-D0047-091",
           "location_name": "前鎮區",
@@ -744,7 +744,7 @@
     "city_wide_forecast_as_target": false,
     "train_inference_mismatch_prevented": true,
     "cwa_pop_used_as_model_input": false,
-    "cwa_pop_used_as_postprocess_prior": true,
+    "cwa_pop_used_as_postprocess_prior": false,
     "cwa_pop_quality_gate_enabled": true,
     "zero_pop_distinguished_from_missing": true,
     "normal_state_primary_trigger_none": true,
@@ -758,7 +758,7 @@
       "prediction_mode": "port_local_model",
       "anchor_time_source": "port_local_khwd",
       "anchor_base_time": "2026-07-10T21:30:00+08:00",
-      "staleness_minutes": 91
+      "staleness_minutes": 710
     },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
@@ -918,7 +918,7 @@
     ]
   },
   "anchor_time_source": "port_local_khwd",
-  "anchor_time_staleness_minutes": 91,
+  "anchor_time_staleness_minutes": 710,
   "prediction_mode": "nearby_cwa_historical_model",
   "model_selection_summary": {
     "selected_mode": "nearby_cwa_historical_model",
@@ -1033,7 +1033,7 @@
     "training_skipped": true,
     "skip_reason": "Existing accepted nearby CWA historical model found.",
     "training_reason": null,
-    "last_training_run_at": "2026-07-10T23:01:35+08:00",
+    "last_training_run_at": "2026-07-11T09:20:53+08:00",
     "available_models": {
       "port_local_model": {
         "trained": false,

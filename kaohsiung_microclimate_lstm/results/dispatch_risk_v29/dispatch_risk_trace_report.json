@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-10T23:01:36+08:00",
+  "generated_at": "2026-07-11T09:20:54+08:00",
   "trace": {
     "model_version": "kaohsiung_port_dispatch_risk_v3.5",
     "prediction_mode": "port_local_model",
