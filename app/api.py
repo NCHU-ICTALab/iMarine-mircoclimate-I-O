@@ -575,15 +575,15 @@ def _render_dispatch_risk_demo_v34() -> str:
   <header>
     <div class="wrap top">
       <div>
-        <div class="eyebrow">Kaohsiung Port · Dispatch Decision Console</div>
+        <div class="eyebrow">高雄港・派工決策主控台</div>
         <h1>高雄港微氣候派工風險</h1>
-        <div class="muted small">v3.5 system audit、data source、station、dataset、model summary、station_priority_summary</div>
+        <div class="muted small">v3.5 系統盤點、資料來源、測站、資料集、模型摘要、station_priority_summary</div>
       </div>
       <nav>
-        <a class="button secondary" href="/api/v1/dispatch/risk?target_area=KHH" target="_blank">JSON</a>
-        <a class="button secondary" href="/api/v1/dispatch/system-audit?target_area=KHH" target="_blank">System Audit</a>
-        <a class="button secondary" href="/api/v1/dispatch/model-status?target_area=KHH" target="_blank">Model Status</a>
-        <a class="button secondary" href="/docs" target="_blank">API Docs</a>
+        <a class="button secondary" href="/api/v1/dispatch/risk?target_area=KHH" target="_blank">JSON 原始資料</a>
+        <a class="button secondary" href="/api/v1/dispatch/system-audit?target_area=KHH" target="_blank">系統盤點</a>
+        <a class="button secondary" href="/api/v1/dispatch/model-status?target_area=KHH" target="_blank">模型狀態</a>
+        <a class="button secondary" href="/docs" target="_blank">API 文件</a>
       </nav>
     </div>
   </header>
@@ -613,14 +613,14 @@ def _render_dispatch_risk_demo_v34() -> str:
       </div>
     </section>
     <section class="panel">
-      <h2>System Audit / 系統盤點摘要</h2>
+      <h2>系統盤點摘要</h2>
       <div id="audit-cards" class="grid summary"></div>
     </section>
     <section class="panel">
       <h2>資料來源盤點</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Source</th><th>Type</th><th>Role</th><th>Used For</th><th>Model Input</th><th>Current</th><th>Status</th></tr></thead>
+          <thead><tr><th>來源</th><th>類型</th><th>角色</th><th>用途</th><th>模型輸入</th><th>目前使用</th><th>狀態</th></tr></thead>
           <tbody id="data-source-rows"></tbody>
         </table>
       </div>
@@ -629,7 +629,7 @@ def _render_dispatch_risk_demo_v34() -> str:
       <h2>測站角色表</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Station ID</th><th>Name</th><th>Group</th><th>Role</th><th>Data Type</th><th>Used</th><th>Core</th><th>Fallback</th></tr></thead>
+          <thead><tr><th>測站代碼</th><th>名稱</th><th>群組</th><th>角色</th><th>資料類型</th><th>使用中</th><th>核心測站</th><th>備援</th></tr></thead>
           <tbody id="station-rows"></tbody>
         </table>
       </div>
@@ -639,7 +639,7 @@ def _render_dispatch_risk_demo_v34() -> str:
         <h2>資料期間</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Dataset</th><th>Role</th><th>Start</th><th>End</th><th>Days</th><th>Rows</th><th>Status</th></tr></thead>
+            <thead><tr><th>資料集</th><th>角色</th><th>起始</th><th>結束</th><th>天數</th><th>筆數</th><th>狀態</th></tr></thead>
             <tbody id="dataset-rows"></tbody>
           </table>
         </div>
@@ -648,14 +648,14 @@ def _render_dispatch_risk_demo_v34() -> str:
         <h2>模型指標</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Model</th><th>Status</th><th>Wind H1 MAE</th><th>Gust H1 MAE</th><th>Rain Brier</th><th>Accepted</th></tr></thead>
+            <thead><tr><th>模型</th><th>狀態</th><th>風速 H1 MAE</th><th>陣風 H1 MAE</th><th>降雨 Brier</th><th>已核准</th></tr></thead>
             <tbody id="metric-rows"></tbody>
           </table>
         </div>
       </div>
     </section>
     <section class="panel">
-      <h2>Raw Payload</h2>
+      <h2>原始回傳資料</h2>
       <pre id="raw-json">{}</pre>
     </section>
   </main>
@@ -677,22 +677,22 @@ def _render_dispatch_risk_demo_v34() -> str:
       $("data-source-rows").innerHTML = (tables.data_sources || []).map(item => `
         <tr>
           <td>${text(item.source_id)}</td><td>${text(item.source_type)}</td><td>${text(item.role)}</td>
-          <td>${(item.used_for || []).join(", ")}</td><td>${item.used_as_model_input ? "true" : "false"}</td>
-          <td>${item.used_for_current_prediction ? "true" : "false"}</td><td>${text(item.status)}</td>
+          <td>${(item.used_for || []).join(", ")}</td><td>${item.used_as_model_input ? "是" : "否"}</td>
+          <td>${item.used_for_current_prediction ? "是" : "否"}</td><td>${text(item.status)}</td>
         </tr>`).join("");
       $("dataset-rows").innerHTML = (tables.dataset_durations || []).map(item => `
         <tr>
-          <td>${text(item.dataset_id)}</td><td>${text(item.role)}</td><td>${text(item.time_start, "N/A")}</td>
-          <td>${text(item.time_end, "N/A")}</td><td>${text(item.duration_days, "N/A")}</td>
-          <td>${text(item.total_rows, "N/A")}</td><td>${text(item.status)}</td>
+          <td>${text(item.dataset_id)}</td><td>${text(item.role)}</td><td>${text(item.time_start, "無資料")}</td>
+          <td>${text(item.time_end, "無資料")}</td><td>${text(item.duration_days, "無資料")}</td>
+          <td>${text(item.total_rows, "無資料")}</td><td>${text(item.status)}</td>
         </tr>`).join("");
       $("metric-rows").innerHTML = (tables.model_metrics || []).map(item => `
         <tr>
           <td>${text(item.model_id)}</td><td>${text(item.activation_status || item.metrics_status)}</td>
-          <td>${text(item.metrics?.wind_speed?.H1?.mae_mps, "N/A")}</td>
-          <td>${text(item.metrics?.wind_gust?.H1?.mae_mps, "N/A")}</td>
-          <td>${text(item.metrics?.rain_probability?.H1?.brier_score, "N/A")}</td>
-          <td>${item.accepted ? "true" : "false"}</td>
+          <td>${text(item.metrics?.wind_speed?.H1?.mae_mps, "無資料")}</td>
+          <td>${text(item.metrics?.wind_gust?.H1?.mae_mps, "無資料")}</td>
+          <td>${text(item.metrics?.rain_probability?.H1?.brier_score, "無資料")}</td>
+          <td>${item.accepted ? "是" : "否"}</td>
         </tr>`).join("");
     }
 
@@ -709,7 +709,7 @@ def _render_dispatch_risk_demo_v34() -> str:
         return `
         <div class="anchor-card ${level}">
           <div>
-            <div class="h-label">${text(anchor.label)} · +${text(anchor.offset_minutes)} min</div>
+            <div class="h-label">${text(anchor.label)} · +${text(anchor.offset_minutes)} 分鐘</div>
             <div class="h-time num">${text(anchor.timestamp, "")}</div>
           </div>
           <div class="action-badge">${actionLabel}</div>
@@ -732,31 +732,31 @@ def _render_dispatch_risk_demo_v34() -> str:
       const usage = payload.current_station_usage || {};
       const anchors = payload.forecast_anchors || [];
       $("overview").innerHTML = [
-        metric("Model Version", text(payload.model_version), text(payload.generated_at)),
-        metric("Prediction Mode", text(payload.prediction_mode), text(trace.selection_case_id)),
+        metric("模型版本", text(payload.model_version), text(payload.generated_at)),
+        metric("預測模式", text(payload.prediction_mode), text(trace.selection_case_id)),
         metric("時間基準", text(payload.anchor_time_source), `誤差 ${text(payload.anchor_time_staleness_minutes, "?")} 分鐘`),
-        metric("Fallback 467441", trace.fallback_to_467441 ? "true" : "false", `core=${trace["467441_used_as_core_station"] ? "true" : "false"}`)
+        metric("467441 備援", trace.fallback_to_467441 ? "是" : "否", `核心測站=${trace["467441_used_as_core_station"] ? "是" : "否"}`)
       ].join("");
       $("model-status").innerHTML = [
-        row("Port-local Model", `${port.trained ? "trained" : "not trained"} / ${port.accepted ? "accepted" : "not accepted"}`),
-        row("Nearby CWA Model", `${nearby.trained ? "trained" : "not trained"} / ${nearby.accepted ? "accepted" : "not accepted"}`),
-        row("Registry Loaded", trace.model_registry_loaded ? "true" : "false"),
-        row("Manifest Checked", trace.model_manifest_checked ? "true" : "false"),
-        row("Rain Preserved", trace.rain_probability_preserved ? "true" : "false")
+        row("港區在地模型", `${port.trained ? "已訓練" : "未訓練"} / ${port.accepted ? "已核准" : "未核准"}`),
+        row("鄰近氣象站模型", `${nearby.trained ? "已訓練" : "未訓練"} / ${nearby.accepted ? "已核准" : "未核准"}`),
+        row("模型註冊表已載入", trace.model_registry_loaded ? "是" : "否"),
+        row("模型清單已檢查", trace.model_manifest_checked ? "是" : "否"),
+        row("降雨機率已保留", trace.rain_probability_preserved ? "是" : "否")
       ].join("");
       $("station-usage").innerHTML = [
-        row("Wind Source", text(usage.active_wind_source)),
-        row("Gust Source", text(usage.active_gust_source)),
-        row("Rain Source", text(usage.active_rain_source)),
-        row("Port-local Used", (usage.port_local_station_ids_used || []).join(", ") || "-"),
-        row("Nearby Used", (usage.nearby_cwa_station_ids_used_for_current_prediction || []).join(", ") || "-"),
-        row("Baseline Used", usage.baseline_station_used_for_current_prediction ? "true" : "false")
+        row("風速來源", text(usage.active_wind_source)),
+        row("陣風來源", text(usage.active_gust_source)),
+        row("降雨來源", text(usage.active_rain_source)),
+        row("港區測站使用", (usage.port_local_station_ids_used || []).join(", ") || "-"),
+        row("鄰近測站使用", (usage.nearby_cwa_station_ids_used_for_current_prediction || []).join(", ") || "-"),
+        row("基準測站使用", usage.baseline_station_used_for_current_prediction ? "是" : "否")
       ].join("");
       $("station-rows").innerHTML = (payload.station_display_rows || []).map(item => `
         <tr>
           <td>${text(item.station_id)}</td><td>${text(item.station_name)}</td><td>${text(item.station_group)}</td><td>${text(item.role)}</td>
-          <td>${(item.data_type || []).join(", ")}</td><td>${item.used_for_current_prediction ? "true" : "false"}</td>
-          <td>${item.is_port_local_core ? "true" : "false"}</td><td>${item.is_fallback_reference ? "true" : "false"}</td>
+          <td>${(item.data_type || []).join(", ")}</td><td>${item.used_for_current_prediction ? "是" : "否"}</td>
+          <td>${item.is_port_local_core ? "是" : "否"}</td><td>${item.is_fallback_reference ? "是" : "否"}</td>
         </tr>`).join("");
       renderAnchorCards(anchors);
       $("raw-json").textContent = JSON.stringify(payload, null, 2);
