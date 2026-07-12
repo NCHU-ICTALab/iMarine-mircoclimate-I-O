@@ -1,0 +1,45 @@
+{
+  "available": true,
+  "data_id": "F-D0047-065",
+  "location_name": "前鎮區",
+  "fetched_at": "2026-07-11T21:54:44+08:00",
+  "current_rain_probability": 0.1,
+  "next_rain_probability": 0.1,
+  "current_wind": {
+    "wind_speed_text": ">= 11",
+    "beaufort_scale_min": 6,
+    "beaufort_scale_text": ">= 6"
+  },
+  "next_wind": {
+    "wind_speed_text": ">= 11",
+    "beaufort_scale_min": 6,
+    "beaufort_scale_text": ">= 6"
+  },
+  "checks": {
+    "rain_probability_available": true,
+    "rain_probability_range_ok": true,
+    "beaufort_available": true,
+    "wind_speed_is_not_precise_mps": true
+  },
+  "passed": true,
+  "sample_records": [
+    {
+      "start_time": "2026-07-11T18:00:00+08:00",
+      "end_time": "2026-07-11T19:00:00+08:00",
+      "pop": null,
+      "wind_speed_mps": null,
+      "wind_speed_text": ">= 11",
+      "beaufort_scale_min": 6,
+      "beaufort_scale_text": ">= 6"
+    },
+    {
+      "start_time": "2026-07-11T18:00:00+08:00",
+      "end_time": "2026-07-11T21:00:00+08:00",
+      "pop": 0.4,
+      "wind_speed_mps": null,
+      "wind_speed_text": null,
+      "beaufort_scale_min": null,
+      "beaufort_scale_text": null
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-from kaohsiung_microclimate_lstm.src.model_selection.port_local_model_selector import select_dispatch_prediction_mode
+from kaohsiung_microclimate_lstm.src.model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
 
 
 def _config():
@@ -62,3 +62,21 @@ def test_selector_uses_fallback_baseline_when_khwd_unavailable():
 
     assert result["selected_mode"] == "fallback_baseline"
     assert result["fallback_to_467441"] is True
+
+
+def test_v32_selector_preserves_port_local_unready_reason():
+    cfg = _config()
+    cfg["model_selection"]["preferred_order"] = ["port_local_model", "port_local_postprocess", "nearby_cwa_historical_model", "fallback_baseline"]
+    result = select_dispatch_prediction_mode_v32(
+        None,
+        {"available": True},
+        {"nearby_cwa_historical_model_trained": True},
+        {},
+        {"ready": False, "failed_reasons": ["sample_count below 500"]},
+        {"ready": True},
+        cfg,
+    )
+
+    assert result["selected_mode"] == "port_local_postprocess"
+    assert "Dataset readiness failed" in result["selection_reason"]
+    assert "sample_count below 500" in result["failed_reasons"]

@@ -1,12 +1,12 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "fallback_chain": [
     "port_local_model",
     "port_local_postprocess",
     "nearby_cwa_historical_model",
     "fallback_baseline"
   ],
-  "selected_mode": "port_local_postprocess",
+  "selected_mode": "nearby_cwa_historical_model",
   "transitions": [
     {
       "mode": "port_local_model",
@@ -21,11 +21,13 @@
     },
     {
       "mode": "port_local_postprocess",
-      "eligible": true,
+      "eligible": false,
       "reason_codes": [
-        "VALID_KHWD_REALTIME_AVAILABLE"
+        "KHWD_REALTIME_DISABLED_BY_REQUEST",
+        "KHWD_REALTIME_UNAVAILABLE",
+        "VALID_KHWD_STATION_COUNT_LT_2"
       ],
-      "selected": true
+      "selected": false
     },
     {
       "mode": "nearby_cwa_historical_model",
@@ -33,15 +35,15 @@
       "reason_codes": [
         "MODEL_AVAILABLE",
         "MODEL_ACCEPTED",
-        "NOT_SELECTED_BECAUSE_KHWD_REALTIME_HAS_PRIORITY"
+        "ALL_SELECTED_STATIONS_CLOSER_THAN_467441"
       ],
-      "selected": false
+      "selected": true
     },
     {
       "mode": "fallback_baseline",
       "eligible": true,
       "reason_codes": [
-        "NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"
+        "NOT_SELECTED_BECAUSE_NEARBY_CWA_MODEL_AVAILABLE"
       ],
       "selected": false
     }

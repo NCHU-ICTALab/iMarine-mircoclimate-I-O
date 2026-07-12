@@ -1,5 +1,5 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
   "models": [
     {
@@ -131,7 +131,29 @@
         "wind_speed_passed": true,
         "wind_gust_passed": true,
         "rain_probability_passed": true
+      },
+      "manifest_validation": {
+        "valid": true,
+        "missing_artifacts": [],
+        "reason": null
       }
+    },
+    {
+      "model_id": "legacy_lstm",
+      "model_family": "legacy_lstm",
+      "trained": true,
+      "available": true,
+      "accepted": true,
+      "activation_status": "default_base_wind_gust_source",
+      "selected_in_normal_mode": true,
+      "selected_when_no_realtime_khwd_mode": false,
+      "training_station_ids": [
+        "467441"
+      ],
+      "metrics_available": false,
+      "metrics_status": "not_available",
+      "reason": "Legacy LSTM is the configured default wind_speed_gust base source; no current formal comparison metrics are available in the v35 accuracy summary.",
+      "metrics": {}
     }
   ]
 }

@@ -123,12 +123,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "dispatch-risk":
-        from .predict import predict_dispatch_risk_v35
+        from .predict import predict_dispatch_risk_current
         from .preprocess import load_observations
 
         data_path = project_root / "data" / "raw" / "observed_hourly" / f"{args.fallback_station_id}.csv"
         observations = load_observations(data_path)
-        result = predict_dispatch_risk_v35(
+        result = predict_dispatch_risk_current(
             fallback_observations=observations,
             config_path=args.config,
             project_root=project_root,

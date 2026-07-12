@@ -45,14 +45,7 @@ def build_nearby_historical_training_dataset(
         raw,
         enable_pressure_humidity_features=bool(training_cfg.get("enable_pressure_humidity_features", False)),
     )
-    enable_upstream_features = bool(
-        training_cfg.get("enable_upstream_lead_features", False)
-    )
-    if enable_upstream_features:
-        zoning = load_zoning_config(config.get("zoning_config_path"))
-        if zoning:
-            upstream = build_upstream_lead_features(raw, zoning, selected)
-            aggregate = aggregate.merge(upstream, on="obs_time", how="left")
+    aggregate = _merge_upstream_lead_features_if_enabled(aggregate, raw, config, selected)
     aggregate = _add_time_features(aggregate)
     aggregate = _add_lag_roll(aggregate)
     dataset, labels = _add_labels(aggregate, _horizons(config))
@@ -98,6 +91,44 @@ def _aggregate(raw: pd.DataFrame, enable_pressure_humidity_features: bool = Fals
         if value_col in raw.columns:
             out[out_col] = raw.groupby("obs_time").apply(lambda g: _weighted_average(g, value_col), include_groups=False)
     return out.reset_index().rename(columns={"index": "obs_time"})
+
+
+def build_nearby_cwa_inference_feature_row(raw: pd.DataFrame, config: dict | None = None) -> pd.DataFrame:
+    if raw is None or raw.empty:
+        return pd.DataFrame()
+    work = raw.copy()
+    if "obs_time" in work.columns:
+        work["obs_time"] = pd.to_datetime(work["obs_time"], errors="coerce")
+        work = work.dropna(subset=["obs_time"])
+    if work.empty:
+        return pd.DataFrame()
+    if "station_id" not in work.columns:
+        work["station_id"] = "unknown"
+    if "distance_to_port_km" not in work.columns:
+        work["distance_to_port_km"] = 0.0
+    training_cfg = (config or {}).get("nearby_cwa_historical_training", {})
+    aggregate = _aggregate(
+        work,
+        enable_pressure_humidity_features=bool(training_cfg.get("enable_pressure_humidity_features", False)),
+    )
+    selected = [str(item) for item in training_cfg.get("priority_1_station_ids", [])] or sorted(work["station_id"].astype(str).unique().tolist())
+    aggregate = _merge_upstream_lead_features_if_enabled(aggregate, work, config or {}, selected)
+    aggregate = _add_time_features(aggregate)
+    aggregate = _add_lag_roll(aggregate)
+    return aggregate.tail(1).reset_index(drop=True)
+
+
+def _merge_upstream_lead_features_if_enabled(aggregate: pd.DataFrame, raw: pd.DataFrame, config: dict, selected: list[str]) -> pd.DataFrame:
+    training_cfg = config.get("nearby_cwa_historical_training", {})
+    if not bool(training_cfg.get("enable_upstream_lead_features", False)):
+        return aggregate
+    zoning = load_zoning_config(config.get("zoning_config_path"))
+    if not zoning:
+        return aggregate
+    upstream = build_upstream_lead_features(raw, zoning, selected)
+    if upstream.empty:
+        return aggregate
+    return aggregate.merge(upstream, on="obs_time", how="left")
 
 
 def _add_pressure_humidity_aggregates(raw: pd.DataFrame, grouped, out: pd.DataFrame) -> None:

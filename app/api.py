@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import copy
+from contextlib import asynccontextmanager
 from datetime import timedelta
 from html import escape
 import logging
 from pathlib import Path
+import threading
+import time
+from typing import AsyncIterator
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,7 +52,34 @@ from app.storage import ObservationStore
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
-app = FastAPI(title="TWPort Microclimate API", version="0.1.0")
+store = ObservationStore(settings.database_path)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
+MICROCLIMATE_CONFIG_PATH = MICROCLIMATE_PROJECT_ROOT / "config.yaml"
+fetch_scheduler = MicroclimateFetchScheduler(MICROCLIMATE_PROJECT_ROOT, MICROCLIMATE_CONFIG_PATH)
+_DISPATCH_RISK_CACHE_TTL_SECONDS = 10.0
+_dispatch_risk_cache: dict[tuple, tuple[float, dict]] = {}
+_dispatch_risk_cache_lock = threading.Lock()
+
+
+def startup_scheduler() -> None:
+    fetch_scheduler.start()
+
+
+def shutdown_scheduler() -> None:
+    fetch_scheduler.shutdown()
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    startup_scheduler()
+    try:
+        yield
+    finally:
+        shutdown_scheduler()
+
+
+app = FastAPI(title="TWPort Microclimate API", version="0.1.0", lifespan=lifespan)
 
 _cors_origins = [origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()]
 app.add_middleware(
@@ -57,22 +89,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-store = ObservationStore(settings.database_path)
-REPO_ROOT = Path(__file__).resolve().parents[1]
-MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
-MICROCLIMATE_CONFIG_PATH = MICROCLIMATE_PROJECT_ROOT / "config.yaml"
-fetch_scheduler = MicroclimateFetchScheduler(MICROCLIMATE_PROJECT_ROOT, MICROCLIMATE_CONFIG_PATH)
-
-
-@app.on_event("startup")
-def startup_scheduler() -> None:
-    fetch_scheduler.start()
-
-
-@app.on_event("shutdown")
-def shutdown_scheduler() -> None:
-    fetch_scheduler.shutdown()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -260,25 +276,109 @@ def build_dispatch_risk_response(
                 "fallback_to_existing_files": True,
             }
 
-    try:
-        from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_v35
-        from kaohsiung_microclimate_lstm.src.preprocess import load_observations
+    cache_key = _dispatch_risk_cache_key(
+        target_area,
+        target_station_id,
+        no_realtime_khwd_mode,
+        data_path,
+        config_path,
+    )
+    if not refresh_port_local:
+        cached = _get_dispatch_risk_cache(cache_key)
+        if cached is not None:
+            return cached
 
-        observations = load_observations(data_path)
-        return predict_dispatch_risk_v35(
-            fallback_observations=observations,
-            config_path=str(config_path),
-            project_root=MICROCLIMATE_PROJECT_ROOT,
-            target_area=target_area,
-            legacy_target_station_id=target_station_id,
-            acquisition_report=acquisition_report,
-            no_realtime_khwd_mode=no_realtime_khwd_mode,
-        )
+    try:
+        if refresh_port_local:
+            return _compute_dispatch_risk_response(
+                data_path,
+                config_path,
+                target_area,
+                target_station_id,
+                acquisition_report,
+                no_realtime_khwd_mode,
+            )
+        with _dispatch_risk_cache_lock:
+            cached = _get_dispatch_risk_cache_unlocked(cache_key)
+            if cached is not None:
+                return cached
+            payload = _compute_dispatch_risk_response(
+                data_path,
+                config_path,
+                target_area,
+                target_station_id,
+                acquisition_report,
+                no_realtime_khwd_mode,
+            )
+            _dispatch_risk_cache[cache_key] = (time.monotonic(), copy.deepcopy(payload))
+            return copy.deepcopy(payload)
     except HTTPException:
         raise
     except Exception as exc:
         logging.exception("dispatch risk prediction failed for target area %s", target_area)
         raise HTTPException(status_code=503, detail=f"Dispatch risk prediction failed: {exc}") from exc
+
+
+def _compute_dispatch_risk_response(
+    data_path: Path,
+    config_path: Path,
+    target_area: str,
+    target_station_id: str | None,
+    acquisition_report: dict | None,
+    no_realtime_khwd_mode: bool,
+) -> dict:
+    from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_current
+    from kaohsiung_microclimate_lstm.src.preprocess import load_observations
+
+    observations = load_observations(data_path)
+    return predict_dispatch_risk_current(
+        fallback_observations=observations,
+        config_path=str(config_path),
+        project_root=MICROCLIMATE_PROJECT_ROOT,
+        target_area=target_area,
+        legacy_target_station_id=target_station_id,
+        acquisition_report=acquisition_report,
+        no_realtime_khwd_mode=no_realtime_khwd_mode,
+    )
+
+
+def _dispatch_risk_cache_key(
+    target_area: str,
+    target_station_id: str | None,
+    no_realtime_khwd_mode: bool,
+    data_path: Path,
+    config_path: Path,
+) -> tuple:
+    return (
+        target_area,
+        target_station_id,
+        no_realtime_khwd_mode,
+        _safe_mtime(data_path),
+        _safe_mtime(config_path),
+    )
+
+
+def _get_dispatch_risk_cache(cache_key: tuple) -> dict | None:
+    with _dispatch_risk_cache_lock:
+        return _get_dispatch_risk_cache_unlocked(cache_key)
+
+
+def _get_dispatch_risk_cache_unlocked(cache_key: tuple) -> dict | None:
+    cached = _dispatch_risk_cache.get(cache_key)
+    if cached is None:
+        return None
+    written_at, payload = cached
+    if time.monotonic() - written_at > _DISPATCH_RISK_CACHE_TTL_SECONDS:
+        _dispatch_risk_cache.pop(cache_key, None)
+        return None
+    return copy.deepcopy(payload)
+
+
+def _safe_mtime(path: Path) -> float | None:
+    try:
+        return path.stat().st_mtime
+    except OSError:
+        return None
 
 
 @app.post("/admin/fetch")
@@ -588,7 +688,7 @@ def _render_dispatch_risk_demo_v34() -> str:
       <div>
         <div class="eyebrow">高雄港・派工決策主控台</div>
         <h1>高雄港微氣候派工風險</h1>
-        <div class="muted small">v3.5 系統盤點、資料來源、測站、資料集、模型摘要、station_priority_summary</div>
+        <div class="muted small">v1.3 系統盤點、資料來源、測站、資料集、模型摘要、station_priority_summary</div>
       </div>
       <nav>
         <a class="button secondary" href="/api/v1/dispatch/risk?target_area=KHH" target="_blank">JSON 原始資料</a>
@@ -680,12 +780,37 @@ def _render_dispatch_risk_demo_v34() -> str:
     const row = (label, value) => `<div class="row"><span>${label}</span><span>${value}</span></div>`;
     const metric = (label, value, sub = "") => `<div class="panel"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="muted small">${sub}</div></div>`;
     const levelClass = level => (text(level, "normal")).toLowerCase();
-    const levelLabels = { normal: "正常", watch: "注意", warning: "警戒", high_risk: "高風險", stop: "停止", unavailable: "無法取得", none: "無" };
-    const pill = level => `<span class="pill ${levelClass(level)}">${levelLabels[levelClass(level)] || text(level)}</span>`;
-    const actionLabels = { normal_dispatch: "正常派工", observe_only: "觀察", monitor: "監控", restrict_sensitive_tasks: "限制敏感作業", delay_high_risk_tasks: "延後高風險作業", suspend_exposed_tasks: "暫停暴露作業" };
+    const pill = (label, cssClass = null) => `<span class="pill ${cssClass || levelClass(label)}">${text(label)}</span>`;
+    const amountLevelClass = {
+      "無": "normal", "小雨": "watch", "大雨": "warning",
+      "豪雨": "high_risk", "大豪雨": "stop", "超大豪雨": "stop",
+      "not_applicable": "unavailable",
+    };
     const triggerLabels = { wind_gust: "陣風", wind_speed: "風速", rain_probability: "降雨機率", visibility: "能見度", tide: "潮位", none: "無" };
-    const statusLabels = { available: "可用", not_available: "不可用", unknown: "未知", disabled: "已停用", fallback_available: "備援可用", degraded: "降級", ok: "正常" };
+    const statusLabels = { available: "可用", not_available: "不可用", unknown: "未知", disabled: "已停用", fallback_available: "備援可用", degraded: "降級", ok: "可用" };
     const statusText = value => statusLabels[value] || text(value);
+    const amountPill = value => pill(text(value, "無資料"), amountLevelClass[text(value)] || "unavailable");
+    const beaufortText = value => {
+      const beaufort = value?.beaufort || {};
+      if (beaufort.label_zh !== null && beaufort.label_zh !== undefined) return `蒲福 ${text(beaufort.scale)} 級 ${text(beaufort.label_zh)}`;
+      return "-";
+    };
+    const portPostprocessApplied = value => Boolean(value?.port_local_postprocess_applied || value?.nearby_postprocess_applied);
+    const windPillText = value => {
+      const base = beaufortText(value);
+      return portPostprocessApplied(value) && base !== "-" ? `${base}以上（觸發港區即時安全門檻）` : base;
+    };
+    const cwaWindPillText = value => {
+      if (!value?.available) return "無資料";
+      const scaleText = text(value.beaufort_scale_text, value.beaufort_scale_min);
+      return `蒲福 ${scaleText}`;
+    };
+    const primaryConditionText = anchor => {
+      const trigger = anchor.risk_trigger_detail?.primary_trigger;
+      if (trigger === "wind_speed") return windPillText(anchor.wind_speed);
+      if (trigger === "wind_gust") return windPillText(anchor.wind_gust);
+      return text(anchor.rain?.amount_level, "無");
+    };
 
     function renderAudit(audit) {
       const cards = audit.dashboard_cards || [];
@@ -719,22 +844,21 @@ def _render_dispatch_risk_demo_v34() -> str:
         const threeHour = anchor.rain?.three_hour_accumulation_estimate;
         const amount = anchor.rain?.predicted_amount_mm;
         const trigger = anchor.risk_trigger_detail || {};
-        const actionLabel = anchor.dispatch_action?.action_label || actionLabels[anchor.dispatch_action_level] || text(anchor.dispatch_action_level);
         const triggerText = trigger.primary_trigger && trigger.primary_trigger !== "none"
-          ? `<strong>觸發來源：${triggerLabels[trigger.primary_trigger] || text(trigger.primary_trigger)}</strong>（${levelLabels[levelClass(trigger.primary_trigger_level)] || text(trigger.primary_trigger_level)}）${trigger.is_low_reliability_trigger ? "，可靠度較低，建議觀察" : ""}`
-          : "五項風險皆為正常，無觸發項目。";
+          ? `<strong>觸發來源：${triggerLabels[trigger.primary_trigger] || text(trigger.primary_trigger)}</strong>${trigger.is_low_reliability_trigger ? "，低可靠度來源，建議交叉確認" : ""}`
+          : "目前沒有觸發項目。";
         return `
         <div class="anchor-card ${level}">
           <div>
             <div class="h-label">${text(anchor.label)} · +${text(anchor.offset_minutes)} 分鐘</div>
             <div class="h-time num">${text(anchor.timestamp, "")}</div>
           </div>
-          <div class="action-badge">${actionLabel}</div>
-          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${percent(anchor.rain?.final_probability)} ${pill(anchor.rain?.level)}</span></div>
-          <div class="var-row"><span class="var-name">降雨量</span><span class="var-val">${amount === null || amount === undefined ? "-" : `${number(amount)} mm`} ${pill(anchor.rain?.amount_level)}</span></div>
+          <div class="action-badge">${primaryConditionText(anchor)}</div>
+          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${percent(anchor.rain?.final_probability)}</span></div>
+          <div class="var-row"><span class="var-name">降雨量</span><span class="var-val">${amount === null || amount === undefined ? "-" : `${number(amount)} mm`} ${amountPill(anchor.rain?.amount_level)}</span></div>
           <div class="var-row"><span class="var-name">3小時累積估計</span><span class="var-val">${threeHour ? `${number(threeHour.predicted_amount_mm)} mm（推算）` : "-"}</span></div>
-          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${number(anchor.wind_speed?.predicted_mps)} m/s ${pill(anchor.wind_speed?.operation_level)}</span></div>
-          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${number(anchor.wind_gust?.predicted_mps)} m/s ${pill(anchor.wind_gust?.operation_level)}</span></div>
+          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${pill(windPillText(anchor.wind_speed), levelClass(anchor.wind_speed?.operation_level))}</span></div>
+          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${pill(windPillText(anchor.wind_gust), levelClass(anchor.wind_gust?.operation_level))}</span></div>
           <div class="trigger-note">${triggerText}</div>
         </div>`;
       }).join("");
@@ -752,10 +876,10 @@ def _render_dispatch_risk_demo_v34() -> str:
             <div class="h-label">${text(item.window)} · CWA 官方預報</div>
             <div class="h-time num">${text(item.data_id)}</div>
           </div>
-          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${item.wind_speed?.available ? `蒲福 ${text(item.wind_speed.beaufort_scale_min)}+（${text(item.wind_speed.wind_speed_text)}）` : "-"} ${pill(item.wind_speed?.operation_level || "unavailable")}</span></div>
-          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${item.rain_probability?.available ? percent(item.rain_probability.value) : "-"} ${pill(item.rain_probability?.level || "unavailable")}</span></div>
-          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${pill("unavailable")}</span></div>
-          <div class="var-row"><span class="var-name">能見度</span><span class="var-val">${pill("unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">風速</span><span class="var-val">${pill(cwaWindPillText(item.wind_speed), levelClass(item.wind_speed?.operation_level || "unavailable"))}</span></div>
+          <div class="var-row"><span class="var-name">降雨機率</span><span class="var-val">${item.rain_probability?.available ? percent(item.rain_probability.value) : "-"}</span></div>
+          <div class="var-row"><span class="var-name">陣風</span><span class="var-val">${pill("無資料", "unavailable")}</span></div>
+          <div class="var-row"><span class="var-name">能見度</span><span class="var-val">${pill("無資料", "unavailable")}</span></div>
         </div>`).join("");
     }
 

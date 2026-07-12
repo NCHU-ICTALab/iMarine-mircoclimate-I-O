@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from app.api import app
 
 
-def test_system_info_endpoint_returns_v20_overview():
+def test_system_info_endpoint_returns_v13_overview():
     client = TestClient(app)
 
     response = client.get("/api/v1/system/info")
@@ -14,7 +14,8 @@ def test_system_info_endpoint_returns_v20_overview():
     body = response.json()
     assert body["schema_version"] == "microclimate.v1"
     assert body["endpoint"] == "/api/v1/system/info"
-    assert body["data"][0]["spec_version"] == "v2.0"
+    assert body["data"][0]["spec_version"] == "v1.3"
+    assert body["data"][0]["runtime_model_version"] == "kaohsiung_port_dispatch_risk_v1.3"
     assert body["data"][0]["target_area"]["port_code"] == "KHH"
 
 

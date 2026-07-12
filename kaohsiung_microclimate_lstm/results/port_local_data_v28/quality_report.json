@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-07-11T10:07:08+08:00",
+  "generated_at": "2026-07-12T13:43:09+08:00",
   "station_quality": {
     "KHWD01": {
       "station_id": "KHWD01",
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:04:00+08:00",
-      "time_end": "2026-07-11T10:04:00+08:00",
+      "time_start": "2026-07-12T13:40:00+08:00",
+      "time_end": "2026-07-12T13:40:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,
@@ -26,8 +26,8 @@
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:03:00+08:00",
-      "time_end": "2026-07-11T10:03:00+08:00",
+      "time_start": "2026-07-12T13:39:00+08:00",
+      "time_end": "2026-07-12T13:39:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,
@@ -46,8 +46,8 @@
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:04:00+08:00",
-      "time_end": "2026-07-11T10:04:00+08:00",
+      "time_start": "2026-07-12T13:40:00+08:00",
+      "time_end": "2026-07-12T13:40:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,
@@ -66,8 +66,8 @@
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:05:00+08:00",
-      "time_end": "2026-07-11T10:05:00+08:00",
+      "time_start": "2026-07-12T13:41:00+08:00",
+      "time_end": "2026-07-12T13:41:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,
@@ -86,8 +86,8 @@
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:04:00+08:00",
-      "time_end": "2026-07-11T10:04:00+08:00",
+      "time_start": "2026-07-12T13:40:00+08:00",
+      "time_end": "2026-07-12T13:40:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,
@@ -106,8 +106,8 @@
       "station_type": "wind",
       "valid": true,
       "record_count": 2,
-      "time_start": "2026-07-11T10:03:00+08:00",
-      "time_end": "2026-07-11T10:03:00+08:00",
+      "time_start": "2026-07-12T13:39:00+08:00",
+      "time_end": "2026-07-12T13:39:00+08:00",
       "missing_ratio": {
         "wind_speed": 0.0,
         "wind_gust": 0.0,

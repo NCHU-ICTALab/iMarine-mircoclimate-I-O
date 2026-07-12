@@ -127,8 +127,10 @@ dispatch_thresholds:
     assert [item["window"] for item in extended["windows"]] == ["+3h", "+6h"]
     assert extended["windows"][0]["wind_speed"]["value_mps"] is None
     assert extended["windows"][0]["wind_speed"]["beaufort_scale_min"] == 6
+    assert extended["windows"][0]["wind_speed"]["operation_level"] == "warning"
     assert extended["windows"][0]["wind_speed"]["basis"] == "cwa_beaufort_scale_range_not_precise_value"
     assert extended["windows"][0]["rain_probability"]["level"] == "watch"
+    assert extended["windows"][1]["wind_speed"]["operation_level"] == "normal"
     assert extended["windows"][0]["wind_gust"]["available"] is False
     assert extended["windows"][0]["visibility"]["available"] is False
     assert result["cwa"][0]["window"] == "+3h"

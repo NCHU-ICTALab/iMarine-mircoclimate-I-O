@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 from math import ceil
 from typing import Any
@@ -8,16 +9,24 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
+_CONFIG_CACHE: dict[tuple[str, int, int], dict[str, Any]] = {}
 
 
 def load_config(path: str | Path = "config.yaml") -> dict[str, Any]:
     config_path = Path(path)
     if not config_path.is_absolute() and not config_path.exists():
         config_path = ROOT / config_path
+    config_path = config_path.resolve()
+    stat = config_path.stat()
+    cache_key = (str(config_path), int(stat.st_mtime_ns), int(stat.st_size))
+    if cache_key in _CONFIG_CACHE:
+        return deepcopy(_CONFIG_CACHE[cache_key])
     with config_path.open("r", encoding="utf-8") as fh:
         cfg = yaml.safe_load(fh) or {}
     validate_config(cfg)
-    return cfg
+    _CONFIG_CACHE.clear()
+    _CONFIG_CACHE[cache_key] = cfg
+    return deepcopy(cfg)
 
 
 def validate_config(cfg: dict[str, Any]) -> None:

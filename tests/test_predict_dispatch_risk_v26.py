@@ -114,6 +114,9 @@ def test_predict_dispatch_risk_v26_uses_multistation_postprocess(monkeypatch, tm
     assert h1["rain"]["final_probability"] == 0.7
     assert h1["wind_speed"]["nearby_postprocess_applied"] is True
     assert h1["wind_gust"]["nearby_postprocess_applied"] is True
+    assert h1["wind_speed"]["beaufort"]["label_zh"]
+    assert h1["wind_gust"]["beaufort"]["label_zh"]
+    assert set(h1["wind_gust"]["beaufort"]) == {"scale", "label_zh", "range_mps"}
     assert h1["dispatch_risk_level"] == "high_risk"
     assert h1["risk_trigger_detail"]["primary_trigger"] == "rain_probability"
 

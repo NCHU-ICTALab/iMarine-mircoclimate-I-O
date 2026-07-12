@@ -49,3 +49,33 @@ def test_dispatch_risk_endpoint_returns_v27_json(monkeypatch):
     assert body["forecast_anchors"][0]["risk_trigger_detail"]["primary_trigger"] == "none"
     assert body["forecast_anchors"][0]["dispatch_action_level"] == "normal_dispatch"
     assert body["trace"]["cwa_pop_used_as_model_input"] is False
+
+
+def test_build_dispatch_risk_response_caches_same_key_and_refresh_bypasses(monkeypatch, tmp_path):
+    data = tmp_path / "data" / "raw" / "observed_hourly" / "467441.csv"
+    config = tmp_path / "config.yaml"
+    data.parent.mkdir(parents=True)
+    data.write_text("obs_time,wind_speed\n2026-07-01,1\n", encoding="utf-8")
+    config.write_text("project: {model_version: test}\n", encoding="utf-8")
+    monkeypatch.setattr(api_module, "MICROCLIMATE_PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(api_module, "MICROCLIMATE_CONFIG_PATH", config)
+    monkeypatch.setattr(api_module, "_dispatch_risk_cache", {})
+
+    calls = {"count": 0}
+
+    def fake_compute(*args, **kwargs):
+        calls["count"] += 1
+        return {"model_version": "test", "call_count": calls["count"]}
+
+    from kaohsiung_microclimate_lstm.src.tools import fetch_port_local_stations
+
+    monkeypatch.setattr(fetch_port_local_stations, "run_fetch_port_local_stations", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(api_module, "_compute_dispatch_risk_response", fake_compute)
+
+    first = api_module.build_dispatch_risk_response()
+    second = api_module.build_dispatch_risk_response()
+    refreshed = api_module.build_dispatch_risk_response(refresh_port_local=True)
+
+    assert first == {"model_version": "test", "call_count": 1}
+    assert second == {"model_version": "test", "call_count": 1}
+    assert refreshed == {"model_version": "test", "call_count": 2}

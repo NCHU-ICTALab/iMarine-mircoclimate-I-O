@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-07-12T10:53:39+08:00",
+  "items": {
+    "port_local_training_dataset": {
+      "path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\processed\\port_local_training_dataset.parquet",
+      "exists": true,
+      "sample_count": 3,
+      "target_columns": [
+        "target_wind_speed_H1",
+        "target_wind_gust_H1",
+        "target_wind_speed_H2",
+        "target_wind_gust_H2",
+        "target_wind_speed_H3",
+        "target_wind_gust_H3",
+        "target_wind_speed_H4",
+        "target_wind_gust_H4"
+      ],
+      "label_valid_count": {
+        "target_wind_speed_H1": 3,
+        "target_wind_gust_H1": 3,
+        "target_wind_speed_H2": 0,
+        "target_wind_gust_H2": 0,
+        "target_wind_speed_H3": 0,
+        "target_wind_gust_H3": 0,
+        "target_wind_speed_H4": 0,
+        "target_wind_gust_H4": 0
+      },
+      "warning": "dataset_present_but_not_training_ready"
+    },
+    "extra_historical_weather_stations": {
+      "raw_dir": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\raw\\historical_weather",
+      "extra_station_ids": [
+        "C0V610",
+        "C0V680"
+      ],
+      "warning": "extra_raw_stations_not_used_for_training"
+    },
+    "orphan_config_smoke": {
+      "path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\config_smoke.yaml",
+      "exists": true,
+      "warning": "orphan_or_legacy_file_present"
+    },
+    "legacy_setup_project_structure_sh": {
+      "path": "D:\\碩一下\\航港杯\\微氣候抓取\\scripts\\setup_project_structure.sh",
+      "exists": true,
+      "warning": "orphan_or_legacy_file_present"
+    },
+    "legacy_cwa_pop_cache_files": {
+      "cache_dir": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\data\\cache",
+      "legacy_cache_files": [
+        "cwa_pop3h_三民區.json",
+        "cwa_pop3h_前鎮區.json",
+        "cwa_pop3h_小港區.json",
+        "cwa_pop3h_苓雅區.json",
+        "cwa_pop3h_鹽埕區.json",
+        "cwa_pop3h_鼓山區.json"
+      ],
+      "warning": "legacy_cache_files_not_deleted"
+    }
+  },
+  "action_policy": "report_only_no_delete"
+}

@@ -189,13 +189,6 @@ def align_cwa_pop_to_anchors(cwa_timeseries: list[dict[str, Any]], generated_at:
 
 
 def infer_source_resolution(element_name: str | None, timeseries: list[dict[str, Any]] | None = None) -> str:
-    text = str(element_name or "").lower()
-    if "3" in text or "pop3h" in text:
-        return "3h"
-    if "6" in text or "pop6h" in text:
-        return "6h"
-    if "12" in text or "pop12h" in text:
-        return "12h"
     if timeseries:
         try:
             start = datetime.fromisoformat(timeseries[0]["start_time"])
@@ -204,6 +197,13 @@ def infer_source_resolution(element_name: str | None, timeseries: list[dict[str,
             return f"{hours}h" if hours in {3, 6, 12} else "unknown"
         except Exception:
             return "unknown"
+    text = str(element_name or "").lower()
+    if "3" in text or "pop3h" in text:
+        return "3h_unverified"
+    if "6" in text or "pop6h" in text:
+        return "6h_unverified"
+    if "12" in text or "pop12h" in text:
+        return "12h_unverified"
     return "unknown"
 
 

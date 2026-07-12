@@ -10,6 +10,11 @@ import numpy as np
 import pandas as pd
 import torch
 
+# Dispatch risk evolved as additive vNN wrappers so each audit round can be
+# reproduced from its original function and result directory. Keep those
+# historical entrypoints intact; new callers should use
+# predict_dispatch_risk_current(), which points at the active wrapper.
+
 try:
     from .config import ROOT, load_config
     from .evaluate import inverse_targets
@@ -30,11 +35,13 @@ try:
     from .data.port_local_wind_aggregation import build_port_local_wind_features
     from .data.dataset_readiness import check_port_local_dataset_readiness
     from .data.port_local_training_dataset import build_port_local_training_dataset
+    from .data.nearby_historical_training_dataset import build_nearby_cwa_inference_feature_row
     from .forecast.rain_probability_blender import blend_with_cwa_pop3h
+    from .io_utils import atomic_write_json
     from .model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
     from .selection.model_selection_engine import select_prediction_mode
     from .training_orchestration import build_model_training_status, run_training_orchestration
-    from .model_registry import build_model_registry_summary
+    from .model_registry import build_model_registry_summary, load_model_registry
     from .station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
     from .postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
     from .postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
@@ -44,6 +51,7 @@ try:
     from .risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from .risk.level_mapping import (
         LEVEL_ORDER,
+        OPERATION_LABELS,
         map_rain_amount_to_level,
         map_rain_probability_to_level,
         rain_amount_level_basis,
@@ -54,6 +62,7 @@ try:
     )
     from .risk.risk_trigger_detail import build_risk_trigger_detail
     from .risk.action_mapping import map_dispatch_action_level
+    from .risk.beaufort_scale import map_mps_to_beaufort
 except ImportError:  # pragma: no cover
     from config import ROOT, load_config
     from evaluate import inverse_targets
@@ -74,11 +83,13 @@ except ImportError:  # pragma: no cover
     from data.port_local_wind_aggregation import build_port_local_wind_features
     from data.dataset_readiness import check_port_local_dataset_readiness
     from data.port_local_training_dataset import build_port_local_training_dataset
+    from data.nearby_historical_training_dataset import build_nearby_cwa_inference_feature_row
     from forecast.rain_probability_blender import blend_with_cwa_pop3h
+    from io_utils import atomic_write_json
     from model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
     from selection.model_selection_engine import select_prediction_mode
     from training_orchestration import build_model_training_status, run_training_orchestration
-    from model_registry import build_model_registry_summary
+    from model_registry import build_model_registry_summary, load_model_registry
     from station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
     from postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
     from postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
@@ -88,6 +99,7 @@ except ImportError:  # pragma: no cover
     from risk.dispatch_risk_aggregator import aggregate_dispatch_risk, dispatch_suggestion
     from risk.level_mapping import (
         LEVEL_ORDER,
+        OPERATION_LABELS,
         map_rain_amount_to_level,
         map_rain_probability_to_level,
         rain_amount_level_basis,
@@ -98,6 +110,7 @@ except ImportError:  # pragma: no cover
     )
     from risk.risk_trigger_detail import build_risk_trigger_detail
     from risk.action_mapping import map_dispatch_action_level
+    from risk.beaufort_scale import map_mps_to_beaufort
 
 
 UNITS = {
@@ -488,6 +501,36 @@ def predict_dispatch_risk_v25(
         label = str(item["label"])
         wind_speed_values[label] = max(0.0, float(item.get("wind_speed", {}).get("value", 0.0)))
         wind_gust_values[label] = max(0.0, float(item.get("wind_gust", {}).get("value", 0.0)))
+    legacy_wind_speed_values = dict(wind_speed_values)
+    legacy_wind_gust_values = dict(wind_gust_values)
+    configured_wind_source = str(cfg.get("wind_speed_gust_prediction_source", "legacy_lstm"))
+    wind_source_detail = {
+        "configured_source": configured_wind_source,
+        "effective_source": "legacy_lstm",
+        "legacy_lstm_available": True,
+    }
+    if configured_wind_source == "nearby_cwa_historical_model":
+        nearby_wind = _predict_nearby_wind_speeds(project, nearby_observations, cfg)
+        nearby_gust = _predict_nearby_wind_gusts(project, nearby_observations, cfg)
+        labels = [label for label, _ in _forecast_anchor_items(cfg)]
+        if nearby_wind["available"] and nearby_gust["available"] and all(nearby_wind["values"].get(label) is not None and nearby_gust["values"].get(label) is not None for label in labels):
+            wind_speed_values = {label: float(value) for label, value in nearby_wind["values"].items() if value is not None}
+            wind_gust_values = {label: float(value) for label, value in nearby_gust["values"].items() if value is not None}
+            wind_source_detail.update(
+                {
+                    "effective_source": "nearby_cwa_historical_model",
+                    "nearby_wind_source": nearby_wind["source"],
+                    "nearby_gust_source": nearby_gust["source"],
+                }
+            )
+        else:
+            wind_source_detail.update(
+                {
+                    "fallback_reason": "nearby_cwa_historical_model_unavailable",
+                    "nearby_wind_available": bool(nearby_wind["available"]),
+                    "nearby_gust_available": bool(nearby_gust["available"]),
+                }
+            )
 
     wind_operation = {label: map_wind_speed_to_operation_level(value, cfg) for label, value in wind_speed_values.items()}
     gust_operation = {label: map_wind_gust_to_operation_level(value, cfg, use_buffer=True) for label, value in wind_gust_values.items()}
@@ -562,6 +605,8 @@ def predict_dispatch_risk_v25(
                 },
                 "wind_speed": {
                     "predicted_mps": round(float(wind_speed_values.get(label, 0.0)), 3),
+                    "legacy_lstm_predicted_mps": round(float(legacy_wind_speed_values.get(label, 0.0)), 3),
+                    "prediction_source": wind_source_detail["effective_source"],
                     "beaufort": wind_operation[label]["beaufort"],
                     "operation_level": wind_operation[label]["operation_level"],
                     "operation_label": wind_operation[label]["operation_label"],
@@ -569,6 +614,8 @@ def predict_dispatch_risk_v25(
                 },
                 "wind_gust": {
                     "predicted_mps": round(float(wind_gust_values.get(label, 0.0)), 3),
+                    "legacy_lstm_predicted_mps": round(float(legacy_wind_gust_values.get(label, 0.0)), 3),
+                    "prediction_source": wind_source_detail["effective_source"],
                     "beaufort": gust_operation[label]["beaufort"],
                     "operation_level": gust_operation[label]["operation_level"],
                     "operation_label": gust_operation[label]["operation_label"],
@@ -633,6 +680,7 @@ def predict_dispatch_risk_v25(
                 "rain": checkpoint.get("model_version", "unknown"),
                 "wind_speed_gust": wind.get("model_version"),
             },
+            "wind_speed_gust_prediction_source": wind_source_detail,
         },
     }
 
@@ -641,22 +689,7 @@ def _fetch_cwa_forecast_v25(cfg: dict[str, Any], project: Path, generated_at: da
     cwa_cfg = cfg.get("cwa_open_data", {})
     if not cwa_cfg.get("enabled", False):
         return {"available": False, "reason": "cwa_open_data disabled", "anchor_pop": {}}
-    api_key = load_cwa_api_key(str(cwa_cfg.get("api_key_env", "CWA_API_KEY")), project)
-    resolved_path = project / "config" / "resolved_cwa_forecast_source.json"
-    resolved: dict[str, Any]
-    if resolved_path.exists():
-        resolved = json.loads(resolved_path.read_text(encoding="utf-8"))
-    else:
-        resolved = resolve_cwa_forecast_source(
-            cwa_cfg.get("pop_datasets", {}).get("candidates", []),
-            [str(item) for item in cwa_cfg.get("location_candidates", [])],
-            cwa_cfg.get("element_name_candidates", {}),
-            api_key,
-            cfg,
-            project,
-        )
-        resolved_path.parent.mkdir(parents=True, exist_ok=True)
-        resolved_path.write_text(json.dumps(resolved, ensure_ascii=False, indent=2), encoding="utf-8")
+    resolved = refresh_cwa_forecast_source_if_stale(cfg, project)
     if not resolved.get("available", False):
         return {**resolved, "anchor_pop": {}}
     anchors = {label: offset for label, offset in _forecast_anchor_items(cfg)}
@@ -669,6 +702,43 @@ def _fetch_cwa_forecast_v25(cfg: dict[str, Any], project: Path, generated_at: da
         "raw_unit": "%",
         "normalized_unit": "probability_0_1",
     }
+
+
+def refresh_cwa_forecast_source_if_stale(cfg: dict[str, Any], project: Path, force_refresh: bool = False) -> dict[str, Any]:
+    cwa_cfg = cfg.get("cwa_open_data", {})
+    api_key = load_cwa_api_key(str(cwa_cfg.get("api_key_env", "CWA_API_KEY")), project)
+    resolved_path = project / "config" / "resolved_cwa_forecast_source.json"
+    max_age_hours = float(cwa_cfg.get("resolved_source_max_age_hours", 3))
+    if not force_refresh and resolved_path.exists():
+        resolved = json.loads(resolved_path.read_text(encoding="utf-8"))
+        if not _cwa_resolved_source_is_stale(resolved, max_age_hours):
+            return {**resolved, "cache_status": "hit"}
+    resolved = resolve_cwa_forecast_source(
+        cwa_cfg.get("pop_datasets", {}).get("candidates", []),
+        [str(item) for item in cwa_cfg.get("location_candidates", [])],
+        cwa_cfg.get("element_name_candidates", {}),
+        api_key,
+        cfg,
+        project,
+    )
+    resolved = {**resolved, "cache_status": "refreshed"}
+    resolved_path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_path.write_text(json.dumps(resolved, ensure_ascii=False, indent=2), encoding="utf-8")
+    return resolved
+
+
+def _cwa_resolved_source_is_stale(resolved: dict[str, Any], max_age_hours: float) -> bool:
+    resolved_at = resolved.get("resolved_at")
+    if not resolved_at:
+        return True
+    try:
+        resolved_time = datetime.fromisoformat(str(resolved_at))
+    except ValueError:
+        return True
+    if resolved_time.tzinfo is None:
+        resolved_time = resolved_time.replace(tzinfo=TAIPEI)
+    age = datetime.now(TAIPEI) - resolved_time.astimezone(TAIPEI)
+    return age.total_seconds() > max_age_hours * 3600
 
 
 def _public_cwa_forecast(cwa: dict[str, Any]) -> dict[str, Any]:
@@ -1101,9 +1171,11 @@ def predict_dispatch_risk_v29(
     result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.9")
     khwd_frames = _load_khwd_frames_for_v29(result, project)
     wind_features = build_port_local_wind_features(khwd_frames, cfg)
+    blending_report = _apply_port_local_wind_persistence_blending(result, wind_features, cfg)
     postprocess_report = _apply_v29_postprocess_validation(result, wind_features, cfg)
     rain_report = _build_v29_rain_probability_report(result, cfg)
     trace_report = _build_v29_trace_report(result, wind_features, postprocess_report, rain_report, cfg)
+    trace_report.setdefault("trace", {})["port_local_wind_persistence_blending"] = blending_report
     trace = result.setdefault("trace", {})
     trace.update(trace_report["trace"])
     result.setdefault("data_availability", {})["port_local_postprocess_validation"] = {
@@ -1130,6 +1202,81 @@ def _load_khwd_frames_for_v29(result: dict[str, Any], project: Path) -> dict[str
             except Exception:
                 continue
     return frames
+
+
+def _apply_port_local_wind_persistence_blending(result: dict[str, Any], wind_features: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
+    blend_cfg = cfg.get("port_local_wind_persistence_blending", {})
+    enabled = bool(blend_cfg.get("enabled", False))
+    report: dict[str, Any] = {
+        "enabled": enabled,
+        "applied": False,
+        "unavailable_behavior": blend_cfg.get("unavailable_behavior", "fall_back_to_model_only"),
+        "anchor_adjustments": {},
+    }
+    if not enabled:
+        return report
+    features = wind_features.get("features", {}) if isinstance(wind_features, dict) else {}
+    khwd_speed = _safe_float(features.get("khwd_wind_speed_max"))
+    khwd_gust = _safe_float(features.get("khwd_wind_gust_max"))
+    if khwd_speed is None or khwd_gust is None:
+        report["reason"] = "khwd_wind_or_gust_unavailable"
+        return report
+    apply_labels = {str(item) for item in blend_cfg.get("apply_anchors", ["H1", "H2", "H3", "H4"])}
+    weights = blend_cfg.get("weights", {})
+    default_weights = {
+        "H1": {"khwd_weight": 0.8, "model_weight": 0.2},
+        "H2": {"khwd_weight": 0.6, "model_weight": 0.4},
+        "H3": {"khwd_weight": 0.4, "model_weight": 0.6},
+        "H4": {"khwd_weight": 0.2, "model_weight": 0.8},
+    }
+    for anchor in result.get("forecast_anchors", []):
+        label = str(anchor.get("label"))
+        if label not in apply_labels:
+            continue
+        weight_cfg = weights.get(label, default_weights.get(label, {"khwd_weight": 0.0, "model_weight": 1.0}))
+        khwd_weight = float(weight_cfg.get("khwd_weight", 0.0))
+        model_weight = float(weight_cfg.get("model_weight", 1.0))
+        wind = anchor.setdefault("wind_speed", {})
+        gust = anchor.setdefault("wind_gust", {})
+        base_speed = _safe_float(wind.get("predicted_mps"))
+        base_gust = _safe_float(gust.get("predicted_mps"))
+        if base_speed is None or base_gust is None:
+            continue
+        blended_speed = max(0.0, khwd_weight * khwd_speed + model_weight * base_speed)
+        blended_gust = max(0.0, khwd_weight * khwd_gust + model_weight * base_gust)
+        wind.setdefault("base_model_predicted_mps", round(float(base_speed), 3))
+        gust.setdefault("base_model_predicted_mps", round(float(base_gust), 3))
+        wind["predicted_mps"] = round(float(blended_speed), 3)
+        gust["predicted_mps"] = round(float(blended_gust), 3)
+        wind["prediction_source"] = f"{wind.get('prediction_source', 'model')}_khwd_persistence_blended"
+        gust["prediction_source"] = f"{gust.get('prediction_source', 'model')}_khwd_persistence_blended"
+        wind_op = map_wind_speed_to_operation_level(blended_speed, cfg)
+        gust_op = map_wind_gust_to_operation_level(blended_gust, cfg, use_buffer=True)
+        wind["beaufort"] = wind_op["beaufort"]
+        wind["operation_level"] = wind_op["operation_level"]
+        wind["operation_label"] = wind_op["operation_label"]
+        gust["beaufort"] = gust_op["beaufort"]
+        gust["operation_level"] = gust_op["operation_level"]
+        gust["operation_label"] = gust_op["operation_label"]
+        gust["buffer_applied"] = gust_op["buffer_applied"]
+        gust["buffer_mps"] = gust_op["buffer_mps"]
+        gust["original_level_without_buffer"] = gust_op["original_level_without_buffer"]
+        detail = {
+            "applied": True,
+            "khwd_weight": khwd_weight,
+            "model_weight": model_weight,
+            "khwd_wind_speed_max": khwd_speed,
+            "khwd_wind_gust_max": khwd_gust,
+            "base_wind_speed_mps": round(float(base_speed), 3),
+            "base_wind_gust_mps": round(float(base_gust), 3),
+            "blended_wind_speed_mps": round(float(blended_speed), 3),
+            "blended_wind_gust_mps": round(float(blended_gust), 3),
+        }
+        wind["persistence_blending"] = {k: v for k, v in detail.items() if k != "base_wind_gust_mps" and k != "blended_wind_gust_mps"}
+        gust["persistence_blending"] = {k: v for k, v in detail.items() if k != "base_wind_speed_mps" and k != "blended_wind_speed_mps"}
+        report["anchor_adjustments"][label] = detail
+        report["applied"] = True
+    return report
 
 
 def _apply_v29_postprocess_validation(result: dict[str, Any], wind_features: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
@@ -1163,7 +1310,15 @@ def _apply_v29_postprocess_validation(result: dict[str, Any], wind_features: dic
         anchor["wind_speed"]["port_local_postprocess"] = wind_detail
         anchor["wind_gust"]["port_local_postprocess"] = gust_detail
         anchor["wind_speed"]["operation_level"] = wind_detail["adjusted_operation_level"]
+        anchor["wind_speed"]["operation_label"] = OPERATION_LABELS[wind_detail["adjusted_operation_level"]]
+        anchor["wind_speed"]["port_local_postprocess_applied"] = bool(wind_detail["applied"])
+        if wind_detail["applied"]:
+            anchor["wind_speed"]["beaufort"] = map_mps_to_beaufort(wind_detail["khwd_wind_speed_max"])
         anchor["wind_gust"]["operation_level"] = gust_detail["adjusted_operation_level"]
+        anchor["wind_gust"]["operation_label"] = OPERATION_LABELS[gust_detail["adjusted_operation_level"]]
+        anchor["wind_gust"]["port_local_postprocess_applied"] = bool(gust_detail["applied"])
+        if gust_detail["applied"]:
+            anchor["wind_gust"]["beaufort"] = map_mps_to_beaufort(gust_detail["khwd_wind_gust_max"])
         anchor_adjustments[label] = {
             "wind_postprocess_applied": bool(wind_detail["applied"]),
             "gust_postprocess_applied": bool(gust_detail["applied"]),
@@ -1241,10 +1396,10 @@ def _build_v29_trace_report(
 def _write_v29_reports(project: Path, result: dict[str, Any], postprocess_report: dict[str, Any], rain_report: dict[str, Any], trace_report: dict[str, Any]) -> None:
     out_dir = project / "results" / "dispatch_risk_v29"
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "port_local_postprocess_report.json").write_text(json.dumps(postprocess_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "rain_probability_report.json").write_text(json.dumps(rain_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "dispatch_risk_trace_report.json").write_text(json.dumps(trace_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_report_json(project, "dispatch_risk_v29", "prediction_samples.json", result)
+    _write_report_json(project, "dispatch_risk_v29", "port_local_postprocess_report.json", postprocess_report)
+    _write_report_json(project, "dispatch_risk_v29", "rain_probability_report.json", rain_report)
+    _write_report_json(project, "dispatch_risk_v29", "dispatch_risk_trace_report.json", trace_report)
 
 
 def predict_dispatch_risk_v30(
@@ -1416,12 +1571,12 @@ def _write_v30_reports(
 ) -> None:
     out_dir = project / "results" / "dispatch_risk_v30"
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "dataset_readiness_report.json").write_text(json.dumps(readiness_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "port_local_training_report.json").write_text(json.dumps(training_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "port_local_model_metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "model_selection_report.json").write_text(json.dumps(model_selection_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "rain_probability_report.json").write_text(json.dumps(rain_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_report_json(project, "dispatch_risk_v30", "dataset_readiness_report.json", readiness_report)
+    _write_report_json(project, "dispatch_risk_v30", "port_local_training_report.json", training_report)
+    _write_report_json(project, "dispatch_risk_v30", "port_local_model_metrics.json", metrics)
+    _write_report_json(project, "dispatch_risk_v30", "model_selection_report.json", model_selection_report)
+    _write_report_json(project, "dispatch_risk_v30", "prediction_samples.json", result)
+    _write_report_json(project, "dispatch_risk_v30", "rain_probability_report.json", rain_report)
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:
@@ -1431,6 +1586,18 @@ def _load_json(path: Path) -> dict[str, Any] | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return None
+
+
+def _write_report_json(project: Path, report_group: str, filename: str, payload: dict[str, Any]) -> None:
+    report_path = project / "results" / report_group / filename
+    atomic_write_json(report_path, payload)
+    live_payload = {
+        "cache_kind": "live_runtime_snapshot",
+        "source_report_path": str(report_path.relative_to(project)) if report_path.is_relative_to(project) else str(report_path),
+        "written_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
+        "payload": payload,
+    }
+    atomic_write_json(project / "results" / "_live_cache" / report_group / filename, live_payload)
 
 
 def predict_dispatch_risk_v32(
@@ -1576,13 +1743,13 @@ def _write_v32_reports(
     out_dir = project / "results" / "dispatch_risk_v32"
     out_dir.mkdir(parents=True, exist_ok=True)
     if not (out_dir / "nearby_station_ranking_report.json").exists():
-        (out_dir / "nearby_station_ranking_report.json").write_text(json.dumps(ranking, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_report_json(project, "dispatch_risk_v32", "nearby_station_ranking_report.json", ranking)
     if not (out_dir / "nearby_cwa_readiness_report.json").exists():
-        (out_dir / "nearby_cwa_readiness_report.json").write_text(json.dumps(nearby_readiness, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_report_json(project, "dispatch_risk_v32", "nearby_cwa_readiness_report.json", nearby_readiness)
     if not (out_dir / "nearby_cwa_model_metrics.json").exists():
-        (out_dir / "nearby_cwa_model_metrics.json").write_text(json.dumps(nearby_metrics, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "model_selection_report.json").write_text(json.dumps(model_selection_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_report_json(project, "dispatch_risk_v32", "nearby_cwa_model_metrics.json", nearby_metrics)
+    _write_report_json(project, "dispatch_risk_v32", "model_selection_report.json", model_selection_report)
+    _write_report_json(project, "dispatch_risk_v32", "prediction_samples.json", result)
 
 
 def predict_dispatch_risk_v33(
@@ -1644,6 +1811,7 @@ def _build_v33_selection_context(
         "port_local_model_available": bool(port_metrics.get("port_local_model_trained", False)),
         "port_local_model_accepted": False,
         "dataset_ready": bool(port_readiness.get("ready", False)),
+        "port_local_failed_reasons": port_readiness.get("failed_reasons", []),
         "port_local_model_trained": bool(port_metrics.get("port_local_model_trained", False)),
         "port_local_model_critical_under_warning_count": port_critical,
         "khwd_realtime_available": khwd_available,
@@ -1681,6 +1849,7 @@ def _apply_v33_selection(result: dict[str, Any], selection: dict[str, Any], cont
             "fallback_chain": selection["fallback_chain"],
             "evaluated_modes": selection["evaluated_modes"],
             "blocking_reasons": selection["blocking_reasons"],
+            "failed_reasons": selection.get("failed_reasons", []),
         }
     )
     nearby = result.setdefault("nearby_cwa_historical_summary", {})
@@ -1768,8 +1937,8 @@ def _write_v33_reports(project: Path, result: dict[str, Any], reports: dict[str,
     out_dir = project / "results" / "dispatch_risk_v33"
     out_dir.mkdir(parents=True, exist_ok=True)
     for filename, payload in reports.items():
-        (out_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_report_json(project, "dispatch_risk_v33", filename, payload)
+    _write_report_json(project, "dispatch_risk_v33", "prediction_samples.json", result)
 
 
 def predict_dispatch_risk_v34(
@@ -1940,8 +2109,8 @@ def _write_v34_reports(project: Path, result: dict[str, Any], orchestration: dic
     out_dir.mkdir(parents=True, exist_ok=True)
     reports = _build_v34_reports(result, orchestration, cfg)
     for filename, payload in reports.items():
-        (out_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "prediction_samples.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        _write_report_json(project, "dispatch_risk_v34", filename, payload)
+    _write_report_json(project, "dispatch_risk_v34", "prediction_samples.json", result)
 
 
 def predict_dispatch_risk_v35(
@@ -1992,10 +2161,15 @@ def predict_dispatch_risk_v35(
     return result
 
 
+def predict_dispatch_risk_current(*args: Any, **kwargs: Any) -> dict[str, Any]:
+    """Version-neutral public entrypoint for the current dispatch-risk API."""
+    return predict_dispatch_risk_v35(*args, **kwargs)
+
+
 def _write_v35_prediction_sample(project: Path, result: dict[str, Any]) -> None:
     out_dir = project / "results" / "dispatch_risk_v35"
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "prediction_samples_v35.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_report_json(project, "dispatch_risk_v35", "prediction_samples_v35.json", result)
 
 
 def _load_or_build_priority_station_context(
@@ -2088,7 +2262,7 @@ def _predict_nearby_precipitation_amounts(
     fallback_observations: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
     labels = ["H1", "H2", "H3", "H4"]
-    manifest_path = project / "models" / "nearby_cwa_v32" / "model_manifest.json"
+    manifest_path = _resolve_nearby_cwa_manifest_path(project)
     observations, source = _select_precipitation_amount_observations(nearby_observations, fallback_observations)
     empty = {"amounts": {label: None for label in labels}, "source": source}
     if observations is None or observations.empty or not manifest_path.exists():
@@ -2102,8 +2276,7 @@ def _predict_nearby_precipitation_amounts(
         return empty
     outputs: dict[str, float | None] = {}
     for label in labels:
-        model_info = manifest.get("models", {}).get(f"precipitation_amount_{label}")
-        model_path_value = model_info.get("model_path") if isinstance(model_info, dict) else model_info
+        model_path_value = _manifest_model_path(manifest, "precipitation_amount", label)
         if not model_path_value:
             outputs[label] = None
             continue
@@ -2124,6 +2297,105 @@ def _predict_nearby_precipitation_amounts(
         except Exception:
             outputs[label] = None
     return {"amounts": outputs, "source": source}
+
+
+def _predict_nearby_wind_speeds(project: Path, nearby_observations: pd.DataFrame | None, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
+    return _predict_nearby_wind_variable(project, nearby_observations, "wind_speed", cfg or {})
+
+
+def _predict_nearby_wind_gusts(project: Path, nearby_observations: pd.DataFrame | None, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
+    return _predict_nearby_wind_variable(project, nearby_observations, "wind_gust", cfg or {})
+
+
+def _predict_nearby_wind_variable(
+    project: Path,
+    nearby_observations: pd.DataFrame | None,
+    variable: str,
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
+    labels = ["H1", "H2", "H3", "H4"]
+    source = _nearby_wind_observation_source(nearby_observations)
+    empty = {"available": False, "values": {label: None for label in labels}, "source": source}
+    manifest_path = _resolve_nearby_cwa_manifest_path(project)
+    if nearby_observations is None or nearby_observations.empty or not manifest_path.exists():
+        return empty
+    if variable not in {"wind_speed", "wind_gust"} or variable not in nearby_observations.columns:
+        return empty
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return empty
+    feature_row = build_nearby_cwa_inference_feature_row(nearby_observations, cfg)
+    if feature_row.empty:
+        return empty
+    outputs: dict[str, float | None] = {}
+    for label in labels:
+        model_path_value = _manifest_model_path(manifest, variable, label)
+        if not model_path_value:
+            outputs[label] = None
+            continue
+        model_path = _resolve_model_artifact_path(model_path_value, project)
+        if model_path is None:
+            outputs[label] = None
+            continue
+        try:
+            bundle = joblib.load(model_path)
+            features = list(bundle.get("feature_columns", []))
+            fill = bundle.get("fill_values", {})
+            x = feature_row.reindex(columns=features)
+            x = x.apply(pd.to_numeric, errors="coerce").fillna(pd.Series(fill)).fillna(0.0)
+            outputs[label] = max(0.0, float(bundle["model"].predict(x)[0]))
+        except Exception:
+            outputs[label] = None
+    return {"available": all(value is not None for value in outputs.values()), "values": outputs, "source": source}
+
+
+def _manifest_model_path(manifest: dict[str, Any], base_key: str, label: str) -> str | None:
+    models = manifest.get("models", {})
+    if not isinstance(models, dict):
+        return None
+    artifact_key = f"{base_key}_{label}"
+
+    group = models.get(base_key)
+    if isinstance(group, dict):
+        artifacts = group.get("artifacts", {})
+        if isinstance(artifacts, dict):
+            value = _model_path_from_manifest_entry(artifacts.get(artifact_key))
+            if value:
+                return value
+
+    return _model_path_from_manifest_entry(models.get(artifact_key))
+
+
+def _model_path_from_manifest_entry(entry: Any) -> str | None:
+    if isinstance(entry, str):
+        return entry
+    if isinstance(entry, dict):
+        value = entry.get("artifact_path") or entry.get("model_path")
+        return str(value) if value else None
+    return None
+
+
+def _nearby_wind_observation_source(frame: pd.DataFrame | None) -> str:
+    if frame is None or frame.empty:
+        return "unavailable"
+    station_ids = set(frame.get("station_id", pd.Series(dtype=str)).astype(str)) if "station_id" in frame.columns else set()
+    if station_ids and all(station_id.startswith("C0V") for station_id in station_ids):
+        return "nearby_cwa_live_observations"
+    return "nearby_observations"
+
+
+def _resolve_nearby_cwa_manifest_path(project: Path) -> Path:
+    registry = load_model_registry(project)
+    nearby = registry.get("models", {}).get("nearby_cwa_historical_model", {})
+    manifest = nearby.get("manifest_path")
+    if bool(nearby.get("accepted", False)) and manifest:
+        candidate = Path(str(manifest))
+        if not candidate.is_absolute():
+            candidate = project / candidate
+        if candidate.exists():
+            return candidate
+    return project / "models" / "nearby_cwa_v32" / "model_manifest.json"
 
 
 def _condition_rain_amounts_on_probability(
@@ -2752,6 +3024,7 @@ def _build_extended_cwa_window(
 ) -> dict[str, Any]:
     wind_data = wind if isinstance(wind, dict) else {}
     beaufort_min = _safe_int(wind_data.get("beaufort_scale_min"))
+    wind_operation_level = _operation_level_from_beaufort_min(beaufort_min)
     rain_value = _safe_float(rain_probability)
     rain_level = map_rain_probability_to_level(rain_value, cfg) if rain_value is not None else None
     return {
@@ -2767,7 +3040,7 @@ def _build_extended_cwa_window(
                 "beaufort_scale_min": beaufort_min,
                 "beaufort_scale_text": wind_data.get("beaufort_scale_text"),
                 "wind_speed_text": wind_data.get("wind_speed_text"),
-                "operation_level": None,
+                "operation_level": wind_operation_level,
                 "operation_label": None,
                 "basis": "cwa_beaufort_scale_range_not_precise_value",
             }
@@ -2787,6 +3060,20 @@ def _build_extended_cwa_window(
         "wind_gust": {"available": False, "reason": "no_official_cwa_gust_product"},
         "visibility": {"available": False, "reason": "no_official_cwa_visibility_product"},
     }
+
+
+def _operation_level_from_beaufort_min(beaufort_min: int | None) -> str | None:
+    if beaufort_min is None:
+        return None
+    if beaufort_min >= 8:
+        return "stop"
+    if beaufort_min >= 7:
+        return "high_risk"
+    if beaufort_min >= 6:
+        return "warning"
+    if beaufort_min >= 5:
+        return "watch"
+    return "normal"
 
 
 def _frontend_cwa_windows(extended: dict[str, Any]) -> list[dict[str, Any]]:

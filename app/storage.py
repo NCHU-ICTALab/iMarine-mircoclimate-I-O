@@ -52,6 +52,7 @@ CREATE INDEX IF NOT EXISTS idx_obs_station_id ON microclimate_observations(stati
 CREATE INDEX IF NOT EXISTS idx_obs_obs_time ON microclimate_observations(obs_time);
 CREATE INDEX IF NOT EXISTS idx_obs_device_type ON microclimate_observations(device_type);
 CREATE INDEX IF NOT EXISTS idx_obs_source ON microclimate_observations(source);
+CREATE INDEX IF NOT EXISTS idx_obs_lookup ON microclimate_observations(device_type, station_id, is_forecast, obs_time);
 """
 
 
@@ -188,16 +189,20 @@ class ObservationStore:
         with self.connect() as conn:
             rows = conn.execute(
                 """
-                SELECT *
-                FROM microclimate_observations m
-                WHERE obs_time = (
-                    SELECT MAX(obs_time)
+                WITH latest AS (
+                    SELECT device_type, station_id, MAX(obs_time) AS latest_obs_time
                     FROM microclimate_observations
-                    WHERE device_type = m.device_type
-                      AND station_id = m.station_id
-                      AND is_forecast = 0
+                    WHERE is_forecast = 0
+                    GROUP BY device_type, station_id
                 )
-                ORDER BY device_type, station_id
+                SELECT m.*
+                FROM microclimate_observations m
+                JOIN latest l
+                  ON l.device_type = m.device_type
+                 AND l.station_id = m.station_id
+                 AND l.latest_obs_time = m.obs_time
+                WHERE m.is_forecast = 0
+                ORDER BY m.device_type, m.station_id
                 """
             ).fetchall()
         return [row_to_observation(row) for row in rows]

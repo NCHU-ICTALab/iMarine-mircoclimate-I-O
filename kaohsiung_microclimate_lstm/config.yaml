@@ -9,9 +9,21 @@ anchor_offsets_minutes:
 
 project:
   name: kaohsiung_port_dispatch_risk
-  version: v3.5
-  model_version: kaohsiung_port_dispatch_risk_v3.5
+  version: v1.3
+  model_version: kaohsiung_port_dispatch_risk_v1.3
   timezone: Asia/Taipei
+
+wind_speed_gust_prediction_source: legacy_lstm
+
+port_local_wind_persistence_blending:
+  enabled: true
+  apply_anchors: [H1, H2, H3, H4]
+  weights:
+    H1: {khwd_weight: 0.8, model_weight: 0.2}
+    H2: {khwd_weight: 0.6, model_weight: 0.4}
+    H3: {khwd_weight: 0.4, model_weight: 0.6}
+    H4: {khwd_weight: 0.2, model_weight: 0.8}
+  unavailable_behavior: fall_back_to_model_only
 
 zoning_config_path: config/zoning.yaml
 
@@ -684,16 +696,20 @@ cwa_open_data:
     cache_dir: data/cache/cwa
   pop_datasets:
     candidates:
-      - dataset_id: F-D0047-091
+      - dataset_id: F-D0047-065
         description: 高雄市鄉鎮逐3小時天氣預報
         priority: 1
+      - dataset_id: F-D0047-091
+        description: 高雄市鄉鎮逐6/12小時天氣預報，作為3小時資料不可用時 fallback
+        priority: 2
       - dataset_id: F-D0047-093
         description: 高雄市鄉鎮逐6小時天氣預報
-        priority: 2
+        priority: 3
       - dataset_id: F-C0032-001
         description: 一般天氣預報，僅作背景 fallback
-        priority: 3
+        priority: 4
         fallback_only: true
+  resolved_source_max_age_hours: 3
   location_candidates:
     - 前鎮區
     - 小港區

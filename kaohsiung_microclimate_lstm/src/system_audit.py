@@ -8,11 +8,13 @@ from typing import Any
 import pandas as pd
 
 from .config import ROOT, load_config
+from .io_utils import atomic_write_json
+from .model_registry import validate_model_manifest
 from .station_usage import DEFAULT_KHWD_IDS, DEFAULT_NEARBY_IDS, build_station_display_rows
 
 
 TAIPEI = timezone(timedelta(hours=8))
-MODEL_VERSION = "kaohsiung_port_dispatch_risk_v3.5"
+MODEL_VERSION = "kaohsiung_port_dispatch_risk_v1.3"
 FALLBACK_CHAIN = ["port_local_model", "port_local_postprocess", "nearby_cwa_historical_model", "fallback_baseline"]
 
 
@@ -70,7 +72,7 @@ def build_v35_system_audit(
     }
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, payload in reports.items():
-        (out_dir / name).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        atomic_write_json(out_dir / name, payload)
     return system_audit
 
 
@@ -97,8 +99,7 @@ def _load_or_build_prediction_payloads(config_path: str | Path, project: Path, n
             no_realtime_khwd_mode=True,
         )
     except Exception:
-        v34 = project / "results" / "dispatch_risk_v34"
-        normal_payload = normal_payload or _load_json(v34 / "api_contract_snapshot_v34.json")
+        normal_payload = normal_payload or {}
         no_realtime_payload = no_realtime_payload or {}
     return normal_payload or {}, no_realtime_payload or {}
 
@@ -236,8 +237,14 @@ def _build_dataset_duration_report(model_version: str, target_area: str, payload
 
 def _build_model_accuracy_summary(model_version: str, target_area: str, project: Path) -> dict[str, Any]:
     metrics = _load_metrics(project)
-    manifest = _load_json(project / "models" / "nearby_cwa_v34" / "model_manifest.json")
+    manifest_path = project / "models" / "nearby_cwa_v34" / "model_manifest.json"
+    validation = validate_model_manifest(manifest_path, project)
+    manifest = validation.get("manifest", {})
     nearby_metrics_available = bool(metrics)
+    nearby_available = bool(validation.get("valid", False))
+    nearby_reason = validation.get("reason")
+    if nearby_available and not nearby_metrics_available:
+        nearby_reason = "No metrics report found. Model artifacts are present and manifest is accepted."
     return {
         "model_version": model_version,
         "target_area": target_area,
@@ -256,18 +263,38 @@ def _build_model_accuracy_summary(model_version: str, target_area: str, project:
             {
                 "model_id": "nearby_cwa_historical_model",
                 "model_family": "nearby_cwa_historical_model",
-                "trained": bool(manifest.get("trained", False)),
-                "available": bool(manifest.get("trained", False) and manifest.get("acceptance", {}).get("model_accepted", False)),
-                "accepted": bool(manifest.get("acceptance", {}).get("model_accepted", False)),
+                "trained": bool(validation.get("trained", False)),
+                "available": nearby_available,
+                "accepted": bool(validation.get("accepted", False)),
                 "activation_status": "fallback_available",
                 "selected_in_normal_mode": False,
                 "selected_when_no_realtime_khwd_mode": True,
                 "training_station_ids": manifest.get("selected_station_ids", DEFAULT_NEARBY_IDS),
                 "metrics_available": nearby_metrics_available,
                 "metrics_status": "available" if nearby_metrics_available else "not_available",
-                "reason": None if nearby_metrics_available else "No metrics report found. Model availability is based on manifest acceptance only.",
+                "reason": nearby_reason,
                 "metrics": _normalize_metrics(metrics) if nearby_metrics_available else {},
                 "acceptance": manifest.get("acceptance", {}),
+                "manifest_validation": {
+                    "valid": nearby_available,
+                    "missing_artifacts": validation.get("missing_artifacts", []),
+                    "reason": validation.get("reason"),
+                },
+            },
+            {
+                "model_id": "legacy_lstm",
+                "model_family": "legacy_lstm",
+                "trained": True,
+                "available": (project / "models" / "checkpoints" / "467441_wind_speed_gust_best.pt").exists(),
+                "accepted": True,
+                "activation_status": "default_base_wind_gust_source",
+                "selected_in_normal_mode": True,
+                "selected_when_no_realtime_khwd_mode": False,
+                "training_station_ids": ["467441"],
+                "metrics_available": False,
+                "metrics_status": "not_available",
+                "reason": "Legacy LSTM is the configured default wind_speed_gust base source; no current formal comparison metrics are available in the v35 accuracy summary.",
+                "metrics": {},
             },
         ],
     }
@@ -365,6 +392,7 @@ def _build_system_audit_report(
     datasets_by_id = {item["dataset_id"]: item for item in dataset_duration.get("datasets", [])}
     nearby_model = next((item for item in model_accuracy.get("models", []) if item.get("model_id") == "nearby_cwa_historical_model"), {})
     port_model = next((item for item in model_accuracy.get("models", []) if item.get("model_id") == "port_local_model"), {})
+    legacy_model = next((item for item in model_accuracy.get("models", []) if item.get("model_id") == "legacy_lstm"), {})
     return {
         "model_version": model_version,
         "target_area": target_area,
@@ -403,6 +431,14 @@ def _build_system_audit_report(
                 "accepted": port_model.get("accepted", False),
                 "reason": port_model.get("reason"),
             },
+            "legacy_lstm": {
+                "trained": legacy_model.get("trained", False),
+                "available": legacy_model.get("available", False),
+                "accepted": legacy_model.get("accepted", False),
+                "activation_status": legacy_model.get("activation_status"),
+                "metrics_available": legacy_model.get("metrics_available", False),
+                "reason": legacy_model.get("reason"),
+            },
         },
         "model_selection_summary": {
             "normal_mode_selected": model_selection.get("normal_mode", {}).get("selected_mode"),
@@ -413,7 +449,7 @@ def _build_system_audit_report(
         "dashboard_cards": dashboard_payload.get("dashboard_cards", []),
         "dashboard_tables": dashboard_payload.get("tables", {}),
         "trace": {
-            "system_audit_version": "v3.5",
+            "system_audit_version": "v1.3",
             "metrics_loaded": bool(nearby_model.get("metrics_available", False)),
             "dataset_duration_loaded": True,
             "station_inventory_loaded": bool(station_inventory.get("stations")),

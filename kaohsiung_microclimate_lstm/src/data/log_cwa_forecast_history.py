@@ -10,7 +10,7 @@ import pandas as pd
 
 
 TAIPEI = timezone(timedelta(hours=8))
-DEFAULT_DATA_ID = "F-D0047-091"
+DEFAULT_DATA_ID = "F-D0047-065"
 DEFAULT_HISTORY_ROOT = Path("data/raw/cwa_forecast_history")
 DEFAULT_REPORT_DIR = Path("results/cwa_comparison_v13")
 

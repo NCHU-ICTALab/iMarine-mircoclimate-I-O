@@ -93,3 +93,62 @@ def test_data_status_uses_device_specific_thresholds_by_default(tmp_path):
     assert by_station["WIND-1"]["threshold_minutes"] == 20
     assert by_station["WIND-1"]["status_level"] == "stale"
     assert by_station["WIND-OLD"]["status_level"] == "outage"
+
+
+def test_latest_by_device_type_uses_lookup_index_and_returns_latest_rows(tmp_path):
+    store = ObservationStore(tmp_path / "test.sqlite3")
+    now = datetime.now(TAIPEI)
+    old = TwPortObservation(
+        source="twport",
+        port_code="5",
+        station_id="WIND-1",
+        station_name="Wind Station",
+        location="Pier 1",
+        device_type="WIND",
+        obs_time=now - timedelta(hours=1),
+        wind_speed=1.0,
+        fetched_at=now - timedelta(hours=1),
+    )
+    latest = TwPortObservation(
+        source="twport",
+        port_code="5",
+        station_id="WIND-1",
+        station_name="Wind Station",
+        location="Pier 1",
+        device_type="WIND",
+        obs_time=now,
+        wind_speed=5.0,
+        fetched_at=now,
+    )
+
+    store.upsert_many([old, latest])
+
+    with store.connect() as conn:
+        indexes = {row["name"] for row in conn.execute("PRAGMA index_list(microclimate_observations)").fetchall()}
+        plan = conn.execute(
+            """
+            EXPLAIN QUERY PLAN
+            WITH latest AS (
+                SELECT device_type, station_id, MAX(obs_time) AS latest_obs_time
+                FROM microclimate_observations
+                WHERE is_forecast = 0
+                GROUP BY device_type, station_id
+            )
+            SELECT m.*
+            FROM microclimate_observations m
+            JOIN latest l
+              ON l.device_type = m.device_type
+             AND l.station_id = m.station_id
+             AND l.latest_obs_time = m.obs_time
+            WHERE m.is_forecast = 0
+            ORDER BY m.device_type, m.station_id
+            """
+        ).fetchall()
+
+    rows = store.latest_by_device_type()
+
+    assert "idx_obs_lookup" in indexes
+    assert any("idx_obs_lookup" in str(item) for row in plan for item in row)
+    assert len(rows) == 1
+    assert rows[0].station_id == "WIND-1"
+    assert rows[0].wind_speed == 5.0

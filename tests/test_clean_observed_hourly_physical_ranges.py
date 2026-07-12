@@ -26,3 +26,26 @@ def test_clean_observed_hourly_file_reuses_physical_ranges_and_preserves_columns
     assert report["cleaned_columns"]["precipitation_1hr"]["invalid_count"] == 1
     assert report["cleaned_columns"]["wind_speed"]["invalid_count"] == 1
     assert report["cleaned_columns"]["visibility"]["invalid_count"] == 1
+
+
+def test_clean_observed_hourly_file_deduplicates_by_station_and_obs_time(tmp_path: Path):
+    csv_path = tmp_path / "467441.csv"
+    columns = ["station_id", "station_name", "obs_time", "wind_speed", "wind_gust", "visibility"]
+    pd.DataFrame(
+        [
+            ["467441", "Kaohsiung", "2026-01-01T00:00:00+08:00", 1.2, 3.0, 10000.0],
+            ["467441", "Kaohsiung", "2026-01-01T01:00:00+08:00", 2.0, None, None],
+            ["467441", "Kaohsiung", "2026-01-01T01:00:00+08:00", 2.1, 5.0, 9000.0],
+        ],
+        columns=columns,
+    ).to_csv(csv_path, index=False)
+
+    report = clean_observed_hourly_file(csv_path)
+    cleaned = pd.read_csv(csv_path)
+
+    assert len(cleaned) == 2
+    assert cleaned.loc[1, "wind_gust"] == 5.0
+    assert report["deduplication"]["dedupe_keys"] == ["station_id", "obs_time"]
+    assert report["deduplication"]["duplicate_rows_detected"] == 2
+    assert report["deduplication"]["duplicate_rows_removed"] == 1
+    assert report["row_count_after_deduplication"] == 2

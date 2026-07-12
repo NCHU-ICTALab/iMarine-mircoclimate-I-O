@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 from typing import Any
+
+import yaml
 
 from app.models import TAIPEI, TwPortObservation
 from app.storage import observation_status
@@ -9,10 +12,24 @@ from app.storage import observation_status
 
 SCHEMA_VERSION = "microclimate.v1"
 TIME_ZONE = "Asia/Taipei"
+SPEC_VERSION = "v1.3"
+DEFAULT_RUNTIME_MODEL_VERSION = "kaohsiung_port_dispatch_risk_v1.3"
+PROJECT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "kaohsiung_microclimate_lstm" / "config.yaml"
+
+
+def runtime_model_version(config_path: str | Path = PROJECT_CONFIG_PATH) -> str:
+    path = Path(config_path)
+    try:
+        cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return DEFAULT_RUNTIME_MODEL_VERSION
+    return str(cfg.get("project", {}).get("model_version") or DEFAULT_RUNTIME_MODEL_VERSION)
+
+
 SYSTEM_INFO = {
     "project_name": "Kaohsiung Port Microclimate Prediction System",
-    "spec_version": "v2.0",
-    "runtime_model_version": "kaohsiung_port_dispatch_risk_v3.5",
+    "spec_version": SPEC_VERSION,
+    "runtime_model_version": runtime_model_version(),
     "target_area": {
         "port_code": "KHH",
         "name": "Kaohsiung Port",
@@ -700,12 +717,13 @@ def schema_response() -> dict[str, Any]:
 
 
 def system_info_response() -> dict[str, Any]:
+    info = {**SYSTEM_INFO, "runtime_model_version": runtime_model_version()}
     return response_envelope(
         endpoint="/api/v1/system/info",
         metadata={
-            "contract": "Stable system overview aligned with the v2.0 specification chapter 1.",
+            "contract": "Stable system overview aligned with the v1.3 specification chapter 1.",
         },
-        data=[SYSTEM_INFO],
+        data=[info],
         data_quality={"record_count": 1},
     )
 
@@ -717,14 +735,14 @@ def system_requirements_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/requirements",
         metadata={
-            "contract": "Requirement traceability matrix aligned with the v2.0 specification chapter 2.",
+            "contract": "Requirement traceability matrix aligned with the v1.3 specification chapter 2.",
             "functional_count": len(functional),
             "non_functional_count": len(non_functional),
             "status_counts": {status: statuses.count(status) for status in sorted(set(statuses))},
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 "functional": functional,
                 "non_functional": non_functional,
             }
@@ -737,13 +755,13 @@ def data_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/data-spec",
         metadata={
-            "contract": "Data source, quality, storage, and report schema aligned with the v2.0 specification chapter 3.",
+            "contract": "Data source, quality, storage, and report schema aligned with the v1.3 specification chapter 3.",
             "source_count": len(DATA_SPEC["sources"]),
             "variable_count": len(DATA_SPEC["variables"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **DATA_SPEC,
             }
         ],
@@ -755,13 +773,13 @@ def feature_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/feature-spec",
         metadata={
-            "contract": "Feature taxonomy, generation rules, and selection strategy aligned with the v2.0 specification chapter 4.",
+            "contract": "Feature taxonomy, generation rules, and selection strategy aligned with the v1.3 specification chapter 4.",
             "category_count": len(FEATURE_SPEC["categories"]),
             "phase_count": len(FEATURE_SPEC["phases"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **FEATURE_SPEC,
             }
         ],
@@ -773,13 +791,13 @@ def model_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/model-spec",
         metadata={
-            "contract": "Model architecture, target strategy, artifacts, and training pipeline aligned with the v2.0 specification chapter 5.",
+            "contract": "Model architecture, target strategy, artifacts, and training pipeline aligned with the v1.3 specification chapter 5.",
             "target_model_count": len(MODEL_SPEC["target_models"]),
             "class_count": len(MODEL_SPEC["model_classes"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **MODEL_SPEC,
             }
         ],
@@ -791,13 +809,13 @@ def evaluation_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/evaluation-spec",
         metadata={
-            "contract": "Evaluation metrics, validation strategy, CWA comparison, and report generation aligned with the v2.0 specification chapter 6.",
+            "contract": "Evaluation metrics, validation strategy, CWA comparison, and report generation aligned with the v1.3 specification chapter 6.",
             "basic_metric_count": len(EVALUATION_SPEC["basic_metrics"]),
             "rainfall_metric_count": len(EVALUATION_SPEC["rainfall_metrics"]["classification_metrics"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **EVALUATION_SPEC,
             }
         ],
@@ -809,13 +827,13 @@ def api_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/api-spec",
         metadata={
-            "contract": "Internal Python API, CLI, and HTTP API contract aligned with the v2.0 specification chapter 7.",
+            "contract": "Internal Python API, CLI, and HTTP API contract aligned with the v1.3 specification chapter 7.",
             "cli_command_count": len(API_SPEC["cli"]["commands"]),
             "internal_api_count": len(API_SPEC["internal_python_api"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **API_SPEC,
             }
         ],
@@ -827,13 +845,13 @@ def deployment_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/deployment-spec",
         metadata={
-            "contract": "Deployment environment, installation, logging, and monitoring contract aligned with the v2.0 specification chapter 8.",
+            "contract": "Deployment environment, installation, logging, and monitoring contract aligned with the v1.3 specification chapter 8.",
             "minimum_cpu_cores": DEPLOYMENT_SPEC["hardware"]["minimum"]["cpu_cores"],
             "minimum_memory_gb": DEPLOYMENT_SPEC["hardware"]["minimum"]["memory_gb"],
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **DEPLOYMENT_SPEC,
             }
         ],
@@ -845,13 +863,13 @@ def testing_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/testing-spec",
         metadata={
-            "contract": "Testing strategy, CI, and coverage contract aligned with the v2.0 specification chapter 9.",
+            "contract": "Testing strategy, CI, and coverage contract aligned with the v1.3 specification chapter 9.",
             "test_type_count": len(TESTING_SPEC["strategy"]),
             "coverage_target": "80%",
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **TESTING_SPEC,
             }
         ],
@@ -863,13 +881,13 @@ def schedule_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/schedule-spec",
         metadata={
-            "contract": "Project phases and milestones aligned with the v2.0 specification chapter 10.",
+            "contract": "Project phases and milestones aligned with the v1.3 specification chapter 10.",
             "phase_count": len(SCHEDULE_SPEC["phases"]),
             "milestone_count": len(SCHEDULE_SPEC["milestones"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **SCHEDULE_SPEC,
             }
         ],
@@ -881,12 +899,12 @@ def appendix_spec_response() -> dict[str, Any]:
     return response_envelope(
         endpoint="/api/v1/system/appendix-spec",
         metadata={
-            "contract": "Project bootstrap files, templates, and entrypoints aligned with the v2.0 specification chapter 11.",
+            "contract": "Project bootstrap files, templates, and entrypoints aligned with the v1.3 specification chapter 11.",
             "template_count": len(APPENDIX_SPEC["project_templates"]),
         },
         data=[
             {
-                "spec_version": "v2.0",
+                "spec_version": SPEC_VERSION,
                 **APPENDIX_SPEC,
             }
         ],

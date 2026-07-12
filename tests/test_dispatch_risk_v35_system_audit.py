@@ -8,7 +8,7 @@ def test_v35_system_audit_endpoint_exists():
 
     assert response.status_code == 200
     data = response.json()
-    assert data["model_version"] == "kaohsiung_port_dispatch_risk_v3.5"
+    assert data["model_version"] == "kaohsiung_port_dispatch_risk_v1.3"
     assert "data_source_summary" in data
     assert "station_summary" in data
     assert "dataset_duration_summary" in data

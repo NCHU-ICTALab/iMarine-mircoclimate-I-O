@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-07-12T00:14:26+08:00",
+  "evaluation_mode": "insufficient_khwd_history_for_formal_scale",
+  "candidate_source": "nearby_cwa_historical_model",
+  "baseline_source": "legacy_lstm",
+  "available_khwd_rows": 42,
+  "min_required_khwd_rows": 500,
+  "formal_comparison_ready": false,
+  "default_source_decision": "legacy_lstm",
+  "recommended_default_source": "legacy_lstm",
+  "decision_reason": "KHWD history is not yet sufficient for a future-aligned MAE/R2 comparison, so the nearby CWA wind/gust model is wired as a candidate but not enabled by default.",
+  "metrics": {}
+}

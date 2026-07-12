@@ -1,5 +1,5 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
   "data_sources": [
     {

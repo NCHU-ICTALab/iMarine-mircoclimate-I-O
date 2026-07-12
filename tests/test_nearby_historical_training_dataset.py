@@ -1,6 +1,6 @@
 import pandas as pd
 
-from kaohsiung_microclimate_lstm.src.data.nearby_historical_training_dataset import build_nearby_historical_training_dataset, _dew_point_c
+from kaohsiung_microclimate_lstm.src.data.nearby_historical_training_dataset import build_nearby_cwa_inference_feature_row, build_nearby_historical_training_dataset, _dew_point_c
 
 
 def test_nearby_historical_training_dataset_builds_features_and_labels():
@@ -100,6 +100,44 @@ upstream_downstream_pairs:
 
     assert "upstream_subset_wind_speed_max" not in result["feature_columns"]
     assert "upstream_subset_wind_speed_max_lag1" not in result["feature_columns"]
+
+
+def test_nearby_cwa_inference_feature_row_adds_upstream_lead_features(tmp_path):
+    zoning = tmp_path / "zoning.yaml"
+    zoning.write_text(
+        """
+season_month_ranges:
+  summer: [7]
+typhoon_season_months: []
+upstream_downstream_pairs:
+  - season: summer
+    upstream_station_ids: [C0V490]
+""".lstrip(),
+        encoding="utf-8",
+    )
+    raw = pd.DataFrame(
+        {
+            "station_id": ["C0V490", "C0V890"],
+            "obs_time": pd.to_datetime(["2026-07-12T10:00:00+08:00", "2026-07-12T10:00:00+08:00"]),
+            "wind_speed": [8.0, 4.0],
+            "wind_gust": [12.0, 6.0],
+            "precipitation_1hr": [1.0, 0.0],
+        }
+    )
+
+    row = build_nearby_cwa_inference_feature_row(
+        raw,
+        {
+            "zoning_config_path": str(zoning),
+            "nearby_cwa_historical_training": {
+                "enable_upstream_lead_features": True,
+                "priority_1_station_ids": ["C0V490", "C0V890"],
+            },
+        },
+    )
+
+    assert row.loc[0, "upstream_subset_station_count"] == 1
+    assert row.loc[0, "upstream_subset_wind_speed_mean"] == 8.0
 
 
 def test_dew_point_c_matches_saturated_air_boundary():

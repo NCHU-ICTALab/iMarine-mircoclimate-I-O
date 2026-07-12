@@ -1,6 +1,6 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-11T19:15:30+08:00",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
+  "generated_at": "2026-07-12T13:43:16+08:00",
   "training_orchestration_version": "v3.4",
   "target_area": "KHH",
   "training_checked": true,
@@ -47,10 +47,12 @@
     "registry_version": "v3.4",
     "registry_path": "kaohsiung_microclimate_lstm/models/model_registry.json",
     "available_model_families": [
-      "nearby_cwa_historical_model"
+      "nearby_cwa_historical_model",
+      "legacy_lstm"
     ],
     "accepted_model_families": [
-      "nearby_cwa_historical_model"
+      "nearby_cwa_historical_model",
+      "legacy_lstm"
     ],
     "models": {
       "port_local_model": {
@@ -79,6 +81,22 @@
         ],
         "all_selected_stations_closer_than_467441": true,
         "is_port_local_core": false,
+        "reason": null
+      },
+      "legacy_lstm": {
+        "model_family": "legacy_lstm",
+        "artifact_version": "legacy_checkpoints",
+        "manifest_path": null,
+        "trained": true,
+        "available": true,
+        "accepted": true,
+        "used_for": [
+          "wind_speed",
+          "wind_gust"
+        ],
+        "default_for": [
+          "wind_speed_gust"
+        ],
         "reason": null
       }
     }

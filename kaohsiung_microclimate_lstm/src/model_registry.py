@@ -6,11 +6,17 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+try:
+    from .io_utils import atomic_write_json
+except ImportError:  # pragma: no cover
+    from io_utils import atomic_write_json
+
 
 TAIPEI = timezone(timedelta(hours=8))
-MODEL_VERSION = "kaohsiung_port_dispatch_risk_v3.4"
+MODEL_VERSION = "kaohsiung_port_dispatch_risk_v1.3"
 NEARBY_MODEL_FAMILY = "nearby_cwa_historical_model"
 PORT_LOCAL_MODEL_FAMILY = "port_local_model"
+LEGACY_LSTM_FAMILY = "legacy_lstm"
 
 
 def load_model_registry(project_root: str | Path) -> dict[str, Any]:
@@ -39,17 +45,9 @@ def validate_model_manifest(manifest_path: str | Path, project_root: str | Path)
         return {"valid": False, "manifest_path": str(path), "reason": "manifest_invalid_json"}
 
     missing_artifacts: list[str] = []
-    for model_info in manifest.get("models", {}).values():
-        if isinstance(model_info, dict):
-            artifact = model_info.get("artifact_path")
-        else:
-            artifact = model_info
-        if not artifact:
-            continue
-        artifact_path = Path(str(artifact))
-        if not artifact_path.is_absolute() and not artifact_path.exists():
-            artifact_path = project / artifact_path
-        if not artifact_path.exists():
+    for artifact in _iter_manifest_artifact_paths(manifest):
+        artifact_path = _resolve_artifact_path(artifact, project)
+        if artifact_path is None:
             missing_artifacts.append(str(artifact))
 
     accepted = bool(manifest.get("acceptance", {}).get("model_accepted", False))
@@ -68,6 +66,52 @@ def validate_model_manifest(manifest_path: str | Path, project_root: str | Path)
     }
 
 
+def _iter_manifest_artifact_paths(manifest: dict[str, Any]) -> list[str]:
+    models = manifest.get("models", {})
+    if not isinstance(models, dict):
+        return []
+    artifacts: list[str] = []
+    for model_key, model_info in models.items():
+        if isinstance(model_info, str):
+            artifacts.append(model_info)
+            continue
+        if not isinstance(model_info, dict):
+            continue
+        if model_info.get("artifact_path"):
+            artifacts.append(str(model_info["artifact_path"]))
+        if model_info.get("model_path"):
+            artifacts.append(str(model_info["model_path"]))
+        nested = model_info.get("artifacts", {})
+        if isinstance(nested, dict):
+            for artifact_key, artifact_info in nested.items():
+                if isinstance(artifact_info, str):
+                    artifacts.append(artifact_info)
+                elif isinstance(artifact_info, dict):
+                    value = artifact_info.get("artifact_path") or artifact_info.get("model_path")
+                    if value:
+                        artifacts.append(str(value))
+        if model_key.startswith(("wind_speed_", "wind_gust_", "rain_probability_", "precipitation_amount_")):
+            value = model_info.get("artifact_path") or model_info.get("model_path")
+            if value and str(value) not in artifacts:
+                artifacts.append(str(value))
+    return artifacts
+
+
+def _resolve_artifact_path(artifact: str, project: Path) -> Path | None:
+    candidate = Path(artifact)
+    if candidate.is_absolute() and candidate.exists():
+        return candidate
+    parts = candidate.parts
+    if "models" in parts:
+        resolved = project.joinpath(*parts[parts.index("models"):])
+        if resolved.exists():
+            return resolved
+    direct = project / candidate
+    if direct.exists():
+        return direct
+    return None
+
+
 def ensure_v34_registry_and_manifest(project_root: str | Path, config: dict[str, Any], target_area: str = "KHH") -> dict[str, Any]:
     project = Path(project_root)
     model_dir = project / "models" / "nearby_cwa_v34"
@@ -75,14 +119,12 @@ def ensure_v34_registry_and_manifest(project_root: str | Path, config: dict[str,
     if not manifest_path.exists():
         manifest = build_nearby_cwa_v34_manifest(project, config, target_area)
         if manifest["trained"]:
-            model_dir.mkdir(parents=True, exist_ok=True)
-            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+            atomic_write_json(manifest_path, manifest)
 
     validation = validate_model_manifest(manifest_path, project)
     registry = build_model_registry(project, config, validation, target_area)
     registry_path = project / "models" / "model_registry.json"
-    registry_path.parent.mkdir(parents=True, exist_ok=True)
-    registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(registry_path, registry)
     return {
         "registry": registry,
         "registry_path": str(registry_path),
@@ -122,6 +164,17 @@ def build_model_registry(project: Path, config: dict[str, Any], nearby_validatio
                 "all_selected_stations_closer_than_467441": bool(nearby_manifest.get("all_selected_stations_closer_than_467441", False)),
                 "is_port_local_core": False,
                 "reason": nearby_validation.get("reason"),
+            },
+            LEGACY_LSTM_FAMILY: {
+                "model_family": LEGACY_LSTM_FAMILY,
+                "artifact_version": "legacy_checkpoints",
+                "manifest_path": None,
+                "trained": True,
+                "available": bool((project / "models" / "checkpoints" / "467441_wind_speed_gust_best.pt").exists()),
+                "accepted": True,
+                "used_for": ["wind_speed", "wind_gust"],
+                "default_for": ["wind_speed_gust"] if config.get("wind_speed_gust_prediction_source", "legacy_lstm") == "legacy_lstm" else [],
+                "reason": None,
             },
         },
     }

@@ -12,6 +12,7 @@ coverage.xml
 kaohsiung_microclimate_lstm/data/cache/
 kaohsiung_microclimate_lstm/data/raw/historical_weather/
 kaohsiung_microclimate_lstm/data/processed/
+kaohsiung_microclimate_lstm/results/_live_cache/
 # Benchmark/evaluation scratch artifacts (A/B comparison model dumps, datasets) --
 # keep the small comparison_report.json / metrics.json files, not the multi-GB
 # retrained model copies. See docs/dataset_guide.md.
@@ -24,6 +25,7 @@ kaohsiung_microclimate_lstm/results/model_benchmark_v13/*/pressure_humidity_repo
 kaohsiung_microclimate_lstm/results/model_benchmark_v13/*/stage*/
 kaohsiung_microclimate_lstm/results/model_benchmark_v13/*/*.parquet
 *規格書*.md
+*修改紀錄*.md
 codex_*_prompt.md
 .agents/
 .codex/

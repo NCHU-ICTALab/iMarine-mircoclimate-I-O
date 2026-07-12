@@ -17,6 +17,7 @@ def run_microclimate_source_fetch(project_root: str | Path, config_path: str | P
         ("port_local", lambda: _fetch_port_local(project, cfg)),
         ("marine_realtime", lambda: _fetch_marine_realtime(observed_dir)),
         ("nearby_cwa_live", lambda: _fetch_nearby_cwa_live(observed_dir)),
+        ("cwa_forecast_source", lambda: _refresh_cwa_forecast_source(project, cfg)),
         ("cwa_forecast_history", lambda: _fetch_cwa_forecast_history(project)),
     ]
     results: dict[str, Any] = {}
@@ -37,6 +38,7 @@ def run_microclimate_source_fetch(project_root: str | Path, config_path: str | P
         "tasks": results,
         "notes": {
             "marine_realtime": "Uses O-B0075-001 rolling realtime observations. O-B0075-002 30-day history is intentionally not fetched on every manual refresh.",
+            "cwa_forecast_source": "Refreshes the current CWA forecast source used for rain probability blending.",
             "cwa_forecast_history": "Records current forecast release snapshots for later no-leakage CWA comparison readiness.",
         },
     }
@@ -60,10 +62,18 @@ def _fetch_nearby_cwa_live(observed_dir: Path) -> dict[str, Any]:
     return fetch_nearby_cwa_current(output_dir=observed_dir, append=True)
 
 
+def _refresh_cwa_forecast_source(project: Path, config_path: Path) -> dict[str, Any]:
+    from kaohsiung_microclimate_lstm.src.config import load_config
+    from kaohsiung_microclimate_lstm.src.predict import refresh_cwa_forecast_source_if_stale
+
+    cfg = load_config(config_path)
+    return refresh_cwa_forecast_source_if_stale(cfg, project, force_refresh=True)
+
+
 def _fetch_cwa_forecast_history(project: Path) -> dict[str, Any]:
     from kaohsiung_microclimate_lstm.src.data.log_cwa_forecast_history import collect_cwa_forecast_history
 
     return collect_cwa_forecast_history(
-        data_id="F-D0047-091",
+        data_id="F-D0047-065",
         output_root=project / "data" / "raw" / "cwa_forecast_history",
     )

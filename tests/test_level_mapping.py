@@ -46,9 +46,9 @@ def test_gust_20_9_no_longer_stop():
 
 
 def test_rain_amount_thresholds():
-    assert map_rain_amount_to_level(0.5, 1, CONFIG) == "normal"
-    assert map_rain_amount_to_level(1.0, 1, CONFIG) == "watch"
-    assert map_rain_amount_to_level(40.0, 1, CONFIG) == "warning"
-    assert map_rain_amount_to_level(100.0, 3, CONFIG) == "high_risk"
-    assert map_rain_amount_to_level(200.0, 3, CONFIG) == "stop"
+    assert map_rain_amount_to_level(0.5, 1, CONFIG) == "無"
+    assert map_rain_amount_to_level(1.0, 1, CONFIG) == "小雨"
+    assert map_rain_amount_to_level(40.0, 1, CONFIG) == "大雨"
+    assert map_rain_amount_to_level(100.0, 3, CONFIG) == "豪雨"
+    assert map_rain_amount_to_level(200.0, 3, CONFIG) == "大豪雨"
     assert map_rain_amount_to_level(200.0, 24, CONFIG) == "not_applicable"

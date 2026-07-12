@@ -1,7 +1,7 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
-  "generated_at": "2026-07-11T19:13:22+08:00",
+  "generated_at": "2026-07-12T13:43:17+08:00",
   "system_status_summary": {
     "overall_status": "ready_for_demo_and_operation",
     "normal_prediction_mode": "port_local_postprocess",
@@ -50,10 +50,10 @@
         "KHWD08"
       ],
       "time_start": "2026-07-08T23:27:00+08:00",
-      "time_end": "2026-07-11T10:05:00+08:00",
-      "duration_days": 2.443,
-      "total_rows": 36,
-      "valid_rows": 36,
+      "time_end": "2026-07-12T13:41:00+08:00",
+      "duration_days": 3.593,
+      "total_rows": 54,
+      "valid_rows": 54,
       "valid_ratio": 1.0,
       "used_for_training": false,
       "used_for_current_prediction": true,
@@ -93,8 +93,8 @@
       "time_start": "2026-01-07T01:00:00+08:00",
       "time_end": "2026-07-05T23:00:00+08:00",
       "duration_days": 179.917,
-      "total_rows": 4144,
-      "valid_rows": 4144,
+      "total_rows": 4140,
+      "valid_rows": 4140,
       "valid_ratio": 1.0,
       "used_for_training": false,
       "used_for_current_prediction": false,
@@ -114,6 +114,14 @@
       "trained": false,
       "accepted": false,
       "reason": "KHWD historical dataset is not ready."
+    },
+    "legacy_lstm": {
+      "trained": true,
+      "available": true,
+      "accepted": true,
+      "activation_status": "default_base_wind_gust_source",
+      "metrics_available": false,
+      "reason": "Legacy LSTM is the configured default wind_speed_gust base source; no current formal comparison metrics are available in the v35 accuracy summary."
     }
   },
   "model_selection_summary": {
@@ -447,10 +455,10 @@
           "KHWD08"
         ],
         "time_start": "2026-07-08T23:27:00+08:00",
-        "time_end": "2026-07-11T10:05:00+08:00",
-        "duration_days": 2.443,
-        "total_rows": 36,
-        "valid_rows": 36,
+        "time_end": "2026-07-12T13:41:00+08:00",
+        "duration_days": 3.593,
+        "total_rows": 54,
+        "valid_rows": 54,
         "valid_ratio": 1.0,
         "used_for_training": false,
         "used_for_current_prediction": true,
@@ -490,8 +498,8 @@
         "time_start": "2026-01-07T01:00:00+08:00",
         "time_end": "2026-07-05T23:00:00+08:00",
         "duration_days": 179.917,
-        "total_rows": 4144,
-        "valid_rows": 4144,
+        "total_rows": 4140,
+        "valid_rows": 4140,
         "valid_ratio": 1.0,
         "used_for_training": false,
         "used_for_current_prediction": false,
@@ -628,14 +636,36 @@
           "wind_speed_passed": true,
           "wind_gust_passed": true,
           "rain_probability_passed": true
+        },
+        "manifest_validation": {
+          "valid": true,
+          "missing_artifacts": [],
+          "reason": null
         }
+      },
+      {
+        "model_id": "legacy_lstm",
+        "model_family": "legacy_lstm",
+        "trained": true,
+        "available": true,
+        "accepted": true,
+        "activation_status": "default_base_wind_gust_source",
+        "selected_in_normal_mode": true,
+        "selected_when_no_realtime_khwd_mode": false,
+        "training_station_ids": [
+          "467441"
+        ],
+        "metrics_available": false,
+        "metrics_status": "not_available",
+        "reason": "Legacy LSTM is the configured default wind_speed_gust base source; no current formal comparison metrics are available in the v35 accuracy summary.",
+        "metrics": {}
       }
     ],
     "model_selection": [
       {
         "endpoint": "/api/v1/dispatch/risk?target_area=KHH",
         "selected_mode": "port_local_postprocess",
-        "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+        "selection_reason": "Port-local model is not selected because sample_count below min_total_samples; training_days below min_training_days; label missing ratio above threshold; H1 valid labels below threshold; H2 valid labels below threshold; H3 valid labels below threshold; H4 valid labels below threshold. KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
         "active_wind_source": "KHWD",
         "active_gust_source": "KHWD",
         "fallback_to_nearby_cwa_historical_model": false,
@@ -653,7 +683,7 @@
     ]
   },
   "trace": {
-    "system_audit_version": "v3.5",
+    "system_audit_version": "v1.3",
     "metrics_loaded": true,
     "dataset_duration_loaded": true,
     "station_inventory_loaded": true,

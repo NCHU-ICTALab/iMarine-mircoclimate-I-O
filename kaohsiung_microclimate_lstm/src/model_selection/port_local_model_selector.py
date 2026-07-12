@@ -118,14 +118,16 @@ def select_dispatch_prediction_mode_v32(
     nearby_accepted, nearby_failures = _nearby_metrics_pass_acceptance(nearby_cwa_metrics or {}, config) if nearby_available else (False, ["nearby_cwa_historical_model not trained"])
     nearby_ready = bool((nearby_readiness or {}).get("ready", False))
     if base["selected_mode"] == "port_local_postprocess" and bool(config.get("model_selection", {}).get("prefer_realtime_khwd_postprocess_over_nearby_historical", True)):
+        original_reason = base.get("selection_reason") or base.get("reason") or "Port-local model unavailable."
+        selection_reason = f"{original_reason} KHWD realtime data is available, so port_local_postprocess is used instead of nearby CWA historical model."
         base.update(
             {
                 "fallback_chain": chain,
                 "nearby_cwa_historical_model_available": nearby_available,
                 "nearby_cwa_historical_model_accepted": nearby_accepted,
                 "fallback_to_nearby_cwa_historical_model": False,
-                "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
-                "reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+                "selection_reason": selection_reason,
+                "reason": selection_reason,
             }
         )
         return base

@@ -11,6 +11,7 @@ from app.contracts import (
     feature_spec_response,
     model_spec_response,
     observation_record,
+    runtime_model_version,
     schedule_spec_response,
     schema_response,
     system_info_response,
@@ -92,10 +93,18 @@ def test_system_info_response_documents_chapter_1_overview():
     assert response["endpoint"] == "/api/v1/system/info"
     assert response["data_quality"]["record_count"] == 1
     info = response["data"][0]
-    assert info["spec_version"] == "v2.0"
+    assert info["spec_version"] == "v1.3"
+    assert info["runtime_model_version"] == runtime_model_version()
     assert info["target_area"]["port_code"] == "KHH"
     assert "data_collection" in info["architecture_layers"]
     assert "wind_speed" in info["prediction_targets"]
+
+
+def test_runtime_model_version_reads_project_config(tmp_path):
+    config = tmp_path / "config.yaml"
+    config.write_text("project: {model_version: kaohsiung_port_dispatch_risk_v9.9}\n", encoding="utf-8")
+
+    assert runtime_model_version(config) == "kaohsiung_port_dispatch_risk_v9.9"
 
 
 def test_system_requirements_response_maps_chapter_2_requirements():

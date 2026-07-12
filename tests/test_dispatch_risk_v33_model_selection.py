@@ -30,6 +30,16 @@ def test_v33_selects_port_local_postprocess_when_khwd_realtime_available_even_if
     assert result["fallback_to_467441"] is False
 
 
+def test_v33_selection_reason_includes_port_local_model_failed_reasons():
+    context = {**_context(), "port_local_failed_reasons": ["sample_count below min_total_samples"]}
+
+    result = select_prediction_mode(context)
+
+    assert result["selected_mode"] == "port_local_postprocess"
+    assert "sample_count below min_total_samples" in result["selection_reason"]
+    assert result["failed_reasons"] == ["sample_count below min_total_samples"]
+
+
 def test_v33_selects_nearby_cwa_historical_model_when_khwd_unavailable_and_nearby_accepted():
     context = {**_context(), "khwd_realtime_available": False, "valid_khwd_station_count": 0, "no_realtime_khwd_mode": True}
 

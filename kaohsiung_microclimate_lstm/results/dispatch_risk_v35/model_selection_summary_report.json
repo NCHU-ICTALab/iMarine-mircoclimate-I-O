@@ -1,5 +1,5 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "fallback_chain": [
     "port_local_model",
     "port_local_postprocess",
@@ -9,7 +9,7 @@
   "normal_mode": {
     "endpoint": "/api/v1/dispatch/risk?target_area=KHH",
     "selected_mode": "port_local_postprocess",
-    "selection_reason": "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+    "selection_reason": "Port-local model is not selected because sample_count below min_total_samples; training_days below min_training_days; label missing ratio above threshold; H1 valid labels below threshold; H2 valid labels below threshold; H3 valid labels below threshold; H4 valid labels below threshold. KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
     "active_wind_source": "KHWD",
     "active_gust_source": "KHWD",
     "fallback_to_nearby_cwa_historical_model": false,

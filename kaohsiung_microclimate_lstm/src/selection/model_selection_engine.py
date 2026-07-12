@@ -39,9 +39,13 @@ def select_prediction_mode(context: dict[str, Any]) -> dict[str, Any]:
                 )
             )
         evaluated.append(_mode("fallback_baseline", bool(context.get("fallback_baseline_available", True)), ["NOT_SELECTED_BECAUSE_HIGHER_PRIORITY_MODE_AVAILABLE"], selected=False))
+        model_block = "; ".join(str(item) for item in context.get("port_local_failed_reasons", []) or port_local_model_reasons)
+        reason = "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model."
+        if model_block:
+            reason = f"Port-local model is not selected because {model_block}. {reason}"
         return _result(
             "port_local_postprocess",
-            "KHWD realtime data is available, so port_local_postprocess is preferred over nearby CWA historical model.",
+            reason,
             evaluated,
             blocking,
             context,
@@ -151,6 +155,7 @@ def _result(mode: str, reason: str, evaluated: list[dict[str, Any]], blocking: d
         "fallback_to_nearby_cwa_historical_model": mode == "nearby_cwa_historical_model",
         "fallback_to_467441": mode == "fallback_baseline",
         "selection_reason": reason,
+        "failed_reasons": list(context.get("port_local_failed_reasons", [])),
         "evaluated_modes": evaluated,
         "blocking_reasons": blocking,
         "assertions": assertions,

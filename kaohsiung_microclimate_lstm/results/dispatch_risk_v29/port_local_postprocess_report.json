@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T19:15:33+08:00",
+  "generated_at": "2026-07-12T13:43:16+08:00",
   "prediction_mode": "port_local_model",
   "khwd_station_ids_used": [
     "KHWD01",
@@ -10,37 +10,37 @@
     "KHWD08"
   ],
   "khwd_features": {
-    "khwd_wind_speed_mean": 12.1112,
-    "khwd_wind_speed_max": 18.594,
-    "khwd_wind_speed_min": 4.751,
-    "khwd_wind_speed_std": 4.9189,
-    "khwd_wind_gust_mean": 15.6367,
-    "khwd_wind_gust_max": 21.09,
-    "khwd_wind_gust_min": 10.28,
-    "khwd_wind_gust_std": 3.9736,
+    "khwd_wind_speed_mean": 3.0525,
+    "khwd_wind_speed_max": 5.727,
+    "khwd_wind_speed_min": 1.987,
+    "khwd_wind_speed_std": 1.3306,
+    "khwd_wind_gust_mean": 4.1783,
+    "khwd_wind_gust_max": 7.02,
+    "khwd_wind_gust_min": 2.9,
+    "khwd_wind_gust_std": 1.4096,
     "khwd_station_count": 6,
     "khwd_valid_wind_station_count": 6,
     "khwd_valid_gust_station_count": 6,
-    "khwd_latest_observation_time": "2026-07-11T10:05:00+08:00"
+    "khwd_latest_observation_time": "2026-07-12T13:41:00+08:00"
   },
   "quality_status": "ok",
   "warnings": [],
   "anchor_adjustments": {
     "H1": {
-      "wind_postprocess_applied": true,
-      "gust_postprocess_applied": true,
+      "wind_postprocess_applied": false,
+      "gust_postprocess_applied": false,
       "base_wind_level": "normal",
-      "adjusted_wind_level": "stop",
+      "adjusted_wind_level": "normal",
       "base_gust_level": "normal",
-      "adjusted_gust_level": "high_risk"
+      "adjusted_gust_level": "normal"
     },
     "H2": {
-      "wind_postprocess_applied": true,
-      "gust_postprocess_applied": true,
+      "wind_postprocess_applied": false,
+      "gust_postprocess_applied": false,
       "base_wind_level": "normal",
-      "adjusted_wind_level": "stop",
+      "adjusted_wind_level": "normal",
       "base_gust_level": "normal",
-      "adjusted_gust_level": "high_risk"
+      "adjusted_gust_level": "normal"
     }
   }
 }

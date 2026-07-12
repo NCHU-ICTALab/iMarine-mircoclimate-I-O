@@ -1,21 +1,24 @@
-# 文件
+# 文件索引
 
-這裡放置微氣候 API 的公開操作文件。
+## 現行文件
 
-## 文件列表
+- [Dispatch Risk API Contract](dispatch_risk_api_contract.md)
+  現行派工風險 API 契約。外顯規格版本為 `v1.3`，runtime model version 以 `kaohsiung_microclimate_lstm/config.yaml::project.model_version` 為單一事實來源。
+- [I/O 契約](io_contract.md)
+  穩定 response shape 與資料交換格式。
+- [資料來源與品質](data_sources.md)
+  資料來源、快取、品質檢查與資料治理說明。
+- [操作文件](operations.md)
+  日常操作、排程、監控與故障處理。
+- [開發文件](development.md)
+  本地開發、測試與維護流程。
 
-- [I/O 合約](io_contract.md)
-  說明穩定 v1 response shape 與後續模組介接規則。
+## 歷史快照
 
-- [資料來源與新鮮度規則](data_sources.md)
-  說明資料來源角色、CWA 歷史模式、預設海象站點與過期/停擺門檻。
+舊版 `dispatch_risk_api_contract_v26.md` 到 `dispatch_risk_api_contract_v35.md` 已移到：
 
-- [操作手冊](operations.md)
-  說明如何啟動服務、觸發抓取、查詢歷史資料與診斷來源狀態。
+```text
+docs/archive/dispatch_risk_api_contract/
+```
 
-- [開發維護說明](development.md)
-  說明程式結構、contract 變更規則、測試與 push 前檢查。
-
-## 公開文件原則
-
-本資料夾只放可執行服務行為與公開介接細節。不要加入私人規劃文件、規格文件或 API keys。
+這些檔案只作稽核追溯，不代表現行對外契約。

@@ -82,14 +82,14 @@ def map_rain_amount_to_level(amount_mm: float, window_hours: int | float, config
         return "not_applicable"
     if hours >= 3:
         if amount >= severe_torrential_3hr:
-            return "stop"
+            return "大豪雨"
         if amount >= torrential_3hr:
-            return "high_risk"
+            return "豪雨"
     if amount >= heavy_1hr:
-        return "warning"
+        return "大雨"
     if amount >= light:
-        return "watch"
-    return "normal"
+        return "小雨"
+    return "無"
 
 
 def rain_amount_level_basis(window_hours: int | float) -> str:

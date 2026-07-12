@@ -34,7 +34,7 @@
         0.0,
         500.0
       ],
-      "invalid_count": 159,
+      "invalid_count": 0,
       "negative_count_after": 0
     },
     "visibility": {
@@ -45,5 +45,15 @@
       "invalid_count": 0,
       "negative_count_after": 0
     }
-  }
+  },
+  "deduplication": {
+    "dedupe_keys": [
+      "station_id",
+      "obs_time"
+    ],
+    "duplicate_rows_detected": 8,
+    "duplicate_rows_removed": 4
+  },
+  "row_count_after_deduplication": 4140,
+  "latest_obs_time": "2026-07-05T23:00:00+08:00"
 }

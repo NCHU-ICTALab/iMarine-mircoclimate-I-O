@@ -17,7 +17,7 @@ except ImportError:  # pragma: no cover
 TZ_TPE = ZoneInfo("Asia/Taipei")
 
 
-RESOLUTION_SCORE = {"3h": 0, "6h": 1, "12h": 2, "unknown": 3}
+RESOLUTION_SCORE = {"3h": 0, "6h": 1, "12h": 2, "3h_unverified": 3, "6h_unverified": 3, "12h_unverified": 3, "unknown": 4}
 
 
 def resolve_cwa_location(

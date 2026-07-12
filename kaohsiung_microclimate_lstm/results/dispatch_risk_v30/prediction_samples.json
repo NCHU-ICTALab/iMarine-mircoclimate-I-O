@@ -1,6 +1,6 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
-  "generated_at": "2026-07-11T19:15:31+08:00",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
+  "generated_at": "2026-07-12T13:43:16+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -10,15 +10,15 @@
     {
       "label": "H1",
       "offset_minutes": 30,
-      "timestamp": "2026-07-11T10:35:00+08:00",
+      "timestamp": "2026-07-12T14:11:00+08:00",
       "rain": {
-        "raw_model_probability": 0.3463,
+        "raw_model_probability": 0.3432,
         "nearby_adjusted_probability": 0.85,
         "cwa_adjusted_probability": null,
         "final_probability": 0.85,
         "level": "high_risk",
-        "predicted_amount_mm": 8.072,
-        "amount_level": "watch",
+        "predicted_amount_mm": 6.643,
+        "amount_level": "小雨",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
@@ -33,16 +33,16 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-11T19:45:31.622404+08:00",
-            "available": false,
-            "raw_value": null,
-            "normalized_value": null,
-            "parse_status": "not_available",
-            "quality_status": "invalid",
-            "reason": "No CWA forecast period matched this anchor time.",
-            "alignment_status": "no_matching_forecast_period",
+            "anchor_time": "2026-07-12T14:13:16.511611+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
             "source": {
-              "dataset_id": "F-D0047-091",
+              "dataset_id": "F-D0047-065",
               "location_name": "前鎮區",
               "element_name": "3小時降雨機率",
               "source_resolution": "3h"
@@ -53,26 +53,38 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 16.144,
-          "amount_level": "watch",
+          "predicted_amount_mm": 13.286,
+          "amount_level": "小雨",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
       "wind_speed": {
-        "predicted_mps": 1.352,
+        "predicted_mps": 4.852,
+        "legacy_lstm_predicted_mps": 1.353,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 1,
-          "label_zh": "軟風",
-          "range_mps": "0.3-1.5"
+          "scale": 3,
+          "label_zh": "微風",
+          "range_mps": "3.4-5.4"
         },
-        "operation_level": "stop",
+        "operation_level": "normal",
         "operation_label": "一般風險",
         "confidence": "high",
         "port_local_postprocess_applied": false,
-        "port_local_postprocess": {
+        "base_model_predicted_mps": 1.353,
+        "persistence_blending": {
           "applied": true,
+          "khwd_weight": 0.8,
+          "model_weight": 0.2,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.353,
+          "blended_wind_speed_mps": 4.852
+        },
+        "port_local_postprocess": {
+          "applied": false,
           "source": "KHWD",
           "station_ids_used": [
             "KHWD01",
@@ -83,28 +95,40 @@
             "KHWD08"
           ],
           "base_operation_level": "normal",
-          "adjusted_operation_level": "stop",
-          "reason": "KHWD max wind speed exceeded stop threshold.",
-          "khwd_wind_speed_max": 18.594,
-          "threshold_triggered": "stop"
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
+          "khwd_wind_speed_max": 5.727,
+          "threshold_triggered": null
         }
       },
       "wind_gust": {
-        "predicted_mps": 4.149,
+        "predicted_mps": 6.441,
+        "legacy_lstm_predicted_mps": 4.126,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 3,
-          "label_zh": "微風",
-          "range_mps": "3.4-5.4"
+          "scale": 4,
+          "label_zh": "和風",
+          "range_mps": "5.5-7.9"
         },
-        "operation_level": "high_risk",
+        "operation_level": "normal",
         "operation_label": "一般風險",
         "confidence": "medium_high",
         "buffer_applied": false,
         "buffer_mps": 1.2,
         "original_level_without_buffer": "normal",
         "port_local_postprocess_applied": false,
-        "port_local_postprocess": {
+        "base_model_predicted_mps": 4.126,
+        "persistence_blending": {
           "applied": true,
+          "khwd_weight": 0.8,
+          "model_weight": 0.2,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_gust_mps": 4.126,
+          "blended_wind_gust_mps": 6.441
+        },
+        "port_local_postprocess": {
+          "applied": false,
           "source": "KHWD",
           "station_ids_used": [
             "KHWD01",
@@ -115,10 +139,10 @@
             "KHWD08"
           ],
           "base_operation_level": "normal",
-          "adjusted_operation_level": "high_risk",
-          "reason": "KHWD max gust exceeded high_risk threshold.",
-          "khwd_wind_gust_max": 21.09,
-          "threshold_triggered": "high_risk"
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed gust postprocess thresholds.",
+          "khwd_wind_gust_max": 7.02,
+          "threshold_triggered": null
         }
       },
       "visibility": {
@@ -131,27 +155,27 @@
         "level": null,
         "confidence": "reference_only"
       },
-      "dispatch_risk_level": "stop",
+      "dispatch_risk_level": "high_risk",
       "risk_trigger_detail": {
-        "primary_trigger": "wind_speed",
-        "primary_trigger_level": "stop",
-        "primary_trigger_reliability": "high",
+        "primary_trigger": "rain_probability",
+        "primary_trigger_level": "high_risk",
+        "primary_trigger_reliability": "low_to_medium",
         "all_trigger_levels": {
           "rain": "high_risk",
-          "wind_speed": "stop",
-          "wind_gust": "high_risk",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
           "visibility": null,
           "tide": null
         },
-        "is_low_reliability_trigger": false
+        "is_low_reliability_trigger": true
       },
-      "dispatch_action_level": "suspend_exposed_tasks",
+      "dispatch_action_level": "restrict_sensitive_tasks",
       "dispatch_action": {
-        "dispatch_action_level": "suspend_exposed_tasks",
-        "action_label": "暫停暴露作業",
-        "action_description": "建議暫停戶外暴露或高風險作業，待風險降低後再復工。"
+        "dispatch_action_level": "restrict_sensitive_tasks",
+        "action_label": "限制敏感作業",
+        "action_description": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。"
       },
-      "dispatch_suggestion": "建議暫停戶外暴露或高風險作業，待風險降低後再復工。",
+      "dispatch_suggestion": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。",
       "port_local_postprocess": {
         "enabled": false,
         "mode": "fallback_baseline",
@@ -169,20 +193,20 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 550
+      "anchor_time_staleness_minutes": 2
     },
     {
       "label": "H2",
       "offset_minutes": 60,
-      "timestamp": "2026-07-11T11:05:00+08:00",
+      "timestamp": "2026-07-12T14:41:00+08:00",
       "rain": {
-        "raw_model_probability": 0.296,
+        "raw_model_probability": 0.2927,
         "nearby_adjusted_probability": 0.85,
         "cwa_adjusted_probability": null,
         "final_probability": 0.85,
         "level": "high_risk",
-        "predicted_amount_mm": 8.072,
-        "amount_level": "watch",
+        "predicted_amount_mm": 6.643,
+        "amount_level": "小雨",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
@@ -197,16 +221,16 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-11T20:15:31.622404+08:00",
-            "available": false,
-            "raw_value": null,
-            "normalized_value": null,
-            "parse_status": "not_available",
-            "quality_status": "invalid",
-            "reason": "No CWA forecast period matched this anchor time.",
-            "alignment_status": "no_matching_forecast_period",
+            "anchor_time": "2026-07-12T14:43:16.511611+08:00",
+            "available": true,
+            "raw_value": "20",
+            "normalized_value": 0.2,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
             "source": {
-              "dataset_id": "F-D0047-091",
+              "dataset_id": "F-D0047-065",
               "location_name": "前鎮區",
               "element_name": "3小時降雨機率",
               "source_resolution": "3h"
@@ -217,58 +241,38 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 16.144,
-          "amount_level": "watch",
+          "predicted_amount_mm": 13.286,
+          "amount_level": "小雨",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
       "wind_speed": {
-        "predicted_mps": 1.218,
-        "beaufort": {
-          "scale": 1,
-          "label_zh": "軟風",
-          "range_mps": "0.3-1.5"
-        },
-        "operation_level": "stop",
-        "operation_label": "一般風險",
-        "confidence": "high",
-        "port_local_postprocess_applied": false,
-        "port_local_postprocess": {
-          "applied": true,
-          "source": "KHWD",
-          "station_ids_used": [
-            "KHWD01",
-            "KHWD04",
-            "KHWD05",
-            "KHWD06",
-            "KHWD07",
-            "KHWD08"
-          ],
-          "base_operation_level": "normal",
-          "adjusted_operation_level": "stop",
-          "reason": "KHWD max wind speed exceeded stop threshold.",
-          "khwd_wind_speed_max": 18.594,
-          "threshold_triggered": "stop"
-        }
-      },
-      "wind_gust": {
-        "predicted_mps": 3.433,
+        "predicted_mps": 3.923,
+        "legacy_lstm_predicted_mps": 1.218,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
           "scale": 3,
           "label_zh": "微風",
           "range_mps": "3.4-5.4"
         },
-        "operation_level": "high_risk",
+        "operation_level": "normal",
         "operation_label": "一般風險",
-        "confidence": "medium_high",
-        "buffer_applied": false,
-        "buffer_mps": 1.2,
-        "original_level_without_buffer": "normal",
+        "confidence": "high",
         "port_local_postprocess_applied": false,
-        "port_local_postprocess": {
+        "base_model_predicted_mps": 1.218,
+        "persistence_blending": {
           "applied": true,
+          "khwd_weight": 0.6,
+          "model_weight": 0.4,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.218,
+          "blended_wind_speed_mps": 3.923
+        },
+        "port_local_postprocess": {
+          "applied": false,
           "source": "KHWD",
           "station_ids_used": [
             "KHWD01",
@@ -279,10 +283,54 @@
             "KHWD08"
           ],
           "base_operation_level": "normal",
-          "adjusted_operation_level": "high_risk",
-          "reason": "KHWD max gust exceeded high_risk threshold.",
-          "khwd_wind_gust_max": 21.09,
-          "threshold_triggered": "high_risk"
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed wind speed postprocess thresholds.",
+          "khwd_wind_speed_max": 5.727,
+          "threshold_triggered": null
+        }
+      },
+      "wind_gust": {
+        "predicted_mps": 5.577,
+        "legacy_lstm_predicted_mps": 3.413,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
+        "beaufort": {
+          "scale": 4,
+          "label_zh": "和風",
+          "range_mps": "5.5-7.9"
+        },
+        "operation_level": "normal",
+        "operation_label": "一般風險",
+        "confidence": "medium_high",
+        "buffer_applied": false,
+        "buffer_mps": 1.2,
+        "original_level_without_buffer": "normal",
+        "port_local_postprocess_applied": false,
+        "base_model_predicted_mps": 3.413,
+        "persistence_blending": {
+          "applied": true,
+          "khwd_weight": 0.6,
+          "model_weight": 0.4,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_gust_mps": 3.413,
+          "blended_wind_gust_mps": 5.577
+        },
+        "port_local_postprocess": {
+          "applied": false,
+          "source": "KHWD",
+          "station_ids_used": [
+            "KHWD01",
+            "KHWD04",
+            "KHWD05",
+            "KHWD06",
+            "KHWD07",
+            "KHWD08"
+          ],
+          "base_operation_level": "normal",
+          "adjusted_operation_level": "normal",
+          "reason": "KHWD values did not exceed gust postprocess thresholds.",
+          "khwd_wind_gust_max": 7.02,
+          "threshold_triggered": null
         }
       },
       "visibility": {
@@ -295,27 +343,27 @@
         "level": null,
         "confidence": "reference_only"
       },
-      "dispatch_risk_level": "stop",
+      "dispatch_risk_level": "high_risk",
       "risk_trigger_detail": {
-        "primary_trigger": "wind_speed",
-        "primary_trigger_level": "stop",
-        "primary_trigger_reliability": "high",
+        "primary_trigger": "rain_probability",
+        "primary_trigger_level": "high_risk",
+        "primary_trigger_reliability": "low_to_medium",
         "all_trigger_levels": {
           "rain": "high_risk",
-          "wind_speed": "stop",
-          "wind_gust": "high_risk",
+          "wind_speed": "normal",
+          "wind_gust": "normal",
           "visibility": null,
           "tide": null
         },
-        "is_low_reliability_trigger": false
+        "is_low_reliability_trigger": true
       },
-      "dispatch_action_level": "suspend_exposed_tasks",
+      "dispatch_action_level": "restrict_sensitive_tasks",
       "dispatch_action": {
-        "dispatch_action_level": "suspend_exposed_tasks",
-        "action_label": "暫停暴露作業",
-        "action_description": "建議暫停戶外暴露或高風險作業，待風險降低後再復工。"
+        "dispatch_action_level": "restrict_sensitive_tasks",
+        "action_label": "限制敏感作業",
+        "action_description": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。"
       },
-      "dispatch_suggestion": "建議暫停戶外暴露或高風險作業，待風險降低後再復工。",
+      "dispatch_suggestion": "建議限制吊掛、高處、臨水或其他受天氣影響較大的作業。",
       "port_local_postprocess": {
         "enabled": false,
         "mode": "fallback_baseline",
@@ -333,44 +381,44 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 550
+      "anchor_time_staleness_minutes": 2
     },
     {
       "label": "H3",
       "offset_minutes": 90,
-      "timestamp": "2026-07-11T11:35:00+08:00",
+      "timestamp": "2026-07-12T15:11:00+08:00",
       "rain": {
-        "raw_model_probability": 0.1843,
-        "nearby_adjusted_probability": 0.1843,
-        "cwa_adjusted_probability": null,
-        "final_probability": 0.1843,
+        "raw_model_probability": 0.1826,
+        "nearby_adjusted_probability": 0.1826,
+        "cwa_adjusted_probability": 0.2061,
+        "final_probability": 0.2061,
         "level": "normal",
         "predicted_amount_mm": 0.0,
-        "amount_level": "normal",
+        "amount_level": "無",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
           "nearby_postprocess_applied": false,
-          "cwa_prior_applied": false,
-          "cwa_weight": 0.0,
-          "cwa_dataset_id": null,
-          "cwa_location_name": null,
+          "cwa_prior_applied": true,
+          "cwa_weight": 0.2,
+          "cwa_dataset_id": "F-D0047-065",
+          "cwa_location_name": "前鎮區",
           "cwa_element_name": "3小時降雨機率",
-          "cwa_source_resolution": null,
+          "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-11T20:45:31.622404+08:00",
-            "available": false,
-            "raw_value": null,
-            "normalized_value": null,
-            "parse_status": "not_available",
-            "quality_status": "invalid",
-            "reason": "No CWA forecast period matched this anchor time.",
-            "alignment_status": "no_matching_forecast_period",
+            "anchor_time": "2026-07-12T15:13:16.511611+08:00",
+            "available": true,
+            "raw_value": "30",
+            "normalized_value": 0.3,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
             "source": {
-              "dataset_id": "F-D0047-091",
+              "dataset_id": "F-D0047-065",
               "location_name": "前鎮區",
               "element_name": "3小時降雨機率",
               "source_resolution": "3h"
@@ -381,34 +429,48 @@
           "port_local_rain_reason": "No port-local precipitation station available."
         },
         "three_hour_accumulation_estimate": {
-          "predicted_amount_mm": 16.144,
-          "amount_level": "watch",
+          "predicted_amount_mm": 13.286,
+          "amount_level": "小雨",
           "amount_level_basis": "estimated_3hr_sum_from_H1_H2_H3_predictions",
           "estimation_note": "H1-H3 predicted_amount_mm sum; not an observed rolling 3-hour accumulation."
         },
         "port_local_adjusted_probability": null
       },
       "wind_speed": {
-        "predicted_mps": 1.063,
+        "predicted_mps": 2.927,
+        "legacy_lstm_predicted_mps": 1.06,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 1,
-          "label_zh": "軟風",
-          "range_mps": "0.3-1.5"
+          "scale": 2,
+          "label_zh": "輕風",
+          "range_mps": "1.6-3.3"
         },
         "operation_level": "normal",
         "operation_label": "一般風險",
         "confidence": "high",
         "port_local_postprocess_applied": false,
+        "base_model_predicted_mps": 1.06,
+        "persistence_blending": {
+          "applied": true,
+          "khwd_weight": 0.4,
+          "model_weight": 0.6,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.06,
+          "blended_wind_speed_mps": 2.927
+        },
         "port_local_postprocess": {
           "applied": false
         }
       },
       "wind_gust": {
-        "predicted_mps": 3.346,
+        "predicted_mps": 4.804,
+        "legacy_lstm_predicted_mps": 3.327,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 2,
-          "label_zh": "輕風",
-          "range_mps": "1.6-3.3"
+          "scale": 3,
+          "label_zh": "微風",
+          "range_mps": "3.4-5.4"
         },
         "operation_level": "normal",
         "operation_label": "一般風險",
@@ -417,6 +479,16 @@
         "buffer_mps": 1.2,
         "original_level_without_buffer": "normal",
         "port_local_postprocess_applied": false,
+        "base_model_predicted_mps": 3.327,
+        "persistence_blending": {
+          "applied": true,
+          "khwd_weight": 0.4,
+          "model_weight": 0.6,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_gust_mps": 3.327,
+          "blended_wind_gust_mps": 4.804
+        },
         "port_local_postprocess": {
           "applied": false
         }
@@ -469,44 +541,44 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 550
+      "anchor_time_staleness_minutes": 2
     },
     {
       "label": "H4",
       "offset_minutes": 120,
-      "timestamp": "2026-07-11T12:05:00+08:00",
+      "timestamp": "2026-07-12T15:41:00+08:00",
       "rain": {
-        "raw_model_probability": 0.2374,
-        "nearby_adjusted_probability": 0.2374,
-        "cwa_adjusted_probability": null,
-        "final_probability": 0.2374,
+        "raw_model_probability": 0.2357,
+        "nearby_adjusted_probability": 0.2357,
+        "cwa_adjusted_probability": 0.2486,
+        "final_probability": 0.2486,
         "level": "normal",
         "predicted_amount_mm": 0.0,
-        "amount_level": "normal",
+        "amount_level": "無",
         "amount_level_basis": "rain_amount_1hr_mm",
         "amount_source": "nearby_cwa_live_observations",
         "confidence": "low_to_medium",
         "source_detail": {
           "model_used": true,
           "nearby_postprocess_applied": false,
-          "cwa_prior_applied": false,
-          "cwa_weight": 0.0,
-          "cwa_dataset_id": null,
-          "cwa_location_name": null,
+          "cwa_prior_applied": true,
+          "cwa_weight": 0.2,
+          "cwa_dataset_id": "F-D0047-065",
+          "cwa_location_name": "前鎮區",
           "cwa_element_name": "3小時降雨機率",
-          "cwa_source_resolution": null,
+          "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-11T21:15:31.622404+08:00",
-            "available": false,
-            "raw_value": null,
-            "normalized_value": null,
-            "parse_status": "not_available",
-            "quality_status": "invalid",
-            "reason": "No CWA forecast period matched this anchor time.",
-            "alignment_status": "no_matching_forecast_period",
+            "anchor_time": "2026-07-12T15:43:16.511611+08:00",
+            "available": true,
+            "raw_value": "30",
+            "normalized_value": 0.3,
+            "parse_status": "ok",
+            "quality_status": "valid",
+            "reason": null,
+            "alignment_status": "matched_forecast_period",
             "source": {
-              "dataset_id": "F-D0047-091",
+              "dataset_id": "F-D0047-065",
               "location_name": "前鎮區",
               "element_name": "3小時降雨機率",
               "source_resolution": "3h"
@@ -519,26 +591,40 @@
         "port_local_adjusted_probability": null
       },
       "wind_speed": {
-        "predicted_mps": 1.537,
+        "predicted_mps": 2.374,
+        "legacy_lstm_predicted_mps": 1.536,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 1,
-          "label_zh": "軟風",
-          "range_mps": "0.3-1.5"
+          "scale": 2,
+          "label_zh": "輕風",
+          "range_mps": "1.6-3.3"
         },
         "operation_level": "normal",
         "operation_label": "一般風險",
         "confidence": "high",
         "port_local_postprocess_applied": false,
+        "base_model_predicted_mps": 1.536,
+        "persistence_blending": {
+          "applied": true,
+          "khwd_weight": 0.2,
+          "model_weight": 0.8,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.536,
+          "blended_wind_speed_mps": 2.374
+        },
         "port_local_postprocess": {
           "applied": false
         }
       },
       "wind_gust": {
-        "predicted_mps": 3.361,
+        "predicted_mps": 4.079,
+        "legacy_lstm_predicted_mps": 3.344,
+        "prediction_source": "legacy_lstm_khwd_persistence_blended",
         "beaufort": {
-          "scale": 2,
-          "label_zh": "輕風",
-          "range_mps": "1.6-3.3"
+          "scale": 3,
+          "label_zh": "微風",
+          "range_mps": "3.4-5.4"
         },
         "operation_level": "normal",
         "operation_label": "一般風險",
@@ -547,6 +633,16 @@
         "buffer_mps": 1.2,
         "original_level_without_buffer": "normal",
         "port_local_postprocess_applied": false,
+        "base_model_predicted_mps": 3.344,
+        "persistence_blending": {
+          "applied": true,
+          "khwd_weight": 0.2,
+          "model_weight": 0.8,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_gust_mps": 3.344,
+          "blended_wind_gust_mps": 4.079
+        },
         "port_local_postprocess": {
           "applied": false
         }
@@ -599,35 +695,35 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 550
+      "anchor_time_staleness_minutes": 2
     }
   ],
   "cwa_forecast": {
     "available": true,
-    "dataset_id": "F-D0047-091",
+    "dataset_id": "F-D0047-065",
     "location_name": "前鎮區",
     "element_name": "3小時降雨機率",
     "source_resolution": "3h",
-    "fetched_at": "2026-07-08T00:09:14+08:00",
+    "fetched_at": "2026-07-12T13:43:13+08:00",
     "anchor_pop": {
-      "H1": null,
-      "H2": null,
-      "H3": null,
-      "H4": null
+      "H1": 0.2,
+      "H2": 0.2,
+      "H3": 0.3,
+      "H4": 0.3
     },
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-11T19:45:31.622404+08:00",
-        "available": false,
-        "raw_value": null,
-        "normalized_value": null,
-        "parse_status": "not_available",
-        "quality_status": "invalid",
-        "reason": "No CWA forecast period matched this anchor time.",
-        "alignment_status": "no_matching_forecast_period",
+        "anchor_time": "2026-07-12T14:13:16.511611+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
         "source": {
-          "dataset_id": "F-D0047-091",
+          "dataset_id": "F-D0047-065",
           "location_name": "前鎮區",
           "element_name": "3小時降雨機率",
           "source_resolution": "3h"
@@ -635,16 +731,16 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-11T20:15:31.622404+08:00",
-        "available": false,
-        "raw_value": null,
-        "normalized_value": null,
-        "parse_status": "not_available",
-        "quality_status": "invalid",
-        "reason": "No CWA forecast period matched this anchor time.",
-        "alignment_status": "no_matching_forecast_period",
+        "anchor_time": "2026-07-12T14:43:16.511611+08:00",
+        "available": true,
+        "raw_value": "20",
+        "normalized_value": 0.2,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
         "source": {
-          "dataset_id": "F-D0047-091",
+          "dataset_id": "F-D0047-065",
           "location_name": "前鎮區",
           "element_name": "3小時降雨機率",
           "source_resolution": "3h"
@@ -652,16 +748,16 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-11T20:45:31.622404+08:00",
-        "available": false,
-        "raw_value": null,
-        "normalized_value": null,
-        "parse_status": "not_available",
-        "quality_status": "invalid",
-        "reason": "No CWA forecast period matched this anchor time.",
-        "alignment_status": "no_matching_forecast_period",
+        "anchor_time": "2026-07-12T15:13:16.511611+08:00",
+        "available": true,
+        "raw_value": "30",
+        "normalized_value": 0.3,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
         "source": {
-          "dataset_id": "F-D0047-091",
+          "dataset_id": "F-D0047-065",
           "location_name": "前鎮區",
           "element_name": "3小時降雨機率",
           "source_resolution": "3h"
@@ -669,16 +765,16 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-11T21:15:31.622404+08:00",
-        "available": false,
-        "raw_value": null,
-        "normalized_value": null,
-        "parse_status": "not_available",
-        "quality_status": "invalid",
-        "reason": "No CWA forecast period matched this anchor time.",
-        "alignment_status": "no_matching_forecast_period",
+        "anchor_time": "2026-07-12T15:43:16.511611+08:00",
+        "available": true,
+        "raw_value": "30",
+        "normalized_value": 0.3,
+        "parse_status": "ok",
+        "quality_status": "valid",
+        "reason": null,
+        "alignment_status": "matched_forecast_period",
         "source": {
-          "dataset_id": "F-D0047-091",
+          "dataset_id": "F-D0047-065",
           "location_name": "前鎮區",
           "element_name": "3小時降雨機率",
           "source_resolution": "3h"
@@ -740,7 +836,7 @@
     "city_wide_forecast_as_target": false,
     "train_inference_mismatch_prevented": true,
     "cwa_pop_used_as_model_input": false,
-    "cwa_pop_used_as_postprocess_prior": false,
+    "cwa_pop_used_as_postprocess_prior": true,
     "cwa_pop_quality_gate_enabled": true,
     "zero_pop_distinguished_from_missing": true,
     "normal_state_primary_trigger_none": true,
@@ -750,11 +846,16 @@
       "rain": "baseline_lstm_v2.3_pure_temporal",
       "wind_speed_gust": "baseline_lstm_v2"
     },
+    "wind_speed_gust_prediction_source": {
+      "configured_source": "legacy_lstm",
+      "effective_source": "legacy_lstm",
+      "legacy_lstm_available": true
+    },
     "anchor_time_selection": {
       "prediction_mode": "port_local_model",
       "anchor_time_source": "port_local_khwd",
-      "anchor_base_time": "2026-07-11T10:05:00+08:00",
-      "staleness_minutes": 550
+      "anchor_base_time": "2026-07-12T13:41:00+08:00",
+      "staleness_minutes": 2
     },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
@@ -807,7 +908,7 @@
     "port_local_station_files_created": [],
     "port_local_data_report_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\results\\port_local_data_v28\\station_availability_report.json",
     "fallback_to_existing_files": true,
-    "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+    "model_version": "kaohsiung_port_dispatch_risk_v1.3",
     "port_local_wind_station_count": 6,
     "port_local_wind_station_ids": [
       "KHWD01",
@@ -823,6 +924,57 @@
     "rain_probability_model_used": true,
     "cwa_pop_prior_enabled": true,
     "dispatch_risk_uses_postprocessed_wind_gust": true,
+    "port_local_wind_persistence_blending": {
+      "enabled": true,
+      "applied": true,
+      "unavailable_behavior": "fall_back_to_model_only",
+      "anchor_adjustments": {
+        "H1": {
+          "applied": true,
+          "khwd_weight": 0.8,
+          "model_weight": 0.2,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.353,
+          "base_wind_gust_mps": 4.126,
+          "blended_wind_speed_mps": 4.852,
+          "blended_wind_gust_mps": 6.441
+        },
+        "H2": {
+          "applied": true,
+          "khwd_weight": 0.6,
+          "model_weight": 0.4,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.218,
+          "base_wind_gust_mps": 3.413,
+          "blended_wind_speed_mps": 3.923,
+          "blended_wind_gust_mps": 5.577
+        },
+        "H3": {
+          "applied": true,
+          "khwd_weight": 0.4,
+          "model_weight": 0.6,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.06,
+          "base_wind_gust_mps": 3.327,
+          "blended_wind_speed_mps": 2.927,
+          "blended_wind_gust_mps": 4.804
+        },
+        "H4": {
+          "applied": true,
+          "khwd_weight": 0.2,
+          "model_weight": 0.8,
+          "khwd_wind_speed_max": 5.727,
+          "khwd_wind_gust_max": 7.02,
+          "base_wind_speed_mps": 1.536,
+          "base_wind_gust_mps": 3.344,
+          "blended_wind_speed_mps": 2.374,
+          "blended_wind_gust_mps": 4.079
+        }
+      }
+    },
     "port_local_model_training_enabled": true,
     "port_local_model_selected": false,
     "port_local_model_accepted": false,
@@ -877,7 +1029,7 @@
     ]
   },
   "anchor_time_source": "port_local_khwd",
-  "anchor_time_staleness_minutes": 550,
+  "anchor_time_staleness_minutes": 2,
   "prediction_mode": "port_local_postprocess",
   "model_selection_summary": {
     "selected_mode": "port_local_postprocess",
@@ -890,7 +1042,6 @@
     "failed_reasons": [
       "sample_count below min_total_samples",
       "training_days below min_training_days",
-      "feature missing ratio above threshold",
       "label missing ratio above threshold",
       "H1 valid labels below threshold",
       "H2 valid labels below threshold",

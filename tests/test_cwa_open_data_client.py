@@ -1,7 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from kaohsiung_microclimate_lstm.src.cwa.cwa_open_data_client import align_cwa_pop_to_anchors, extract_pop_timeseries
+from kaohsiung_microclimate_lstm.src.cwa.cwa_open_data_client import align_cwa_pop_to_anchors, extract_pop_timeseries, infer_source_resolution
 
 
 def test_extract_pop_timeseries_normalizes_percent():
@@ -39,3 +39,16 @@ def test_align_cwa_pop_to_anchors():
     generated_at = datetime(2026, 7, 7, 22, 0, tzinfo=ZoneInfo("Asia/Taipei"))
     aligned = align_cwa_pop_to_anchors(rows, generated_at, {"H1": 30, "H2": 60, "H3": 90, "H4": 120})
     assert aligned == {"H1": 0.4, "H2": 0.4, "H3": 0.4, "H4": None}
+
+
+def test_infer_source_resolution_prefers_actual_timeseries_over_element_name():
+    rows = [
+        {
+            "start_time": "2026-07-11T00:00:00+08:00",
+            "end_time": "2026-07-11T06:00:00+08:00",
+            "pop": 0.1,
+        }
+    ]
+
+    assert infer_source_resolution("3小時降雨機率", rows) == "6h"
+    assert infer_source_resolution("3小時降雨機率", []) == "3h_unverified"

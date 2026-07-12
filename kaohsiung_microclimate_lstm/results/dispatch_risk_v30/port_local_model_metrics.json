@@ -5,7 +5,6 @@
   "failed_reasons": [
     "sample_count below min_total_samples",
     "training_days below min_training_days",
-    "feature missing ratio above threshold",
     "label missing ratio above threshold",
     "H1 valid labels below threshold",
     "H2 valid labels below threshold",
