@@ -18,6 +18,7 @@ def run_microclimate_source_fetch(project_root: str | Path, config_path: str | P
         ("marine_realtime", lambda: _fetch_marine_realtime(observed_dir)),
         ("nearby_cwa_live", lambda: _fetch_nearby_cwa_live(observed_dir)),
         ("cwa_forecast_source", lambda: _refresh_cwa_forecast_source(project, cfg)),
+        ("cwa_extended_forecast", lambda: _refresh_cwa_extended_forecast(project, cfg)),
         ("cwa_forecast_history", lambda: _fetch_cwa_forecast_history(project)),
     ]
     results: dict[str, Any] = {}
@@ -39,6 +40,7 @@ def run_microclimate_source_fetch(project_root: str | Path, config_path: str | P
         "notes": {
             "marine_realtime": "Uses O-B0075-001 rolling realtime observations. O-B0075-002 30-day history is intentionally not fetched on every manual refresh.",
             "cwa_forecast_source": "Refreshes the current CWA forecast source used for rain probability blending.",
+            "cwa_extended_forecast": "Force-refreshes the CWA +3h/+6h card cache used by extended forecast windows.",
             "cwa_forecast_history": "Records current forecast release snapshots for later no-leakage CWA comparison readiness.",
         },
     }
@@ -68,6 +70,26 @@ def _refresh_cwa_forecast_source(project: Path, config_path: Path) -> dict[str, 
 
     cfg = load_config(config_path)
     return refresh_cwa_forecast_source_if_stale(cfg, project, force_refresh=True)
+
+
+def _refresh_cwa_extended_forecast(project: Path, config_path: Path) -> dict[str, Any]:
+    from kaohsiung_microclimate_lstm.src.config import load_config
+    from kaohsiung_microclimate_lstm.src.cwa.pop3h_client import DATAID, fetch_pop3h
+
+    cfg = load_config(config_path)
+    pop_cfg = cfg.get("rain_postprocess", {}).get("cwa_pop3h", {})
+    extended_cfg = cfg.get("extended_forecast_windows", {})
+    location = str(extended_cfg.get("location_name") or pop_cfg.get("fallback_location", "前鎮區"))
+    cache_minutes = int(extended_cfg.get("cache_minutes", pop_cfg.get("cache_minutes", 30)))
+    data_id = str(extended_cfg.get("data_id", DATAID))
+    return fetch_pop3h(
+        location,
+        cache_minutes=cache_minutes,
+        project_root=project,
+        data_id=data_id,
+        include_wind_speed=True,
+        force_refresh=True,
+    )
 
 
 def _fetch_cwa_forecast_history(project: Path) -> dict[str, Any]:

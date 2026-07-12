@@ -1,53 +1,53 @@
 {
-  "generated_at": "2026-07-12T13:43:09+08:00",
+  "generated_at": "2026-07-12T20:29:58+08:00",
   "source": "twport",
   "station_results": {
     "KHWD01": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:40:00+08:00",
-      "time_end": "2026-07-12T13:40:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:27:00+08:00",
+      "time_end": "2026-07-12T20:27:00+08:00",
       "error": null
     },
     "KHWD04": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:39:00+08:00",
-      "time_end": "2026-07-12T13:39:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:26:00+08:00",
+      "time_end": "2026-07-12T20:26:00+08:00",
       "error": null
     },
     "KHWD05": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:40:00+08:00",
-      "time_end": "2026-07-12T13:40:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:27:00+08:00",
+      "time_end": "2026-07-12T20:27:00+08:00",
       "error": null
     },
     "KHWD06": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:41:00+08:00",
-      "time_end": "2026-07-12T13:41:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:28:00+08:00",
+      "time_end": "2026-07-12T20:28:00+08:00",
       "error": null
     },
     "KHWD07": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:40:00+08:00",
-      "time_end": "2026-07-12T13:40:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:27:00+08:00",
+      "time_end": "2026-07-12T20:27:00+08:00",
       "error": null
     },
     "KHWD08": {
       "requested": true,
       "available": true,
-      "record_count": 9,
-      "time_start": "2026-07-12T13:39:00+08:00",
-      "time_end": "2026-07-12T13:39:00+08:00",
+      "record_count": 11,
+      "time_start": "2026-07-12T20:26:00+08:00",
+      "time_end": "2026-07-12T20:26:00+08:00",
       "error": null
     },
     "KHTD01": {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-12T13:43:17+08:00",
+  "generated_at": "2026-07-12T20:30:52+08:00",
   "selected_mode": "port_local_postprocess",
   "selection_reason": "Dataset readiness failed; using port-local postprocess. KHWD realtime data is available, so port_local_postprocess is used instead of nearby CWA historical model.",
   "fallback_chain": [

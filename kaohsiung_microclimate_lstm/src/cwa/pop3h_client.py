@@ -33,13 +33,14 @@ def fetch_pop3h(
     project_root: str | Path = "kaohsiung_microclimate_lstm",
     data_id: str = DATAID,
     include_wind_speed: bool = False,
+    force_refresh: bool = False,
 ) -> dict[str, Any]:
     now = now or datetime.now(tz=TZ_TPE)
     if now.tzinfo is None:
         now = now.replace(tzinfo=TZ_TPE)
     cache_suffix = "extended" if include_wind_speed else "pop3h"
     cache_path = Path(project_root) / "data" / "cache" / f"cwa_{cache_suffix}_{_safe_name(location_name)}_{data_id}.json"
-    if cache_path.exists():
+    if cache_path.exists() and not force_refresh:
         cached = json.loads(cache_path.read_text(encoding="utf-8"))
         if time.time() - float(cached.get("_cached_at", 0)) < cache_minutes * 60:
             return _current_next(cached["payload"], now)
@@ -122,20 +123,8 @@ def _parse_records(body: dict[str, Any], location_name: str) -> list[dict[str, A
 
 def _current_next(payload: dict[str, Any], now: datetime) -> dict[str, Any]:
     records = payload.get("records", [])
-    current = None
-    next_value = None
-    for idx, record in enumerate(records):
-        start = datetime.fromisoformat(record["start_time"]).astimezone(TZ_TPE)
-        end = datetime.fromisoformat(record["end_time"]).astimezone(TZ_TPE)
-        if start <= now < end and record.get("pop") is not None:
-            current = float(record["pop"])
-            next_pop = records[idx + 1].get("pop") if idx + 1 < len(records) else current
-            next_value = float(next_pop) if next_pop is not None else current
-            break
-    pop_records = [record for record in records if record.get("pop") is not None]
-    if current is None and pop_records:
-        current = float(pop_records[0]["pop"])
-        next_value = float(pop_records[1]["pop"]) if len(pop_records) > 1 else current
+    current = _target_time_pop(records, now + timedelta(hours=3))
+    next_value = _target_time_pop(records, now + timedelta(hours=6))
     return {
         "available": bool(payload.get("available", False) and current is not None),
         "data_id": payload.get("data_id"),
@@ -286,3 +275,17 @@ def _target_time_record(records: list[dict[str, Any]], target: datetime) -> dict
     target_ts = target.timestamp()
     nearest = min(candidates, key=lambda record: abs(datetime.fromisoformat(record["start_time"]).astimezone(TZ_TPE).timestamp() - target_ts))
     return _wind_summary(nearest)
+
+
+def _target_time_pop(records: list[dict[str, Any]], target: datetime) -> float | None:
+    candidates = [record for record in records if record.get("pop") is not None]
+    for record in candidates:
+        start = datetime.fromisoformat(record["start_time"]).astimezone(TZ_TPE)
+        end = datetime.fromisoformat(record["end_time"]).astimezone(TZ_TPE)
+        if start <= target < end:
+            return float(record["pop"])
+    if not candidates:
+        return None
+    target_ts = target.timestamp()
+    nearest = min(candidates, key=lambda record: abs(datetime.fromisoformat(record["start_time"]).astimezone(TZ_TPE).timestamp() - target_ts))
+    return float(nearest["pop"])

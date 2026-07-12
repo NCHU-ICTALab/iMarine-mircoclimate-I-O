@@ -2,12 +2,12 @@
   "registry_version": "v3.4",
   "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
-  "generated_at": "2026-07-12T13:43:16+08:00",
+  "generated_at": "2026-07-12T20:30:51+08:00",
   "models": {
     "port_local_model": {
       "model_family": "port_local_model",
       "artifact_version": "port_local_v34",
-      "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
+      "manifest_path": "kaohsiung_microclimate_lstm\\models\\port_local_v34\\model_manifest.json",
       "trained": false,
       "available": false,
       "accepted": false,
@@ -16,7 +16,7 @@
     "nearby_cwa_historical_model": {
       "model_family": "nearby_cwa_historical_model",
       "artifact_version": "nearby_cwa_v34",
-      "manifest_path": "D:\\碩一下\\航港杯\\微氣候抓取\\kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
+      "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
       "trained": true,
       "available": true,
       "accepted": true,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-12T13:43:16+08:00",
+  "generated_at": "2026-07-12T20:30:52+08:00",
   "prediction_mode": "port_local_model",
   "khwd_station_ids_used": [
     "KHWD01",
@@ -10,18 +10,18 @@
     "KHWD08"
   ],
   "khwd_features": {
-    "khwd_wind_speed_mean": 3.0525,
-    "khwd_wind_speed_max": 5.727,
-    "khwd_wind_speed_min": 1.987,
-    "khwd_wind_speed_std": 1.3306,
-    "khwd_wind_gust_mean": 4.1783,
-    "khwd_wind_gust_max": 7.02,
-    "khwd_wind_gust_min": 2.9,
-    "khwd_wind_gust_std": 1.4096,
+    "khwd_wind_speed_mean": 4.3293,
+    "khwd_wind_speed_max": 8.497,
+    "khwd_wind_speed_min": 1.673,
+    "khwd_wind_speed_std": 2.1869,
+    "khwd_wind_gust_mean": 6.395,
+    "khwd_wind_gust_max": 9.18,
+    "khwd_wind_gust_min": 3.88,
+    "khwd_wind_gust_std": 1.8303,
     "khwd_station_count": 6,
     "khwd_valid_wind_station_count": 6,
     "khwd_valid_gust_station_count": 6,
-    "khwd_latest_observation_time": "2026-07-12T13:41:00+08:00"
+    "khwd_latest_observation_time": "2026-07-12T20:28:00+08:00"
   },
   "quality_status": "ok",
   "warnings": [],

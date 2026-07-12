@@ -673,12 +673,24 @@ cwa_pop:
   dataset_id: F-D0047-065
   location_candidates: [前鎮區, 鼓山區, 苓雅區, 三民區, 鹽埕區, 小港區]
   fallback_location: 前鎮區
-  max_adjustment_weight: 0.2
   apply_to:
     - rain_probability
-  apply_anchors:
-    - H3
-    - H4
+  weight_profile: conservative
+  profiles:
+    conservative:
+      apply_anchors: [H3, H4]
+      weights:
+        H1: {own_weight: 1.0, cwa_weight: 0.0}
+        H2: {own_weight: 1.0, cwa_weight: 0.0}
+        H3: {own_weight: 0.8, cwa_weight: 0.2}
+        H4: {own_weight: 0.8, cwa_weight: 0.2}
+    graduated_like_wind:
+      apply_anchors: [H1, H2, H3, H4]
+      weights:
+        H1: {own_weight: 0.8, cwa_weight: 0.2}
+        H2: {own_weight: 0.6, cwa_weight: 0.4}
+        H3: {own_weight: 0.4, cwa_weight: 0.6}
+        H4: {own_weight: 0.2, cwa_weight: 0.8}
   unavailable_behavior: skip
 
 cwa_open_data:
@@ -736,15 +748,22 @@ cwa_open_data:
 cwa_pop_prior:
   enabled: true
   allowed_in_model_input: false
-  max_weight: 0.20
-  apply_anchors:
-    - H3
-    - H4
-  resolution_weight_cap:
-    3h: 0.20
-    6h: 0.15
-    12h: 0.10
-    unknown: 0.05
+  weight_profile: conservative
+  profiles:
+    conservative:
+      apply_anchors: [H3, H4]
+      weights:
+        H1: {own_weight: 1.0, cwa_weight: 0.0}
+        H2: {own_weight: 1.0, cwa_weight: 0.0}
+        H3: {own_weight: 0.8, cwa_weight: 0.2}
+        H4: {own_weight: 0.8, cwa_weight: 0.2}
+    graduated_like_wind:
+      apply_anchors: [H1, H2, H3, H4]
+      weights:
+        H1: {own_weight: 0.8, cwa_weight: 0.2}
+        H2: {own_weight: 0.6, cwa_weight: 0.4}
+        H3: {own_weight: 0.4, cwa_weight: 0.6}
+        H4: {own_weight: 0.2, cwa_weight: 0.8}
   require_quality_available: true
   require_parse_status_ok: true
   unavailable_behavior: skip

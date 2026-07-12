@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app import api as api_module
+from app import fetch_microclimate
 
 
 def test_admin_fetch_microclimate_sources_uses_shared_runner(monkeypatch):
@@ -34,3 +35,45 @@ def test_scheduler_status_endpoint_reports_disabled_by_default():
         "nearby_cwa_live",
         "cwa_forecast_history",
     }
+
+
+def test_run_microclimate_source_fetch_force_refreshes_extended_cwa_forecast(monkeypatch, tmp_path):
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        """
+rain_postprocess: {cwa_pop3h: {fallback_location: "前鎮區", cache_minutes: 30}}
+extended_forecast_windows: {location_name: "前鎮區", cache_minutes: 30, data_id: F-D0047-065}
+time_step_minutes: 10
+lookback_hours: 12
+horizon_minutes: 120
+anchor_offsets_minutes: [30, 60, 90, 120]
+targets: {precipitation: {variables: [precipitation_1hr]}, wind_speed_gust: {variables: [wind_speed, wind_gust]}}
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(fetch_microclimate, "_fetch_port_local", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_fetch_marine_realtime", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_fetch_nearby_cwa_live", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_refresh_cwa_forecast_source", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_fetch_cwa_forecast_history", lambda *args, **kwargs: {"ok": True})
+
+    from kaohsiung_microclimate_lstm.src.cwa import pop3h_client
+
+    calls = {}
+
+    def fake_fetch_pop3h(*args, **kwargs):
+        calls["args"] = args
+        calls["kwargs"] = kwargs
+        return {"available": True}
+
+    monkeypatch.setattr(pop3h_client, "fetch_pop3h", fake_fetch_pop3h)
+
+    result = fetch_microclimate.run_microclimate_source_fetch(tmp_path, cfg)
+
+    assert result["success"] is True
+    assert "cwa_extended_forecast" in result["tasks"]
+    assert result["tasks"]["cwa_extended_forecast"]["success"] is True
+    assert calls["args"][0] == "前鎮區"
+    assert calls["kwargs"]["force_refresh"] is True
+    assert calls["kwargs"]["include_wind_speed"] is True
+    assert calls["kwargs"]["data_id"] == "F-D0047-065"

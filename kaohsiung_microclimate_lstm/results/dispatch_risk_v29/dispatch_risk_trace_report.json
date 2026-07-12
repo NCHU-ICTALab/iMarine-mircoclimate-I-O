@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-12T13:43:16+08:00",
+  "generated_at": "2026-07-12T20:30:52+08:00",
   "trace": {
     "model_version": "kaohsiung_port_dispatch_risk_v1.3",
     "prediction_mode": "port_local_model",
@@ -30,45 +30,45 @@
           "applied": true,
           "khwd_weight": 0.8,
           "model_weight": 0.2,
-          "khwd_wind_speed_max": 5.727,
-          "khwd_wind_gust_max": 7.02,
+          "khwd_wind_speed_max": 8.497,
+          "khwd_wind_gust_max": 9.18,
           "base_wind_speed_mps": 1.353,
           "base_wind_gust_mps": 4.126,
-          "blended_wind_speed_mps": 4.852,
-          "blended_wind_gust_mps": 6.441
+          "blended_wind_speed_mps": 7.068,
+          "blended_wind_gust_mps": 8.169
         },
         "H2": {
           "applied": true,
           "khwd_weight": 0.6,
           "model_weight": 0.4,
-          "khwd_wind_speed_max": 5.727,
-          "khwd_wind_gust_max": 7.02,
+          "khwd_wind_speed_max": 8.497,
+          "khwd_wind_gust_max": 9.18,
           "base_wind_speed_mps": 1.218,
           "base_wind_gust_mps": 3.413,
-          "blended_wind_speed_mps": 3.923,
-          "blended_wind_gust_mps": 5.577
+          "blended_wind_speed_mps": 5.585,
+          "blended_wind_gust_mps": 6.873
         },
         "H3": {
           "applied": true,
           "khwd_weight": 0.4,
           "model_weight": 0.6,
-          "khwd_wind_speed_max": 5.727,
-          "khwd_wind_gust_max": 7.02,
+          "khwd_wind_speed_max": 8.497,
+          "khwd_wind_gust_max": 9.18,
           "base_wind_speed_mps": 1.06,
           "base_wind_gust_mps": 3.327,
-          "blended_wind_speed_mps": 2.927,
-          "blended_wind_gust_mps": 4.804
+          "blended_wind_speed_mps": 4.035,
+          "blended_wind_gust_mps": 5.668
         },
         "H4": {
           "applied": true,
           "khwd_weight": 0.2,
           "model_weight": 0.8,
-          "khwd_wind_speed_max": 5.727,
-          "khwd_wind_gust_max": 7.02,
+          "khwd_wind_speed_max": 8.497,
+          "khwd_wind_gust_max": 9.18,
           "base_wind_speed_mps": 1.536,
           "base_wind_gust_mps": 3.344,
-          "blended_wind_speed_mps": 2.374,
-          "blended_wind_gust_mps": 4.079
+          "blended_wind_speed_mps": 2.928,
+          "blended_wind_gust_mps": 4.511
         }
       }
     }

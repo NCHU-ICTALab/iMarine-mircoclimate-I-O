@@ -1,7 +1,10 @@
+import json
+import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from kaohsiung_microclimate_lstm.src import predict as predict_module
+from kaohsiung_microclimate_lstm.src.cwa import pop3h_client
 from kaohsiung_microclimate_lstm.src.cwa.pop3h_client import DATAID, _current_next, _parse_records, parse_beaufort_scale_min
 
 
@@ -72,6 +75,66 @@ def test_cwa_pop3h_parser_merges_rain_probability_and_beaufort_wind():
     assert result["current_wind"]["beaufort_scale_text"] == ">= 6"
     assert result["current_wind"]["wind_speed_text"] == ">= 11"
     assert result["next_wind"]["beaufort_scale_min"] == 3
+
+
+def test_current_next_rain_probability_uses_plus_3h_and_plus_6h_target_times():
+    records = [
+        {"start_time": "2026-07-12T18:00:00+08:00", "end_time": "2026-07-12T21:00:00+08:00", "pop": 0.3, "beaufort_scale_min": None},
+        {"start_time": "2026-07-12T21:00:00+08:00", "end_time": "2026-07-13T00:00:00+08:00", "pop": 0.5, "beaufort_scale_min": None},
+        {"start_time": "2026-07-12T22:00:00+08:00", "end_time": "2026-07-12T23:00:00+08:00", "pop": None, "beaufort_scale_min": 6, "wind_speed_text": ">= 11", "beaufort_scale_text": ">= 6"},
+        {"start_time": "2026-07-13T00:00:00+08:00", "end_time": "2026-07-13T03:00:00+08:00", "pop": 0.2, "beaufort_scale_min": None},
+        {"start_time": "2026-07-13T01:00:00+08:00", "end_time": "2026-07-13T02:00:00+08:00", "pop": None, "beaufort_scale_min": 3, "wind_speed_text": "4-5", "beaufort_scale_text": "3-4"},
+    ]
+    now = datetime(2026, 7, 12, 19, 38, tzinfo=ZoneInfo("Asia/Taipei"))
+
+    result = _current_next({"available": True, "data_id": DATAID, "location_name": "前鎮區", "records": records}, now)
+
+    assert result["current"] == 0.5
+    assert result["next"] == 0.2
+    assert result["current"] != result["next"]
+
+
+def test_fetch_pop3h_force_refresh_bypasses_valid_cache(monkeypatch, tmp_path):
+    cache = tmp_path / "data" / "cache" / f"cwa_pop3h_前鎮區_{DATAID}.json"
+    cache.parent.mkdir(parents=True)
+    cache.write_text(
+        json.dumps(
+            {
+                "_cached_at": time.time(),
+                "payload": {
+                    "available": True,
+                    "data_id": DATAID,
+                    "location_name": "前鎮區",
+                    "records": [
+                        {"start_time": "2026-07-12T18:00:00+08:00", "end_time": "2026-07-13T03:00:00+08:00", "pop": 0.1}
+                    ],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(pop3h_client, "load_api_key", lambda: "KEY")
+    calls = {"count": 0}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return _realistic_body()
+
+    def fake_get(*args, **kwargs):
+        calls["count"] += 1
+        return FakeResponse()
+
+    monkeypatch.setattr(pop3h_client.requests, "get", fake_get)
+
+    cached = pop3h_client.fetch_pop3h("前鎮區", now=datetime(2026, 7, 11, 15, 30, tzinfo=ZoneInfo("Asia/Taipei")), project_root=tmp_path)
+    refreshed = pop3h_client.fetch_pop3h("前鎮區", now=datetime(2026, 7, 11, 15, 30, tzinfo=ZoneInfo("Asia/Taipei")), project_root=tmp_path, force_refresh=True)
+
+    assert cached["current"] == 0.1
+    assert refreshed["current"] == 0.4
+    assert calls["count"] == 1
 
 
 def test_v35_attaches_extended_cwa_windows_and_frontend_cwa(monkeypatch, tmp_path):

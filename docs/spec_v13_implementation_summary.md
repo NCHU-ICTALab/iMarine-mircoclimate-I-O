@@ -118,3 +118,19 @@
 - 實測：`ObservationStore.latest_by_device_type()` 對 `microclimate.sqlite3` 回傳 29 筆耗時約 `0.0066` 秒，查詢計畫使用 `idx_obs_lookup`。
 - 實測：50 並發混打 `/api/v1/dispatch/risk`、`/api/v1/dispatch/station-usage`、`/api/v1/dispatch/model-status` 三輪皆 `50/50` 回 200，無 WinError/503；冷快取最慢約 `8.8s`，熱快取輪次約 `0.4s` 內完成。
 - 完整測試：`python -m pytest` -> `247 passed`。
+
+## 2026-07-12 第44項更新
+
+- 第44項已完成：降雨機率 CWA prior 改成 H1~H4 全套用，權重比照風速持續性混合的使用者指定數字。
+- `config.yaml::cwa_pop` 與 `cwa_pop_prior` 已新增權重表：H1 `own=0.8/cwa=0.2`、H2 `0.6/0.4`、H3 `0.4/0.6`、H4 `0.2/0.8`。
+- 正式 config 已移除舊的全域 `max_adjustment_weight/max_weight` 與 `resolution_weight_cap`；`apply_cwa_pop_prior()` 直接依每個 anchor 的權重表融合，不再疊加解析度上限。
+- `apply_cwa_pop_prior()` 的 trace/source_detail 會輸出各 anchor 的 `own_weight`、`cwa_weight`；新增測試確認 H1/H2 也會 `cwa_prior_applied=true`。
+- 完整測試：`py -3.13 -m pytest` -> `247 passed`。
+
+## 2026-07-12 第45~47項更新
+
+- 第45項已完成：`pop3h_client._current_next()` 的降雨機率改用 target-time 查找，`current` 對應 `now+3h`，`next` 對應 `now+6h`；保留既有鍵名避免破壞呼叫端。
+- 第46項已完成：CWA prior 新增 `weight_profile` / `profiles`。預設 `conservative` 回到 H1/H2 不套 CWA、H3/H4 `cwa_weight=0.2`；第44項的 `0.2/0.4/0.6/0.8` 保留為 `graduated_like_wind` 候選 profile。
+- 第47項已完成：`fetch_pop3h(force_refresh=True)` 會跳過有效快取；`run_microclimate_source_fetch()` 新增 `cwa_extended_forecast` 任務，手動「抓取最新資料」會強制刷新 +3h/+6h 卡片快取。
+- 實際 API 驗證：預設 `/api/v1/dispatch/risk?target_area=KHH` 回傳 H1/H2 `cwa_prior_applied=false`，H3/H4 `cwa_weight=0.2`；extended forecast 卡片目前 +3h=`0.5`、+6h=`0.2`，不再同值。
+- 完整測試：`py -3.13 -m pytest` -> `251 passed`。
