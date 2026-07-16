@@ -120,6 +120,8 @@ def ensure_v34_registry_and_manifest(project_root: str | Path, config: dict[str,
         manifest = build_nearby_cwa_v34_manifest(project, config, target_area)
         if manifest["trained"]:
             atomic_write_json(manifest_path, manifest)
+    else:
+        _sync_manifest_model_version(manifest_path, config)
 
     validation = validate_model_manifest(manifest_path, project)
     registry = build_model_registry(project, config, validation, target_area)
@@ -131,6 +133,18 @@ def ensure_v34_registry_and_manifest(project_root: str | Path, config: dict[str,
         "nearby_manifest_validation": validation,
         "nearby_manifest_path": str(manifest_path),
     }
+
+
+def _sync_manifest_model_version(manifest_path: Path, config: dict[str, Any]) -> None:
+    current_version = config.get("project", {}).get("model_version", MODEL_VERSION)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    if manifest.get("model_version") == current_version:
+        return
+    manifest["model_version"] = current_version
+    atomic_write_json(manifest_path, manifest)
 
 
 def build_model_registry(project: Path, config: dict[str, Any], nearby_validation: dict[str, Any], target_area: str) -> dict[str, Any]:

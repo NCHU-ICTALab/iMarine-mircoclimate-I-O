@@ -11,6 +11,11 @@ from zoneinfo import ZoneInfo
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
+try:
+    from ..io_utils import atomic_write_json
+except ImportError:  # pragma: no cover
+    from io_utils import atomic_write_json
+
 
 TZ_TPE = ZoneInfo("Asia/Taipei")
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
@@ -90,8 +95,7 @@ class CwaOpenDataClient:
                     "json": response.json(),
                     "fetched_at": datetime.now(tz=TZ_TPE).isoformat(timespec="seconds"),
                 }
-                cache_path.parent.mkdir(parents=True, exist_ok=True)
-                cache_path.write_text(json.dumps({"_cached_at": time.time(), "payload": payload}, ensure_ascii=False, indent=2), encoding="utf-8")
+                atomic_write_json(cache_path, {"_cached_at": time.time(), "payload": payload})
                 return payload
             except Exception as exc:  # pragma: no cover - network dependent
                 last_error = _sanitize_error(str(exc), self.api_key)

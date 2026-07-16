@@ -21,12 +21,14 @@ try:
     from ..data.port_local_station_quality import validate_port_local_station_frame
     from ..data.port_local_twport_client import PortLocalTwportClient
     from ..data.station_pool import flatten_priority_station_pool, load_station_pool_config
+    from ..io_utils import atomic_write_json
 except ImportError:  # pragma: no cover
     from config import ROOT, load_config
     from data.port_local_station_normalizer import normalize_port_local_station_records, normalized_records_to_frame
     from data.port_local_station_quality import validate_port_local_station_frame
     from data.port_local_twport_client import PortLocalTwportClient
     from data.station_pool import flatten_priority_station_pool, load_station_pool_config
+    from io_utils import atomic_write_json
 
 
 TAIPEI = timezone(timedelta(hours=8))
@@ -201,8 +203,7 @@ def _resolve_path(path: str | Path, project: Path) -> Path:
 
 
 def _write_json(path: Path, data: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(path, data)
 
 
 def main() -> None:

@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import copy
 from contextlib import asynccontextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
 from html import escape
 import logging
 from pathlib import Path
 import threading
 import time
-from typing import AsyncIterator
+from typing import Any, AsyncIterator
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -57,9 +58,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 MICROCLIMATE_PROJECT_ROOT = REPO_ROOT / "kaohsiung_microclimate_lstm"
 MICROCLIMATE_CONFIG_PATH = MICROCLIMATE_PROJECT_ROOT / "config.yaml"
 fetch_scheduler = MicroclimateFetchScheduler(MICROCLIMATE_PROJECT_ROOT, MICROCLIMATE_CONFIG_PATH)
-_DISPATCH_RISK_CACHE_TTL_SECONDS = 10.0
+TAIPEI = ZoneInfo("Asia/Taipei")
+_DISPATCH_RISK_CACHE_TTL_SECONDS = 120.0
 _dispatch_risk_cache: dict[tuple, tuple[float, dict]] = {}
 _dispatch_risk_cache_lock = threading.Lock()
+_dispatch_risk_inflight: dict[tuple, threading.Event] = {}
 
 
 def startup_scheduler() -> None:
@@ -282,6 +285,7 @@ def build_dispatch_risk_response(
         no_realtime_khwd_mode,
         data_path,
         config_path,
+        data_path.parent,
     )
     if not refresh_port_local:
         cached = _get_dispatch_risk_cache(cache_key)
@@ -298,25 +302,75 @@ def build_dispatch_risk_response(
                 acquisition_report,
                 no_realtime_khwd_mode,
             )
-        with _dispatch_risk_cache_lock:
-            cached = _get_dispatch_risk_cache_unlocked(cache_key)
-            if cached is not None:
-                return cached
-            payload = _compute_dispatch_risk_response(
-                data_path,
-                config_path,
-                target_area,
-                target_station_id,
-                acquisition_report,
-                no_realtime_khwd_mode,
-            )
-            _dispatch_risk_cache[cache_key] = (time.monotonic(), copy.deepcopy(payload))
-            return copy.deepcopy(payload)
+        return _compute_or_wait_dispatch_risk_response(
+            cache_key,
+            data_path,
+            config_path,
+            target_area,
+            target_station_id,
+            acquisition_report,
+            no_realtime_khwd_mode,
+        )
     except HTTPException:
         raise
     except Exception as exc:
         logging.exception("dispatch risk prediction failed for target area %s", target_area)
         raise HTTPException(status_code=503, detail=f"Dispatch risk prediction failed: {exc}") from exc
+
+
+def _compute_or_wait_dispatch_risk_response(
+    cache_key: tuple,
+    data_path: Path,
+    config_path: Path,
+    target_area: str,
+    target_station_id: str | None,
+    acquisition_report: dict | None,
+    no_realtime_khwd_mode: bool,
+) -> dict:
+    with _dispatch_risk_cache_lock:
+        cached = _get_dispatch_risk_cache_unlocked(cache_key)
+        if cached is not None:
+            return cached
+        inflight = _dispatch_risk_inflight.get(cache_key)
+        if inflight is None:
+            inflight = threading.Event()
+            _dispatch_risk_inflight[cache_key] = inflight
+            owner = True
+        else:
+            owner = False
+
+    if not owner:
+        inflight.wait()
+        cached = _get_dispatch_risk_cache(cache_key)
+        if cached is not None:
+            return cached
+        return _compute_or_wait_dispatch_risk_response(
+            cache_key,
+            data_path,
+            config_path,
+            target_area,
+            target_station_id,
+            acquisition_report,
+            no_realtime_khwd_mode,
+        )
+
+    try:
+        payload = _compute_dispatch_risk_response(
+            data_path,
+            config_path,
+            target_area,
+            target_station_id,
+            acquisition_report,
+            no_realtime_khwd_mode,
+        )
+        with _dispatch_risk_cache_lock:
+            _dispatch_risk_cache[cache_key] = (time.monotonic(), copy.deepcopy(payload))
+            return copy.deepcopy(payload)
+    finally:
+        with _dispatch_risk_cache_lock:
+            event = _dispatch_risk_inflight.pop(cache_key, None)
+            if event is not None:
+                event.set()
 
 
 def _compute_dispatch_risk_response(
@@ -331,7 +385,7 @@ def _compute_dispatch_risk_response(
     from kaohsiung_microclimate_lstm.src.preprocess import load_observations
 
     observations = load_observations(data_path)
-    return predict_dispatch_risk_current(
+    payload = predict_dispatch_risk_current(
         fallback_observations=observations,
         config_path=str(config_path),
         project_root=MICROCLIMATE_PROJECT_ROOT,
@@ -340,6 +394,44 @@ def _compute_dispatch_risk_response(
         acquisition_report=acquisition_report,
         no_realtime_khwd_mode=no_realtime_khwd_mode,
     )
+    payload["metrics"] = _dispatch_risk_frontend_metrics(MICROCLIMATE_PROJECT_ROOT)
+    return payload
+
+
+def _dispatch_risk_frontend_metrics(project_root: Path) -> dict[str, Any]:
+    try:
+        from kaohsiung_microclimate_lstm.src.system_audit import _load_metrics, _metrics_source_path, _normalize_metrics
+
+        raw_metrics = _load_metrics(project_root)
+        normalized = _normalize_metrics(raw_metrics) if raw_metrics else {}
+        metrics_path = _metrics_source_path(project_root)
+    except Exception:
+        logging.exception("dispatch risk frontend metrics load failed")
+        normalized = {}
+        metrics_path = None
+    rain_metrics = (normalized.get("rain_probability") or {}) if isinstance(normalized, dict) else {}
+    by_horizon = {horizon: _rain_classification_metric_values(rain_metrics.get(horizon) or {}) for horizon in ["H1", "H2", "H3", "H4"]}
+    h1 = by_horizon["H1"]
+    available = all(h1.get(key) is not None for key in ("csi", "pod", "far"))
+    return {
+        "available": available,
+        "horizon": "H1",
+        "target": "rain_probability",
+        "source_model": "nearby_cwa_historical_model",
+        "csi": h1.get("csi"),
+        "pod": h1.get("pod"),
+        "far": h1.get("far"),
+        "by_horizon": by_horizon,
+        "metrics_report_generated_at": _path_mtime_iso(metrics_path),
+    }
+
+
+def _rain_classification_metric_values(values: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "csi": values.get("csi"),
+        "pod": values.get("pod"),
+        "far": values.get("far"),
+    }
 
 
 def _dispatch_risk_cache_key(
@@ -348,6 +440,7 @@ def _dispatch_risk_cache_key(
     no_realtime_khwd_mode: bool,
     data_path: Path,
     config_path: Path,
+    khwd_dir: Path,
 ) -> tuple:
     return (
         target_area,
@@ -355,6 +448,7 @@ def _dispatch_risk_cache_key(
         no_realtime_khwd_mode,
         _safe_mtime(data_path),
         _safe_mtime(config_path),
+        _khwd_mtime_signature(khwd_dir),
     )
 
 
@@ -377,6 +471,19 @@ def _get_dispatch_risk_cache_unlocked(cache_key: tuple) -> dict | None:
 def _safe_mtime(path: Path) -> float | None:
     try:
         return path.stat().st_mtime
+    except OSError:
+        return None
+
+
+def _khwd_mtime_signature(observed_dir: Path) -> tuple[tuple[str, float | None], ...]:
+    return tuple(sorted((path.name, _safe_mtime(path)) for path in observed_dir.glob("KHWD*.csv")))
+
+
+def _path_mtime_iso(path: Path | None) -> str | None:
+    if path is None:
+        return None
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=TAIPEI).isoformat(timespec="seconds")
     except OSError:
         return None
 
@@ -497,8 +604,14 @@ async def cwa_history_diagnostics(hours: int = Query(6)) -> dict:
         return {"error": f"hours must be one of {ALLOWED_HISTORY_HOURS}"}
     historyapi_status = await inspect_historyapi(hours=hours)
     marine_status = await inspect_marine_history()
+    marine_status = {
+        **marine_status,
+        "hours_parameter_applied": False,
+        "note": "hours applies to official_land diagnostics; marine diagnostics report the CWA rolling realtime payload.",
+    }
     return {
         "hours": hours,
+        "hours_applies_to": ["official_land"],
         "official_land": historyapi_status,
         "marine": marine_status,
         "codis_fallback": {

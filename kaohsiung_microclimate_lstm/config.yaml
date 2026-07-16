@@ -175,7 +175,6 @@ model_registry:
   require_model_manifest: true
   allow_reuse_existing_accepted_model: true
   require_training_data_hash: true
-  stale_model_policy: warn_only
 
 station_usage_export:
   enabled: true
@@ -632,6 +631,9 @@ rain_probability:
   focal_loss:
     enabled: true
     gamma: 2.0
+
+rain_amount_regression:
+  inference_probability_threshold: 0.35
 
 wind_speed:
   enabled: true

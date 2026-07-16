@@ -109,6 +109,16 @@ demo頁面可以輸入目標區域、勾選「模擬KHWD不可用」等測試情
 `netstat -ano | findstr :8010` 找出佔用該連接埠的PID，再用
 `Stop-Process -Id <PID> -Force` 結束。
 
+**跟iMarine-FrontEnd串接時**：前端`.env.example`的`VITE_DISPATCH_API`預設值是
+`http://127.0.0.1:8200`，所以要改成這個port啟動：
+
+```powershell
+uvicorn app.api:app --reload --host 127.0.0.1 --port 8200
+```
+
+本機開發不用額外設定CORS——`.env`的`CORS_ALLOWED_ORIGINS`預設是`*`，已經涵蓋前端
+Vite dev server預設的 `http://localhost:5173`。
+
 ## 主要API端點
 
 ```text

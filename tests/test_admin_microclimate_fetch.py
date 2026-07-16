@@ -77,3 +77,27 @@ targets: {precipitation: {variables: [precipitation_1hr]}, wind_speed_gust: {var
     assert calls["kwargs"]["force_refresh"] is True
     assert calls["kwargs"]["include_wind_speed"] is True
     assert calls["kwargs"]["data_id"] == "F-D0047-065"
+
+
+def test_run_microclimate_source_fetch_marks_nearby_cwa_all_station_failure(monkeypatch, tmp_path):
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("rain_postprocess: {cwa_pop3h: {fallback_location: 前鎮區}}\n", encoding="utf-8")
+    monkeypatch.setattr(fetch_microclimate, "_fetch_port_local", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_fetch_marine_realtime", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(
+        fetch_microclimate,
+        "_fetch_nearby_cwa_live",
+        lambda *args, **kwargs: {"rows_fetched": 0, "all_stations_failed": True},
+    )
+    monkeypatch.setattr(fetch_microclimate, "_refresh_cwa_forecast_source", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(fetch_microclimate, "_fetch_cwa_forecast_history", lambda *args, **kwargs: {"ok": True})
+
+    from kaohsiung_microclimate_lstm.src.cwa import pop3h_client
+
+    monkeypatch.setattr(pop3h_client, "fetch_pop3h", lambda *args, **kwargs: {"available": True})
+
+    result = fetch_microclimate.run_microclimate_source_fetch(tmp_path, cfg)
+
+    assert result["success"] is False
+    assert result["tasks"]["nearby_cwa_live"]["success"] is False
+    assert result["tasks"]["nearby_cwa_live"]["error"] == "all nearby CWA stations failed to fetch"

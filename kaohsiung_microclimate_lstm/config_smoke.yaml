@@ -8,8 +8,8 @@ anchor_offsets_minutes:
 - 240
 project:
   name: kaohsiung_port_dispatch_risk
-  version: v3.5
-  model_version: kaohsiung_port_dispatch_risk_v3.5
+  version: v1.3
+  model_version: kaohsiung_port_dispatch_risk_v1.3
   timezone: Asia/Taipei
 forecast:
   anchors:
@@ -146,7 +146,6 @@ model_registry:
   require_model_manifest: true
   allow_reuse_existing_accepted_model: true
   require_training_data_hash: true
-  stale_model_policy: warn_only
 station_usage_export:
   enabled: true
   include_current_station_usage: true

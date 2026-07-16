@@ -26,8 +26,12 @@ def run_microclimate_source_fetch(project_root: str | Path, config_path: str | P
     for name, task in tasks:
         try:
             payload = task()
-            results[name] = {"success": True, "result": payload}
-            success_count += 1
+            task_success = not bool(payload.get("all_stations_failed", False))
+            results[name] = {"success": task_success, "result": payload}
+            if not task_success:
+                results[name]["error"] = "all nearby CWA stations failed to fetch"
+            else:
+                success_count += 1
         except Exception as exc:  # noqa: BLE001
             results[name] = {"success": False, "error": str(exc)}
     return {

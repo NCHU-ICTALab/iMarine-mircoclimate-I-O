@@ -2,7 +2,7 @@
   "registry_version": "v3.4",
   "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
-  "generated_at": "2026-07-12T20:30:51+08:00",
+  "generated_at": "2026-07-16T21:03:03+08:00",
   "models": {
     "port_local_model": {
       "model_family": "port_local_model",

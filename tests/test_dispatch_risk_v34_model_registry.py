@@ -1,6 +1,11 @@
 import json
 
-from kaohsiung_microclimate_lstm.src.model_registry import build_model_registry, build_model_registry_summary, validate_model_manifest
+from kaohsiung_microclimate_lstm.src.model_registry import (
+    build_model_registry,
+    build_model_registry_summary,
+    ensure_v34_registry_and_manifest,
+    validate_model_manifest,
+)
 
 
 def test_v34_model_manifest_validation_requires_artifacts(tmp_path):
@@ -87,3 +92,30 @@ def test_model_registry_includes_legacy_lstm_when_checkpoint_exists(tmp_path):
     assert legacy["available"] is True
     assert legacy["accepted"] is True
     assert legacy["default_for"] == ["wind_speed_gust"]
+
+
+def test_ensure_v34_registry_syncs_existing_manifest_model_version(tmp_path):
+    model_dir = tmp_path / "models" / "nearby_cwa_v34"
+    model_dir.mkdir(parents=True)
+    manifest_path = model_dir / "model_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+                "trained_at": "2026-07-10T21:16:07",
+                "trained": False,
+                "models": {},
+                "acceptance": {"model_accepted": False},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    ensure_v34_registry_and_manifest(
+        tmp_path,
+        {"project": {"model_version": "kaohsiung_port_dispatch_risk_v1.3"}},
+    )
+
+    updated = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert updated["model_version"] == "kaohsiung_port_dispatch_risk_v1.3"
+    assert updated["trained_at"] == "2026-07-10T21:16:07"

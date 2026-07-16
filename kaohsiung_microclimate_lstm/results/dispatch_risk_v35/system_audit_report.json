@@ -1,7 +1,7 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "target_area": "KHH",
-  "generated_at": "2026-07-12T20:30:53+08:00",
+  "generated_at": "2026-07-16T21:03:05+08:00",
   "system_status_summary": {
     "overall_status": "ready_for_demo_and_operation",
     "normal_prediction_mode": "port_local_postprocess",

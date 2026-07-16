@@ -41,7 +41,7 @@ try:
     from .model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
     from .selection.model_selection_engine import select_prediction_mode
     from .training_orchestration import build_model_training_status, run_training_orchestration
-    from .model_registry import build_model_registry_summary, load_model_registry
+    from .model_registry import MODEL_VERSION, build_model_registry_summary, load_model_registry
     from .station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
     from .postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
     from .postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
@@ -89,7 +89,7 @@ except ImportError:  # pragma: no cover
     from model_selection.port_local_model_selector import select_dispatch_prediction_mode, select_dispatch_prediction_mode_v32
     from selection.model_selection_engine import select_prediction_mode
     from training_orchestration import build_model_training_status, run_training_orchestration
-    from model_registry import build_model_registry_summary, load_model_registry
+    from model_registry import MODEL_VERSION, build_model_registry_summary, load_model_registry
     from station_usage import build_current_station_usage, build_station_display_rows, station_role_violations
     from postprocess.port_local_wind_postprocess import apply_port_local_wind_postprocess
     from postprocess.port_local_gust_postprocess import apply_port_local_gust_postprocess
@@ -437,7 +437,7 @@ def predict_dispatch_risk_v24(
     nearby_count = int(nearby_precip.get("station_count", nearby_precip.get("active_station_count", 0)) or 0)
     scope = cfg.get("spatial_scope", {})
     return {
-        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.4"),
+        "model_version": cfg.get("project", {}).get("model_version", MODEL_VERSION),
         "generated_at": datetime.now(TAIPEI).isoformat(timespec="seconds"),
         "target_area": {
             "name": scope.get("target_area_name", "Kaohsiung Port"),
@@ -646,7 +646,7 @@ def predict_dispatch_risk_v25(
     nearby_count = len(nearby.get("station_values_1hr", {}) or {})
     scope = cfg.get("spatial_scope", {})
     return {
-        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.5"),
+        "model_version": cfg.get("project", {}).get("model_version", MODEL_VERSION),
         "generated_at": generated_at.isoformat(timespec="seconds"),
         "target_area": {
             "name": scope.get("target_area_name", "Kaohsiung Port"),
@@ -722,8 +722,7 @@ def refresh_cwa_forecast_source_if_stale(cfg: dict[str, Any], project: Path, for
         project,
     )
     resolved = {**resolved, "cache_status": "refreshed"}
-    resolved_path.parent.mkdir(parents=True, exist_ok=True)
-    resolved_path.write_text(json.dumps(resolved, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(resolved_path, resolved)
     return resolved
 
 
@@ -836,7 +835,7 @@ def predict_dispatch_risk_v26(
         config_path,
         project,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.6")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     target_cfg = cfg.get("target", {})
     result.setdefault("target_area", {})["target_station_role"] = target_cfg.get("target_station_role", "port_area_proxy")
     summary = _input_station_summary(cfg, str(target_station_id), station_context)
@@ -910,7 +909,7 @@ def predict_dispatch_risk_v27(
         config_path,
         project,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.7")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     result["target_area"] = {
         "name": "Kaohsiung Port",
         "port_code": str(target_area or "KHH"),
@@ -1107,7 +1106,7 @@ def predict_dispatch_risk_v28(
         legacy_target_station_id=legacy_target_station_id,
     )
     cfg = load_config(config_path)
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.8.1")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     trace = result.setdefault("trace", {})
     acquisition_cfg = cfg.get("port_local_data_acquisition", {})
     if acquisition_report is None:
@@ -1168,7 +1167,7 @@ def predict_dispatch_risk_v29(
     )
     cfg = load_config(config_path)
     project = Path(project_root)
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v2.9")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     khwd_frames = _load_khwd_frames_for_v29(result, project)
     wind_features = build_port_local_wind_features(khwd_frames, cfg)
     blending_report = _apply_port_local_wind_persistence_blending(result, wind_features, cfg)
@@ -1428,7 +1427,7 @@ def predict_dispatch_risk_v30(
         legacy_target_station_id=legacy_target_station_id,
         acquisition_report=acquisition_report,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.0")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
 
     out_dir = project / "results" / "dispatch_risk_v30"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1626,7 +1625,7 @@ def predict_dispatch_risk_v32(
         legacy_target_station_id=legacy_target_station_id,
         acquisition_report=acquisition_report,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.2")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     out_dir = project / "results" / "dispatch_risk_v32"
     out_dir.mkdir(parents=True, exist_ok=True)
     v30_dir = project / "results" / "dispatch_risk_v30"
@@ -1779,7 +1778,7 @@ def predict_dispatch_risk_v33(
         legacy_target_station_id=legacy_target_station_id,
         acquisition_report=acquisition_report,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.3")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     context = _build_v33_selection_context(result, cfg, project, fallback_observations, no_realtime_khwd_mode)
     selection = select_prediction_mode(context)
     _apply_v33_selection(result, selection, context, cfg)
@@ -1807,7 +1806,7 @@ def _build_v33_selection_context(
     nearby_critical = int((nearby_metrics.get("risk_level_evaluation", {}) or {}).get("critical_under_warning_count") or 0)
     port_critical = int((port_metrics.get("risk_level_evaluation", {}) or {}).get("critical_under_warning_count") or 0)
     return {
-        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.3"),
+        "model_version": cfg.get("project", {}).get("model_version", MODEL_VERSION),
         "port_local_model_available": bool(port_metrics.get("port_local_model_trained", False)),
         "port_local_model_accepted": False,
         "dataset_ready": bool(port_readiness.get("ready", False)),
@@ -1977,7 +1976,7 @@ def predict_dispatch_risk_v34(
         acquisition_report=acquisition_report,
         no_realtime_khwd_mode=no_realtime_khwd_mode,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.4")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     _apply_v34_metadata(result, cfg, orchestration, project, target_area, no_realtime_khwd_mode)
     _write_v34_reports(project, result, orchestration, cfg)
     return result
@@ -1997,7 +1996,7 @@ def build_dispatch_model_status_v34(
         project_root=project,
     )
     return {
-        "model_version": cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.4"),
+        "model_version": cfg.get("project", {}).get("model_version", MODEL_VERSION),
         "target_area": target_area,
         "model_training_status": build_model_training_status(orchestration),
         "model_registry_summary": orchestration.get("model_registry_summary", {}),
@@ -2141,7 +2140,7 @@ def predict_dispatch_risk_v35(
         acquisition_report=acquisition_report,
         no_realtime_khwd_mode=no_realtime_khwd_mode,
     )
-    result["model_version"] = cfg.get("project", {}).get("model_version", "kaohsiung_port_dispatch_risk_v3.5")
+    result["model_version"] = cfg.get("project", {}).get("model_version", MODEL_VERSION)
     result["system_audit_summary"] = {
         "model_version": result["model_version"],
         "data_summary_available": True,

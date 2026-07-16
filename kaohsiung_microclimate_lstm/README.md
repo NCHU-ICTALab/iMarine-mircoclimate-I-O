@@ -4,15 +4,15 @@
 
 ## 目前版本
 
-- API model version：`kaohsiung_port_dispatch_risk_v3.5`
+- API model version：`kaohsiung_port_dispatch_risk_v1.3`
 - API endpoint：`GET /api/v1/dispatch/risk?target_area=KHH`
-- 主要預測入口：`kaohsiung_microclimate_lstm.src.predict.predict_dispatch_risk_v34`
+- 主要預測入口：`kaohsiung_microclimate_lstm.src.predict.predict_dispatch_risk_current`
 - 選模引擎：`kaohsiung_microclimate_lstm.src.selection.model_selection_engine.select_prediction_mode`
 - Training orchestration：`kaohsiung_microclimate_lstm.src.training_orchestration.run_training_orchestration`
 
-## v3.5 System Audit
+## v1.3 System Audit
 
-v3.5 新增系統盤點，用於前端 dashboard 顯示目前資料來源、測站角色、資料期間、模型指標與選模狀態。
+v1.3 延續系統盤點，用於前端 dashboard 顯示目前資料來源、測站角色、資料期間、模型指標與選模狀態。
 
 ```text
 GET /api/v1/dispatch/system-audit?target_area=KHH
@@ -27,7 +27,7 @@ python kaohsiung_microclimate_lstm/src/tools/build_v35_system_audit_report.py `
   --report-dir kaohsiung_microclimate_lstm/results/dispatch_risk_v35
 ```
 
-## v3.4/v3.5 選模流程
+## 目前選模流程
 
 ```text
 port_local_model
@@ -68,12 +68,12 @@ station_display_rows
 from pathlib import Path
 
 from kaohsiung_microclimate_lstm.src.preprocess import load_observations
-from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_v34
+from kaohsiung_microclimate_lstm.src.predict import predict_dispatch_risk_current
 
 project = Path("kaohsiung_microclimate_lstm")
 df = load_observations(project / "data/raw/observed_hourly/467441.csv")
 
-result = predict_dispatch_risk_v34(
+result = predict_dispatch_risk_current(
     fallback_observations=df,
     config_path=str(project / "config.yaml"),
     project_root=project,
@@ -123,7 +123,7 @@ critical_under_warning_count: 0
 
 詳見 `docs/spec_v13_implementation_summary.md` 與規格書第 15 節的完整清理/評估紀錄。
 
-## v3.5 報表
+## v1.3 報表
 
 ```text
 results/dispatch_risk_v35/system_audit_report.json
@@ -158,7 +158,7 @@ results/dispatch_risk_v34/prediction_samples.json
 python -m pytest
 ```
 
-v3.5 指定測試：
+v1.3 指定測試：
 
 ```powershell
 python -m pytest tests/test_dispatch_risk_v35_system_audit.py tests/test_dispatch_risk_v35_dataset_duration.py tests/test_dispatch_risk_v35_model_accuracy_summary.py tests/test_dispatch_risk_v35_station_inventory.py tests/test_dispatch_risk_v35_ui_dashboard_payload.py --basetemp .tmp_pytest_v35

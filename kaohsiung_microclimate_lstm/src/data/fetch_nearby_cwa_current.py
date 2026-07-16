@@ -138,11 +138,13 @@ def fetch_nearby_cwa_current(
         files[str(station_id)] = str(csv_path)
         rows_written[str(station_id)] = int(len(written))
 
+    all_stations_failed = int(len(frame)) == 0 and len(selected_station_ids) > 0
     return {
         "data_id": NEARBY_DATAID,
         "stations_requested": selected_station_ids,
         "per_station_status": per_station_status,
         "rows_fetched": int(len(frame)),
+        "all_stations_failed": all_stations_failed,
         "rows_after_append_dedupe": rows_written,
         "output_files": files,
         "source_notes": {

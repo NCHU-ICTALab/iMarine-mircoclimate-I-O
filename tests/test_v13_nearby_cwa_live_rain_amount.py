@@ -1,7 +1,9 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
+import yaml
 
 from kaohsiung_microclimate_lstm.src.predict import (
     _condition_rain_amounts_on_probability,
@@ -50,6 +52,26 @@ def test_rain_amount_is_zero_when_event_probability_below_threshold():
 
     assert conditioned["H1"] == 0.0
     assert conditioned["H2"] == 5.0
+
+
+def test_rain_amount_regression_config_uses_user_confirmed_threshold():
+    project = Path(__file__).resolve().parents[1]
+    cfg = yaml.safe_load((project / "kaohsiung_microclimate_lstm" / "config.yaml").read_text(encoding="utf-8"))
+
+    assert cfg["rain_amount_regression"]["inference_probability_threshold"] == 0.35
+    assert cfg["targets"]["precipitation"]["inference_cls_threshold"] == 0.5
+
+
+def test_rain_amount_uses_point_35_threshold_without_changing_risk_probability_levels():
+    conditioned = _condition_rain_amounts_on_probability(
+        {"H1": 12.0, "H2": 8.0, "H3": 4.0},
+        {"H1": 0.34, "H2": 0.35, "H3": 0.49},
+        {"rain_amount_regression": {"inference_probability_threshold": 0.35}},
+    )
+
+    assert conditioned["H1"] == 0.0
+    assert conditioned["H2"] == 8.0
+    assert conditioned["H3"] == 4.0
 
 
 def test_precipitation_amount_prediction_restores_log1p_transform(tmp_path, monkeypatch):

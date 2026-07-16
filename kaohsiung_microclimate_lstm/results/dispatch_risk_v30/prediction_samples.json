@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v1.3",
-  "generated_at": "2026-07-12T20:30:52+08:00",
+  "generated_at": "2026-07-16T21:03:04+08:00",
   "target_area": {
     "name": "Kaohsiung Port",
     "port_code": "KHH",
@@ -33,10 +33,10 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H1",
-            "anchor_time": "2026-07-12T21:00:52.198349+08:00",
+            "anchor_time": "2026-07-16T21:33:04.174302+08:00",
             "available": true,
-            "raw_value": "50",
-            "normalized_value": 0.5,
+            "raw_value": "10",
+            "normalized_value": 0.1,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -193,7 +193,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 2
+      "anchor_time_staleness_minutes": 5795
     },
     {
       "label": "H2",
@@ -221,10 +221,10 @@
           "cwa_source_resolution": null,
           "cwa_pop_quality": {
             "anchor": "H2",
-            "anchor_time": "2026-07-12T21:30:52.198349+08:00",
+            "anchor_time": "2026-07-16T22:03:04.174302+08:00",
             "available": true,
-            "raw_value": "50",
-            "normalized_value": 0.5,
+            "raw_value": "10",
+            "normalized_value": 0.1,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -381,7 +381,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 2
+      "anchor_time_staleness_minutes": 5795
     },
     {
       "label": "H3",
@@ -390,8 +390,8 @@
       "rain": {
         "raw_model_probability": 0.1826,
         "nearby_adjusted_probability": 0.1826,
-        "cwa_adjusted_probability": 0.2461,
-        "final_probability": 0.2461,
+        "cwa_adjusted_probability": 0.1661,
+        "final_probability": 0.1661,
         "level": "normal",
         "predicted_amount_mm": 0.0,
         "amount_level": "無",
@@ -409,10 +409,10 @@
           "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H3",
-            "anchor_time": "2026-07-12T22:00:52.198349+08:00",
+            "anchor_time": "2026-07-16T22:33:04.174302+08:00",
             "available": true,
-            "raw_value": "50",
-            "normalized_value": 0.5,
+            "raw_value": "10",
+            "normalized_value": 0.1,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -541,7 +541,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 2
+      "anchor_time_staleness_minutes": 5795
     },
     {
       "label": "H4",
@@ -550,8 +550,8 @@
       "rain": {
         "raw_model_probability": 0.2357,
         "nearby_adjusted_probability": 0.2357,
-        "cwa_adjusted_probability": 0.2886,
-        "final_probability": 0.2886,
+        "cwa_adjusted_probability": 0.2086,
+        "final_probability": 0.2086,
         "level": "normal",
         "predicted_amount_mm": 0.0,
         "amount_level": "無",
@@ -569,10 +569,10 @@
           "cwa_source_resolution": "3h",
           "cwa_pop_quality": {
             "anchor": "H4",
-            "anchor_time": "2026-07-12T22:30:52.198349+08:00",
+            "anchor_time": "2026-07-16T23:03:04.174302+08:00",
             "available": true,
-            "raw_value": "50",
-            "normalized_value": 0.5,
+            "raw_value": "10",
+            "normalized_value": 0.1,
             "parse_status": "ok",
             "quality_status": "valid",
             "reason": null,
@@ -695,7 +695,7 @@
         "port_local_features_used": []
       },
       "anchor_time_source": "port_local_khwd",
-      "anchor_time_staleness_minutes": 2
+      "anchor_time_staleness_minutes": 5795
     }
   ],
   "cwa_forecast": {
@@ -704,20 +704,20 @@
     "location_name": "前鎮區",
     "element_name": "3小時降雨機率",
     "source_resolution": "3h",
-    "fetched_at": "2026-07-12T20:29:36+08:00",
+    "fetched_at": "2026-07-16T20:45:38+08:00",
     "anchor_pop": {
-      "H1": 0.5,
-      "H2": 0.5,
-      "H3": 0.5,
-      "H4": 0.5
+      "H1": 0.1,
+      "H2": 0.1,
+      "H3": 0.1,
+      "H4": 0.1
     },
     "anchor_pop_quality": {
       "H1": {
         "anchor": "H1",
-        "anchor_time": "2026-07-12T21:00:52.198349+08:00",
+        "anchor_time": "2026-07-16T21:33:04.174302+08:00",
         "available": true,
-        "raw_value": "50",
-        "normalized_value": 0.5,
+        "raw_value": "10",
+        "normalized_value": 0.1,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -731,10 +731,10 @@
       },
       "H2": {
         "anchor": "H2",
-        "anchor_time": "2026-07-12T21:30:52.198349+08:00",
+        "anchor_time": "2026-07-16T22:03:04.174302+08:00",
         "available": true,
-        "raw_value": "50",
-        "normalized_value": 0.5,
+        "raw_value": "10",
+        "normalized_value": 0.1,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -748,10 +748,10 @@
       },
       "H3": {
         "anchor": "H3",
-        "anchor_time": "2026-07-12T22:00:52.198349+08:00",
+        "anchor_time": "2026-07-16T22:33:04.174302+08:00",
         "available": true,
-        "raw_value": "50",
-        "normalized_value": 0.5,
+        "raw_value": "10",
+        "normalized_value": 0.1,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -765,10 +765,10 @@
       },
       "H4": {
         "anchor": "H4",
-        "anchor_time": "2026-07-12T22:30:52.198349+08:00",
+        "anchor_time": "2026-07-16T23:03:04.174302+08:00",
         "available": true,
-        "raw_value": "50",
-        "normalized_value": 0.5,
+        "raw_value": "10",
+        "normalized_value": 0.1,
         "parse_status": "ok",
         "quality_status": "valid",
         "reason": null,
@@ -855,7 +855,7 @@
       "prediction_mode": "port_local_model",
       "anchor_time_source": "port_local_khwd",
       "anchor_base_time": "2026-07-12T20:28:00+08:00",
-      "staleness_minutes": 2
+      "staleness_minutes": 5795
     },
     "target_area": "KHH",
     "station_priority_policy": "port_local_first",
@@ -1029,7 +1029,7 @@
     ]
   },
   "anchor_time_source": "port_local_khwd",
-  "anchor_time_staleness_minutes": 2,
+  "anchor_time_staleness_minutes": 5795,
   "prediction_mode": "port_local_postprocess",
   "model_selection_summary": {
     "selected_mode": "port_local_postprocess",

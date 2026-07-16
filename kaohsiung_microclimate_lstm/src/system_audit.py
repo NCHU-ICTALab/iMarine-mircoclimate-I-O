@@ -80,18 +80,18 @@ def _load_or_build_prediction_payloads(config_path: str | Path, project: Path, n
     if normal_payload is not None and no_realtime_payload is not None:
         return normal_payload, no_realtime_payload
     try:
-        from .predict import predict_dispatch_risk_v34
+        from .predict import predict_dispatch_risk_current
         from .preprocess import load_observations
 
         observations = load_observations(project / "data" / "raw" / "observed_hourly" / "467441.csv")
-        normal_payload = normal_payload or predict_dispatch_risk_v34(
+        normal_payload = normal_payload or predict_dispatch_risk_current(
             fallback_observations=observations,
             config_path=str(config_path),
             project_root=project,
             target_area="KHH",
             no_realtime_khwd_mode=False,
         )
-        no_realtime_payload = no_realtime_payload or predict_dispatch_risk_v34(
+        no_realtime_payload = no_realtime_payload or predict_dispatch_risk_current(
             fallback_observations=observations,
             config_path=str(config_path),
             project_root=project,
@@ -562,6 +562,11 @@ def _normalize_metrics(metrics: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load_metrics(project: Path) -> dict[str, Any]:
+    path = _metrics_source_path(project)
+    return _load_json(path) if path else {}
+
+
+def _metrics_source_path(project: Path) -> Path | None:
     candidates = [
         project / "results" / "dispatch_risk_v34" / "nearby_cwa_model_metrics.json",
         project / "results" / "dispatch_risk_v33" / "nearby_cwa_model_metrics.json",
@@ -570,8 +575,8 @@ def _load_metrics(project: Path) -> dict[str, Any]:
     for path in candidates:
         data = _load_json(path)
         if data:
-            return data
-    return {}
+            return path
+    return None
 
 
 def _manifest_value(project: Path, key: str) -> Any:

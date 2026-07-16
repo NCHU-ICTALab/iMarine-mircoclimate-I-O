@@ -1,6 +1,6 @@
 {
   "model_version": "kaohsiung_port_dispatch_risk_v1.3",
-  "generated_at": "2026-07-12T20:30:51+08:00",
+  "generated_at": "2026-07-16T21:03:03+08:00",
   "manifest_path": "kaohsiung_microclimate_lstm\\models\\nearby_cwa_v34\\model_manifest.json",
   "valid": true,
   "trained": true,

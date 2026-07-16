@@ -134,3 +134,29 @@
 - 第47項已完成：`fetch_pop3h(force_refresh=True)` 會跳過有效快取；`run_microclimate_source_fetch()` 新增 `cwa_extended_forecast` 任務，手動「抓取最新資料」會強制刷新 +3h/+6h 卡片快取。
 - 實際 API 驗證：預設 `/api/v1/dispatch/risk?target_area=KHH` 回傳 H1/H2 `cwa_prior_applied=false`，H3/H4 `cwa_weight=0.2`；extended forecast 卡片目前 +3h=`0.5`、+6h=`0.2`，不再同值。
 - 完整測試：`py -3.13 -m pytest` -> `251 passed`。
+
+## 2026-07-14 第48項更新
+
+- 第48項已完成：`/api/v1/dispatch/risk` 回應頂層新增 `metrics` 物件，提供前端可直接使用的 `metrics.csi`、`metrics.pod`、`metrics.far`。
+- 指標來源沿用既有 `system_audit` 路徑：讀取 `nearby_cwa_model_metrics.json`，經 `_normalize_metrics()` 取 H1 `rain_probability` 的 CSI/POD/FAR；不重新計算，也不偽造缺失數值。
+- 找不到 metrics 報告時會回傳 `available=false` 且三個指標為 `null`。
+- 實際 API 驗證：`metrics = {available: true, horizon: H1, target: rain_probability, source_model: nearby_cwa_historical_model, csi: 0.5524, pod: 0.6259, far: 0.1754}`。
+- 目標測試：`py -3.13 -m pytest tests/test_dispatch_risk_api.py tests/test_cwa_pop_prior.py tests/test_cwa_extended_forecast_windows.py tests/test_admin_microclimate_fetch.py tests/test_dispatch_risk_v35_system_audit.py` -> `20 passed`。完整測試：`py -3.13 -m pytest` -> `254 passed`。
+
+
+## 2026-07-14 第49~50項更新
+
+- 第49項已完成：`/api/v1/dispatch/risk` 的 `metrics` 保留第48項 H1 扁平欄位，並新增 `metrics.by_horizon.H1~H4`。
+- `by_horizon` 實際 API 驗證：H1/H2 = CSI `0.5524`、POD `0.6259`、FAR `0.1754`；H3/H4 = CSI `0.3185`、POD `0.3597`、FAR `0.2647`。
+- 第50項已完成第一階段改善：dispatch risk cache TTL 從 10 秒提高到 120 秒；cache miss 計算移出全域 cache lock，改為 per-key singleflight，避免同 key 併發重複計算與全域鎖長時間阻塞。
+- 效能驗證：同一程序內冷啟動 miss 約 `10.223s`、cache hit 約 `0.011s`；暖機後強制 miss 約 `1.7~2.0s`。
+- 目標測試：`py -3.13 -m pytest tests/test_dispatch_risk_api.py tests/test_cwa_pop_prior.py tests/test_cwa_extended_forecast_windows.py tests/test_admin_microclimate_fetch.py tests/test_dispatch_risk_v35_system_audit.py` -> `22 passed`。完整測試：`py -3.13 -m pytest` -> `256 passed`。
+
+## 2026-07-15 第51項更新
+
+- 第51項已完成：`config.yaml::rain_amount_regression.inference_probability_threshold` 設為 `0.35`。
+- `targets.precipitation.inference_cls_threshold` 維持 `0.5`，本次只調整「雨量數字是否顯示」門檻，不改動降雨分類門檻與 risk level 門檻。
+- `_condition_rain_amounts_on_probability()` 既有邏輯已優先讀取 `rain_amount_regression.inference_probability_threshold`，因此不需改公式。
+- 實際函式驗證：正式 config 下 `0.34` 的雨量歸零，`0.35` 與 `0.49` 的雨量保留。
+- 目標測試：`py -3.13 -m pytest tests/test_v13_nearby_cwa_live_rain_amount.py tests/test_predict_dispatch_risk_v29.py tests/test_predict_dispatch_risk_v30.py tests/test_dispatch_risk_api.py tests/test_rain_probability_rules.py tests/test_rain_probability_preserved.py` -> `25 passed`。
+- 完整測試：`py -3.13 -m pytest` -> `258 passed, 1 warning`；warning 為既有 CWA HTTPS 測試的 `urllib3 InsecureRequestWarning`。

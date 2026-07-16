@@ -1,5 +1,5 @@
 {
-  "model_version": "kaohsiung_port_dispatch_risk_v3.5",
+  "model_version": "kaohsiung_port_dispatch_risk_v1.3",
   "model_family": "nearby_cwa_historical_model",
   "model_artifact_version": "nearby_cwa_v34",
   "artifact_source_version": "nearby_cwa_v32",
